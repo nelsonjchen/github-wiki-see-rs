@@ -1,5 +1,7 @@
-use actix_web::{App, HttpResponse, HttpServer, Responder, get, middleware::Logger, post, web, Result};
-
+use actix_web::{
+    get, middleware::Logger, post, web, App, HttpResponse, HttpServer, Responder, Result,
+};
+mod scraper;
 
 #[get("/mirror/{account}/{repository}")] // <- define path parameters
 async fn mirror(web::Path((account, repository)): web::Path<(String, String)>) -> Result<String> {
@@ -17,7 +19,6 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .wrap(Logger::new("%a %{User-Agent}i"))
     })
-
     .bind("127.0.0.1:8080")?
     .run()
     .await
