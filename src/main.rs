@@ -1,9 +1,8 @@
 use actix_web::{
     get,
     middleware::Logger,
-    post,
     web::{self, scope},
-    App, HttpRequest, HttpResponse, HttpServer, Responder, Result,
+    App, HttpRequest, HttpServer, Responder,
 };
 use askama::Template;
 
@@ -57,8 +56,7 @@ async fn mirror_content(
         page.clone().unwrap_or("".to_string())
     );
 
-    let mirrored_html_string =
-        scraper::get_element_html(&account, &repository, page.as_deref());
+    let mirrored_html_string = scraper::get_element_html(&account, &repository, page.as_deref());
 
     let mirror_content = MirrorTemplate {
         original_title: "idk",
