@@ -9,13 +9,17 @@ use askama::Template;
 
 mod scraper;
 
-#[derive(Template)] // this will generate the code...
-#[template(path = "hello.html")] // using the template in this path, relative
-                                 // to the `templates` dir in the crate root
-struct HelloTemplate<'a> {
-    // the name of the struct can be anything
-    name: &'a str, // the field name should match the variable name
-                   // in your template
+#[derive(Template)]
+#[template(path = "front_page.html")]
+
+struct FrontPageTemplate {}
+
+async fn front_page(_req: HttpRequest) -> impl Responder {
+    let hello = FrontPageTemplate {}; // instantiate your struct
+    hello
+        .render()
+        .unwrap()
+        .with_header("Content-Type", "text/html; charset=utf-8")
 }
 
 #[get("/{account}/{repository}")] // <- define path parameters
@@ -29,17 +33,10 @@ async fn mirror_root(
 async fn mirror_page(
     web::Path((account, repository, page)): web::Path<(String, String, String)>,
 ) -> Result<String> {
-    let hello = HelloTemplate { name: "world" }; // instantiate your struct
-
     Ok(format!(
         "Account: {}, Repository {}, Page {}!",
         account, repository, page
     ))
-}
-
-async fn front_page(_req: HttpRequest) -> impl Responder {
-    let hello = HelloTemplate { name: "zzz" }; // instantiate your struct
-    hello.render().unwrap()
 }
 
 #[actix_web::main]
