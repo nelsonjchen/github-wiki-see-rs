@@ -15,7 +15,7 @@ fn download_github_wiki(
     Ok(body?)
 }
 
-pub async fn get_element_html(account: &str, repository: &str, page: Option<&str>) -> String {
+pub fn get_element_html(account: &str, repository: &str, page: Option<&str>) -> String {
     let html = download_github_wiki(account, repository, page);
 
     let document = Document::from(&html.unwrap());
@@ -51,10 +51,9 @@ mod tests {
         assert_ne!(text.len(), 0);
     }
 
-    #[actix_rt::test]
-    async fn download_github_wiki_test() {
+    #[test]
+    fn download_github_wiki_test() {
         let html = download_github_wiki("nelsonjchen", "github-wiki-test", None)
-            .await
             .unwrap();
 
         let document = Document::from(&html);

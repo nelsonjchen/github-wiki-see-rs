@@ -58,7 +58,7 @@ async fn mirror_content(
     );
 
     let mirrored_html_string =
-        scraper::get_element_html(&account, &repository, page.as_deref()).await;
+        scraper::get_element_html(&account, &repository, page.as_deref());
 
     let mirror_content = MirrorTemplate {
         original_title: "idk",
