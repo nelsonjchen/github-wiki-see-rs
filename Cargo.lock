@@ -292,6 +292,7 @@ dependencies = [
  "askama_actix",
  "env_logger",
  "nipper",
+ "regex",
  "reqwest",
  "tokio 1.4.0",
 ]

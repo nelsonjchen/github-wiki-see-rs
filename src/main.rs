@@ -30,14 +30,14 @@ struct MirrorTemplate<'a> {
     mirrored_content: &'a str,
 }
 
-#[get("/{account}/{repository}")] // <- define path parameters
+#[get("/{account}/{repository}/wiki")] // <- define path parameters
 async fn mirror_root(
     web::Path((account, repository)): web::Path<(String, String)>,
 ) -> impl Responder {
     mirror_content(account, repository, None).await
 }
 
-#[get("/{account}/{repository}/{page}")] // <- define path parameters
+#[get("/{account}/{repository}/wiki/{page}")] // <- define path parameters
 async fn mirror_page(
     web::Path((account, repository, page)): web::Path<(String, String, String)>,
 ) -> impl Responder {
