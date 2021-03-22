@@ -22,20 +22,35 @@ async fn front_page(_req: HttpRequest) -> impl Responder {
         .with_header("Content-Type", "text/html; charset=utf-8")
 }
 
+#[derive(Template)]
+#[template(path = "mirror.html")]
+
+struct MirrorTemplate {
+    original_title: String,
+    original_url: String,
+    mirrored_content: String,
+}
+
 #[get("/{account}/{repository}")] // <- define path parameters
 async fn mirror_root(
     web::Path((account, repository)): web::Path<(String, String)>,
 ) -> Result<String> {
-    Ok(format!("Account: {}, Repository {}!", account, repository))
+    mirror_content(account, repository, None)
 }
 
 #[get("/{account}/{repository}/{page}")] // <- define path parameters
 async fn mirror_page(
     web::Path((account, repository, page)): web::Path<(String, String, String)>,
 ) -> Result<String> {
+    mirror_content(account, repository, Some(page))
+}
+
+fn mirror_content(account: String, repository: String, page: Option<String>) -> Result<String> {
     Ok(format!(
         "Account: {}, Repository {}, Page {}!",
-        account, repository, page
+        account,
+        repository,
+        page.unwrap_or("Nothing!".to_string())
     ))
 }
 
