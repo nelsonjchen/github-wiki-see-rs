@@ -18,9 +18,25 @@ fn download_github_wiki(
 pub fn get_element_html(account: &str, repository: &str, page: Option<&str>) -> String {
     let html = download_github_wiki(account, repository, page);
 
-    let document = Document::from(&html.unwrap());
+    let processed_html = process_html(html.unwrap());
+
+    let document = Document::from(&processed_html);
     let a = document.select("#wiki-wrapper");
     a.html().to_string()
+}
+
+pub fn process_html(original_html: String) -> String {
+    let document = Document::from(&original_html);
+    document.select("a").iter().for_each(|mut thing| {
+        if let Some(href) = thing.attr("href") {
+            let string_href = String::from(href);
+            if string_href.starts_with("/") {
+                let new_string_href = "/mirror".to_owned() + &string_href;
+                thing.set_attr("href", &new_string_href);
+            }
+        }
+    });
+    String::from(document.html())
 }
 
 #[cfg(test)]
@@ -53,12 +69,32 @@ mod tests {
 
     #[test]
     fn download_github_wiki_test() {
-        let html = download_github_wiki("nelsonjchen", "github-wiki-test", None)
-            .unwrap();
+        let html = download_github_wiki("nelsonjchen", "github-wiki-test", None).unwrap();
 
         let document = Document::from(&html);
         let a = document.select("#wiki-wrapper");
         let text: &str = &a.html();
         assert_ne!(text.len(), 0);
+    }
+
+    #[test]
+    fn transform_urls_to_new_root() {
+        let html = "<a href=\"/\"></a>";
+
+        let document = Document::from(html);
+        document.select("a").iter().for_each(|mut thing| {
+            if let Some(href) = thing.attr("href") {
+                let string_href = String::from(href);
+                if string_href.starts_with("/") {
+                    let new_string_href = "/mirror".to_owned() + &string_href;
+                    thing.set_attr("href", &new_string_href);
+                }
+            }
+        });
+
+        assert_eq!(
+            String::from(document.select("a").html()),
+            "<a href=\"/mirror/\"></a>"
+        );
     }
 }
