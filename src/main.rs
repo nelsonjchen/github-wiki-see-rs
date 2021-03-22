@@ -25,33 +25,36 @@ async fn front_page(_req: HttpRequest) -> impl Responder {
 #[derive(Template)]
 #[template(path = "mirror.html")]
 
-struct MirrorTemplate {
-    original_title: String,
-    original_url: String,
-    mirrored_content: String,
+struct MirrorTemplate<'a> {
+    original_title: &'a str,
+    original_url: &'a str,
+    mirrored_content: &'a str,
 }
 
 #[get("/{account}/{repository}")] // <- define path parameters
 async fn mirror_root(
     web::Path((account, repository)): web::Path<(String, String)>,
-) -> Result<String> {
+) -> impl Responder {
     mirror_content(account, repository, None)
 }
 
 #[get("/{account}/{repository}/{page}")] // <- define path parameters
 async fn mirror_page(
     web::Path((account, repository, page)): web::Path<(String, String, String)>,
-) -> Result<String> {
+) -> impl Responder {
     mirror_content(account, repository, Some(page))
 }
 
-fn mirror_content(account: String, repository: String, page: Option<String>) -> Result<String> {
-    Ok(format!(
-        "Account: {}, Repository {}, Page {}!",
-        account,
-        repository,
-        page.unwrap_or("Nothing!".to_string())
-    ))
+fn mirror_content(account: String, repository: String, page: Option<String>) -> impl Responder {
+    let mirror_content = MirrorTemplate {
+        original_title: "idk",
+        original_url: "http://google.com",
+        mirrored_content: "<h2>make me big</h2>",
+    };
+    mirror_content
+        .render()
+        .unwrap()
+        .with_header("Content-Type", "text/html; charset=utf-8")
 }
 
 #[actix_web::main]
