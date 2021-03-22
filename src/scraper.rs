@@ -1,5 +1,10 @@
 use nipper::Document;
 
+pub struct HtmlWithInfo {
+    pub original_title: String,
+    pub html: String,
+}
+
 fn download_github_wiki(
     account: &str,
     repository: &str,
@@ -15,14 +20,19 @@ fn download_github_wiki(
     Ok(body?)
 }
 
-pub fn get_element_html(account: &str, repository: &str, page: Option<&str>) -> String {
+pub fn get_element_html(account: &str, repository: &str, page: Option<&str>) -> HtmlWithInfo {
     let html = download_github_wiki(account, repository, page);
 
     let processed_html = process_html(html.unwrap());
 
     let document = Document::from(&processed_html);
     let a = document.select("#wiki-wrapper");
-    a.html().to_string()
+    let title = String::from(document.select("title").text());
+    HtmlWithInfo {
+        original_title: title,
+        html: a.html().to_string(),
+    }
+
 }
 
 pub fn process_html(original_html: String) -> String {

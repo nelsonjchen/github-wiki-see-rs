@@ -56,12 +56,12 @@ async fn mirror_content(
         page.clone().unwrap_or("".to_string())
     );
 
-    let mirrored_html_string = scraper::get_element_html(&account, &repository, page.as_deref());
+    let html_info = scraper::get_element_html(&account, &repository, page.as_deref());
 
     let mirror_content = MirrorTemplate {
-        original_title: "idk",
+        original_title: &html_info.original_title,
         original_url: &url,
-        mirrored_content: &mirrored_html_string,
+        mirrored_content: &(html_info.html),
     };
     mirror_content
         .render()
