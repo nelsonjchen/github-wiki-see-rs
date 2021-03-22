@@ -283,21 +283,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "actix-web-play"
-version = "0.1.0"
-dependencies = [
- "actix-rt 2.1.0",
- "actix-web",
- "askama",
- "askama_actix",
- "env_logger",
- "nipper",
- "regex",
- "reqwest",
- "tokio 1.4.0",
-]
-
-[[package]]
 name = "adler"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -896,6 +881,21 @@ dependencies = [
  "cfg-if 1.0.0",
  "libc",
  "wasi 0.10.2+wasi-snapshot-preview1",
+]
+
+[[package]]
+name = "github-wiki-see"
+version = "0.1.0"
+dependencies = [
+ "actix-rt 2.1.0",
+ "actix-web",
+ "askama",
+ "askama_actix",
+ "env_logger",
+ "nipper",
+ "regex",
+ "reqwest",
+ "tokio 1.4.0",
 ]
 
 [[package]]
