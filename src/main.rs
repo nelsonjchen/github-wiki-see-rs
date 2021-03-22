@@ -35,21 +35,35 @@ struct MirrorTemplate<'a> {
 async fn mirror_root(
     web::Path((account, repository)): web::Path<(String, String)>,
 ) -> impl Responder {
-    mirror_content(account, repository, None)
+    mirror_content(account, repository, None).await
 }
 
 #[get("/{account}/{repository}/{page}")] // <- define path parameters
 async fn mirror_page(
     web::Path((account, repository, page)): web::Path<(String, String, String)>,
 ) -> impl Responder {
-    mirror_content(account, repository, Some(page))
+    mirror_content(account, repository, Some(page)).await
 }
 
-fn mirror_content(account: String, repository: String, page: Option<String>) -> impl Responder {
+async fn mirror_content(
+    account: String,
+    repository: String,
+    page: Option<String>,
+) -> impl Responder {
+    let url = format!(
+        "https://github.com/{}/{}/wiki/{}",
+        account,
+        repository,
+        page.clone().unwrap_or("".to_string())
+    );
+
+    let mirrored_html_string =
+        scraper::get_element_html(&account, &repository, page.as_deref()).await;
+
     let mirror_content = MirrorTemplate {
         original_title: "idk",
-        original_url: "http://google.com",
-        mirrored_content: "<h2>make me big</h2>",
+        original_url: &url,
+        mirrored_content: &mirrored_html_string,
     };
     mirror_content
         .render()

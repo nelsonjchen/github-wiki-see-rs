@@ -1,23 +1,27 @@
 use nipper::Document;
 
-async fn download_github_wiki(
+fn download_github_wiki(
     account: &str,
     repository: &str,
     page: Option<&str>,
 ) -> Result<String, reqwest::Error> {
-    let body = reqwest::get(format!(
+    let body = reqwest::blocking::get(format!(
         "https://github.com/{}/{}/wiki/{}",
         account,
         repository,
         page.unwrap_or("")
-    ))
-    .await?
-    .text()
-    .await?;
-    Ok(body)
+    ))?
+    .text();
+    Ok(body?)
 }
 
+pub async fn get_element_html(account: &str, repository: &str, page: Option<&str>) -> String {
+    let html = download_github_wiki(account, repository, page);
 
+    let document = Document::from(&html.unwrap());
+    let a = document.select("#wiki-wrapper");
+    a.html().to_string()
+}
 
 #[cfg(test)]
 mod tests {
