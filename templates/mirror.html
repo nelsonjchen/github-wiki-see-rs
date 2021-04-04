@@ -2,7 +2,7 @@
 
 <head>
     <title>
-        👀 GitHub Wiki SEE - {{ original_title }}
+        {{ original_title }}
     </title>
     <style>
         body {
@@ -10,30 +10,31 @@
             padding: 2rem;
             margin: auto;
         }
+        img {
+            max-width: 38rem;
+        }
     </style>
 </head>
 
 <body id="main">
-    <h1>👀 GitHub Wiki SEE - {{ original_title }}</h1>
+    <h1>{{ original_title }}</h1>
     <div id="mirror_info">
         <ul>
             <li>
                 Original URL: <a href="{{ original_url }}">{{ original_url }}</a>
             </li>
         </ul>
-        <p>
-            <a href="/">About GitHub Wiki SEE</a>
-        </p>
-        <p>
-            Hastily scraped and under-processed HTML below.
-        </p>
-
     </div>
     <hr />
     <div id="mirrored">
         {{ mirrored_content|safe }}
     </div>
-
+    <div>
+        <hr>
+        <p>
+            <a href="/">About GitHub Wiki SEE</a>
+        </p>
+    </div>
 </body>
 
 </html>
