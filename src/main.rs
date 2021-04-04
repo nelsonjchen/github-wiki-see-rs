@@ -77,9 +77,10 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .route("/", web::get().to(front_page))
+            // Legacy
             .service(scope("mirror").service(mirror_root).service(mirror_page))
+            .service(scope("m").service(mirror_root).service(mirror_page))
             .wrap(Logger::default())
-            .wrap(Logger::new("%a %{User-Agent}i"))
     })
     .bind("0.0.0.0:8080")?
     .run()

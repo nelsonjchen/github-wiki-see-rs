@@ -41,7 +41,7 @@ pub fn process_html(original_html: String) -> String {
         if let Some(href) = thing.attr("href") {
             let string_href = String::from(href);
             if string_href.starts_with('/') {
-                let new_string_href = "/mirror".to_owned() + &string_href;
+                let new_string_href = "/m".to_owned() + &string_href;
                 thing.set_attr("href", &new_string_href);
             }
         }
@@ -96,7 +96,7 @@ mod tests {
             if let Some(href) = thing.attr("href") {
                 let string_href = String::from(href);
                 if string_href.starts_with("/") {
-                    let new_string_href = "/mirror".to_owned() + &string_href;
+                    let new_string_href = "/m".to_owned() + &string_href;
                     thing.set_attr("href", &new_string_href);
                 }
             }
@@ -104,7 +104,7 @@ mod tests {
 
         assert_eq!(
             String::from(document.select("a").html()),
-            "<a href=\"/mirror/\"></a>"
+            "<a href=\"/m/\"></a>"
         );
     }
 }
