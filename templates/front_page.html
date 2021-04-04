@@ -10,20 +10,30 @@
             padding: 2rem;
             margin: auto;
         }
+
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body id="main">
-    <h1>👀 GitHub Wiki SEE</h1>
-    <p>GitHub Wiki Search Engine Enablement is a tool to allow GitHub Wikis to be indexed by search engines. There's no
-        <code>robots.txt</code> on this site. Because of this, text content served from this tool should be indexed.
+    <h1>GitHub Wiki SEE</h1>
+    <p>
+        <em>GitHub Wiki Search Engine Enablement </em> allows GitHub Wikis to be indexed by search engines. There's no
+        <code>robots.txt</code> on this site and text content served from this domain should be indexed.
     </p>
-    <p>Currently, <a href=https://github.com/isaacs/github/issues/1683>GitHub prevents crawling of repository's Wiki
-            pages. This means Wikis are invisible to Google and other search engines such as DuckDuckGo.</a> This can be
-        a very unpleasant surprise if you're looking to share knowledge or put a FAQ on a Wiki!</p>
-    <p>This tool simply mirrors the rendered contents of the pages and has a link at the top to visit the page on GitHub
-        for normal usage. The content of the tool is not meant to be read by users.</p>
+    <p>
+        Currently, <a href=https://github.com/isaacs/github/issues/1683>GitHub prevents crawling of repository's Wiki
+        pages. This means Wikis are invisible to Google and other search engines such as DuckDuckGo.</a> and can be
+        a very unpleasant surprise if you're looking to share knowledge or put a FAQ on a Wiki!
+    </p>
+    <p>
+        SEE simply mirrors the rendered contents of the pages and has a link at the top to visit the page on GitHub
+        for normal usage. The content of the tool is not meant to be read by users and is meant for crawlers.
+    </p>
+    <p>
+        As an alternative to this hack, you may want to consider GitHub Pages backed by a public repository for your
+        community.
+    </p>
     <h2>Usage</h2>
     <ol>
         <li>Go to this site at <code>/m/{account name}/{repo}/wiki</code> and get a link.</li>
