@@ -53,7 +53,7 @@ async fn mirror_content(
         "https://github.com/{}/{}/wiki/{}",
         account,
         repository,
-        page.clone().unwrap_or("".to_string())
+        page.clone().unwrap_or_else(|| "".to_string())
     );
 
     let html_info = scraper::get_element_html(&account, &repository, page.as_deref());

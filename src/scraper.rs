@@ -40,7 +40,7 @@ pub fn process_html(original_html: String) -> String {
     document.select("a").iter().for_each(|mut thing| {
         if let Some(href) = thing.attr("href") {
             let string_href = String::from(href);
-            if string_href.starts_with("/") {
+            if string_href.starts_with('/') {
                 let new_string_href = "/mirror".to_owned() + &string_href;
                 thing.set_attr("href", &new_string_href);
             }
