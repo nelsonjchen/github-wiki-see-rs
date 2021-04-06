@@ -17,7 +17,13 @@
         #mirror_info {
             position: sticky;
             top: 0;
-            padding: 1px;
+            padding: 10px;
+            background-color: gainsboro;
+        }
+        #footer_info {
+            position: sticky;
+            bottom: 0;
+            padding: 10px;
             background-color: gainsboro;
         }
         /* Hide useless-parts of transcluded HTML */
@@ -46,21 +52,14 @@
 <body id="main">
     <h1>{{ original_title }}</h1>
     <div id="mirror_info">
-        <ul>
-            <li>
-                Original URL: <a href="{{ original_url }}">{{ original_url }}</a>
-            </li>
-        </ul>
+        Original URL: <a href="{{ original_url }}">{{ original_url }}</a>
     </div>
-    <hr />
+
     <div id="mirrored">
         {{ mirrored_content|safe }}
     </div>
-    <div>
-        <hr>
-        <p>
-            <a href="/">About GitHub Wiki SEE</a>
-        </p>
+    <div id="footer_info">
+        <a href="/">About GitHub Wiki SEE, a crawler enabler for GitHub Wikis</a>
     </div>
 </body>
 
