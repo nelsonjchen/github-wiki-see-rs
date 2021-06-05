@@ -77,6 +77,12 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .route("/", web::get().to(front_page))
+            .route("favicon.ico", web::get().to(||
+                    HttpResponse::Ok().body(
+                        include_bytes!("../templates/favicon.ico") as &'static [u8]
+                    )
+                )
+            )
             .route("sitemap.xml", web::get().to(||
                  HttpResponse::MovedPermanently().header(
                      http::header::LOCATION,
