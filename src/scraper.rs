@@ -16,8 +16,8 @@ fn download_github_wiki(
         repository,
         page.unwrap_or("")
     ))?
-    .text();
-    Ok(body?)
+    .text()?;
+    Ok(body)
 }
 
 pub fn get_element_html(account: &str, repository: &str, page: Option<&str>) -> HtmlWithInfo {
