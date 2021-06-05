@@ -10,10 +10,10 @@ edition = "2018"
 actix-web = "3.3.2"
 env_logger = "0.8.3"
 nipper = "0.1.9"
-reqwest = { version = "0.11.2", features = ["blocking", "json"] }
+reqwest = { version = "0.11.3", features = ["blocking", "json"] }
 
 actix-rt = "2.2.0"
 askama = "0.10.5"
 askama_actix = "0.11.1"
-tokio = { version = "1.4.0", features = ["full"] }
-regex = "1.4.5"
+tokio = { version = "1.6.1", features = ["full"] }
+regex = "1.5.4"
