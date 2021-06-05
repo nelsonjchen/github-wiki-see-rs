@@ -32,7 +32,6 @@ pub fn get_element_html(account: &str, repository: &str, page: Option<&str>) -> 
         original_title: title,
         html: a.html().to_string(),
     }
-
 }
 
 pub fn process_html(original_html: String) -> String {
