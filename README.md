@@ -13,6 +13,7 @@ This was made in response to https://github.com/isaacs/github/issues/1683.
 1. Get a link like https://github.com/nelsonjchen/github-wiki-test/wiki .
 
 2. Make a link like https://github-wiki-see.page/m/nelsonjchen/github-wiki-test/wiki and post it somewhere like a blog, Twitter, GitHub issue, bottom of your README or something. Somewhere where a search engine like Google can see it and crawl it!
+  * You can also add it to the sitemap at: https://github.com/nelsonjchen/github-wiki-see-rs-sitemaps .
 
 ## Design
 
