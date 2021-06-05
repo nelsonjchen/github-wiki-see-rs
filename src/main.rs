@@ -1,8 +1,8 @@
 use actix_web::{
-    get,
+    get, http,
     middleware::Logger,
     web::{self, scope},
-    App, HttpRequest, HttpServer, Responder,
+    App, HttpRequest, HttpResponse, HttpServer, Responder,
 };
 use askama::Template;
 
@@ -77,6 +77,13 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .route("/", web::get().to(front_page))
+            .route("sitemap.xml", web::get().to(||
+                 HttpResponse::MovedPermanently().header(
+                     http::header::LOCATION,
+                      "https://raw.githubusercontent.com/nelsonjchen/github-wiki-see-rs-sitemaps/master/base_sitemap.xml"
+                    ).finish()
+                )
+            )
             .service(scope("m").service(mirror_root).service(mirror_page))
             .wrap(Logger::default())
     })
