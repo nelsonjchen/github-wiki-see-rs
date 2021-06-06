@@ -93,6 +93,24 @@ async fn main() -> std::io::Result<()> {
                     ).finish()
                 }),
             )
+            .route(
+                "base_sitemap.xml",
+                web::get().to(|| {
+                    HttpResponse::MovedPermanently().header(
+                     http::header::LOCATION,
+                      "https://nelsonjchen.github.io/github-wiki-see-rs-sitemaps/base_sitemap.xml"
+                    ).finish()
+                }),
+            )
+            .route(
+                "generated_sitemap.xml",
+                web::get().to(|| {
+                    HttpResponse::MovedPermanently().header(
+                     http::header::LOCATION,
+                      "https://nelsonjchen.github.io/github-wiki-see-rs-sitemaps/generated_sitemap.xml"
+                    ).finish()
+                }),
+            )
             .service(scope("m").service(mirror_root).service(mirror_page))
             .wrap(Logger::default())
     })
