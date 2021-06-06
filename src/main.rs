@@ -85,6 +85,13 @@ async fn main() -> std::io::Result<()> {
                 }),
             )
             .route(
+                "robots.txt",
+                web::get().to(|| {
+                    HttpResponse::Ok()
+                        .body(include_bytes!("../templates/robots.txt") as &'static [u8])
+                }),
+            )
+            .route(
                 "sitemap.xml",
                 web::get().to(|| {
                     HttpResponse::MovedPermanently().header(
