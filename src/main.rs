@@ -86,7 +86,7 @@ async fn main() -> std::io::Result<()> {
             .route("sitemap.xml", web::get().to(||
                  HttpResponse::MovedPermanently().header(
                      http::header::LOCATION,
-                      "https://raw.githubusercontent.com/nelsonjchen/github-wiki-see-rs-sitemaps/master/base_sitemap.xml"
+                      "https://raw.githubusercontent.com/nelsonjchen/github-wiki-see-rs-sitemaps/dist/sitemap_index.xml"
                     ).finish()
                 )
             )
