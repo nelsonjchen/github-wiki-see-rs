@@ -63,10 +63,19 @@ async fn mirror_content(
         original_url: &url,
         mirrored_content: &(html_info.html),
     };
-    mirror_content
-        .render()
-        .unwrap()
-        .with_header("Content-Type", "text/html; charset=utf-8")
+
+    if mirror_content.original_title.contains("Page not found") {
+        mirror_content
+            .render()
+            .unwrap()
+            .with_header("Content-Type", "text/html; charset=utf-8")
+            .with_status(http::StatusCode::NOT_FOUND)
+    } else {
+        mirror_content
+            .render()
+            .unwrap()
+            .with_header("Content-Type", "text/html; charset=utf-8")
+    }
 }
 
 #[actix_web::main]
