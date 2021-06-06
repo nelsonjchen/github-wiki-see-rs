@@ -111,6 +111,15 @@ async fn main() -> std::io::Result<()> {
                     ).finish()
                 }),
             )
+            .route(
+                "seed_sitemaps/{id}",
+                web::get().to(|web::Path(id): web::Path<String>| {
+                    HttpResponse::MovedPermanently().header(
+                     http::header::LOCATION,
+                      format!("https://nelsonjchen.github.io/github-wiki-see-rs-sitemaps/seed_sitemaps/{}", id)
+                    ).finish()
+                }),
+            )
             .service(scope("m").service(mirror_root).service(mirror_page))
             .wrap(Logger::default())
     })
