@@ -77,18 +77,21 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .route("/", web::get().to(front_page))
-            .route("favicon.ico", web::get().to(||
-                    HttpResponse::Ok().body(
-                        include_bytes!("../templates/favicon.ico") as &'static [u8]
-                    )
-                )
+            .route(
+                "favicon.ico",
+                web::get().to(|| {
+                    HttpResponse::Ok()
+                        .body(include_bytes!("../templates/favicon.ico") as &'static [u8])
+                }),
             )
-            .route("sitemap.xml", web::get().to(||
-                 HttpResponse::MovedPermanently().header(
+            .route(
+                "sitemap.xml",
+                web::get().to(|| {
+                    HttpResponse::MovedPermanently().header(
                      http::header::LOCATION,
-                      "https://raw.githubusercontent.com/nelsonjchen/github-wiki-see-rs-sitemaps/dist/sitemap_index.xml"
+                      "https://nelsonjchen.github.io/github-wiki-see-rs-sitemaps/sitemap_index.xml"
                     ).finish()
-                )
+                }),
             )
             .service(scope("m").service(mirror_root).service(mirror_page))
             .wrap(Logger::default())
