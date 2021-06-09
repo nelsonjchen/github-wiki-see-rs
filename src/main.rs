@@ -56,7 +56,9 @@ async fn mirror_content(
         page.clone().unwrap_or_else(|| "".to_string())
     );
 
-    let html_info = scraper::get_element_html(&account, &repository, page.as_deref());
+    let html_info = scraper::get_element_html(&account, &repository, page.as_deref())
+        .await
+        .unwrap();
 
     let mirror_content = MirrorTemplate {
         original_title: &html_info.original_title,

@@ -5,33 +5,39 @@ pub struct HtmlWithInfo {
     pub html: String,
 }
 
-fn download_github_wiki(
+async fn download_github_wiki(
     account: &str,
     repository: &str,
     page: Option<&str>,
 ) -> Result<String, reqwest::Error> {
-    let body = reqwest::blocking::get(format!(
+    let body = reqwest::get(&format!(
         "https://github.com/{}/{}/wiki/{}",
         account,
         repository,
         page.unwrap_or("")
-    ))?
-    .text()?;
+    ))
+    .await?
+    .text()
+    .await?;
     Ok(body)
 }
 
-pub fn get_element_html(account: &str, repository: &str, page: Option<&str>) -> HtmlWithInfo {
-    let html = download_github_wiki(account, repository, page);
+pub async fn get_element_html(
+    account: &str,
+    repository: &str,
+    page: Option<&str>,
+) -> Result<HtmlWithInfo, reqwest::Error> {
+    let html = download_github_wiki(account, repository, page).await?;
 
-    let processed_html = process_html(html.unwrap());
+    let processed_html = process_html(html);
 
     let document = Document::from(&processed_html);
     let a = document.select("#wiki-wrapper");
     let title = String::from(document.select("title").text());
-    HtmlWithInfo {
+    Ok(HtmlWithInfo {
         original_title: title,
         html: a.html().to_string(),
-    }
+    })
 }
 
 pub fn process_html(original_html: String) -> String {
