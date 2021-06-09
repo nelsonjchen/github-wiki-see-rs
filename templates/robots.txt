@@ -1,0 +1,5 @@
+# CRAWL ME! ALL OVER!
+User-agent: *
+Allow: /
+
+Sitemap: https://github-wiki-see.page/sitemap.xml
