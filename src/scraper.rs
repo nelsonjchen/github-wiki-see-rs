@@ -51,6 +51,15 @@ pub fn process_html(original_html: String) -> String {
             }
         }
     });
+    document.select("img").iter().for_each(|mut thing| {
+        if let Some(href) = thing.attr("src") {
+            let string_href = String::from(href);
+            if string_href.starts_with('/') {
+                let new_string_href = "https://github.com".to_owned() + &string_href;
+                thing.set_attr("src", &new_string_href);
+            }
+        }
+    });
     String::from(document.html())
 }
 
@@ -84,7 +93,12 @@ mod tests {
 
     #[test]
     fn download_github_wiki_test() {
-        let html =  tokio_test::block_on( download_github_wiki("nelsonjchen", "github-wiki-test", None)).unwrap();
+        let html = tokio_test::block_on(download_github_wiki(
+            "nelsonjchen",
+            "github-wiki-test",
+            None,
+        ))
+        .unwrap();
 
         let document = Document::from(&html);
         let a = document.select("#wiki-wrapper");
@@ -99,6 +113,16 @@ mod tests {
         assert_eq!(
             process_html(html.to_string()),
             "<html><head></head><body><a href=\"/m/\"></a></body></html>"
+        );
+    }
+
+    #[test]
+    fn transform_img_src_to_github_root() {
+        let html = "<html><head></head><body><img src=\"/Erithano/Timon-Your-FAQ-bot-for-Microsoft-Teams/wiki/images/Guide1.1.jpg\"></body></html>";
+
+        assert_eq!(
+            process_html(html.to_string()),
+            "<html><head></head><body><img src=\"https://github.com/Erithano/Timon-Your-FAQ-bot-for-Microsoft-Teams/wiki/images/Guide1.1.jpg\"></body></html>"
         );
     }
 }
