@@ -84,7 +84,7 @@ mod tests {
 
     #[test]
     fn download_github_wiki_test() {
-        let html = download_github_wiki("nelsonjchen", "github-wiki-test", None).unwrap();
+        let html =  tokio_test::block_on( download_github_wiki("nelsonjchen", "github-wiki-test", None)).unwrap();
 
         let document = Document::from(&html);
         let a = document.select("#wiki-wrapper");
@@ -94,22 +94,11 @@ mod tests {
 
     #[test]
     fn transform_urls_to_new_root() {
-        let html = "<a href=\"/\"></a>";
-
-        let document = Document::from(html);
-        document.select("a").iter().for_each(|mut thing| {
-            if let Some(href) = thing.attr("href") {
-                let string_href = String::from(href);
-                if string_href.starts_with("/") {
-                    let new_string_href = "/m".to_owned() + &string_href;
-                    thing.set_attr("href", &new_string_href);
-                }
-            }
-        });
+        let html = "<html><head></head><body><a href=\"/\"></a></body></html>";
 
         assert_eq!(
-            String::from(document.select("a").html()),
-            "<a href=\"/m/\"></a>"
+            process_html(html.to_string()),
+            "<html><head></head><body><a href=\"/m/\"></a></body></html>"
         );
     }
 }
