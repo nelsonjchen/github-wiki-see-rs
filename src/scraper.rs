@@ -59,7 +59,8 @@ pub fn process_html(original_html: &str, account: &str, repository: &str) -> Str
                 thing.set_attr("src", &new_string_href);
             }
             if string_href.starts_with("wiki/") {
-                let new_string_href = format!("https://github.com/{}/{}/", account, repository) + &string_href;
+                let new_string_href =
+                    format!("https://github.com/{}/{}/", account, repository) + &string_href;
                 thing.set_attr("src", &new_string_href);
             }
         }
@@ -132,7 +133,8 @@ mod tests {
 
     #[test]
     fn transform_img_src_to_github_root_relative() {
-        let html = "<html><head></head><body><img src=\"wiki/images/false-icon.png\"></body></html>";
+        let html =
+            "<html><head></head><body><img src=\"wiki/images/false-icon.png\"></body></html>";
 
         assert_eq!(
             process_html(html, "some_account", "some_repo"),
