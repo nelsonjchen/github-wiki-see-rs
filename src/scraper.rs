@@ -1,3 +1,5 @@
+use core::str;
+
 use nipper::Document;
 
 pub struct HtmlWithInfo {
@@ -54,13 +56,23 @@ pub fn process_html(original_html: &str, account: &str, repository: &str) -> Str
     document.select("img").iter().for_each(|mut thing| {
         if let Some(href) = thing.attr("src") {
             let string_href = String::from(href);
+            if !string_href.starts_with("http://")
+                && !string_href.starts_with("https://")
+                && !string_href.starts_with("//")
+            {
+                if !string_href.starts_with("wiki") {
+                    let new_string_href =
+                        format!("https://github.com/{}/{}/wiki/", account, repository)
+                            + &string_href;
+                    thing.set_attr("src", &new_string_href);
+                } else {
+                    let new_string_href =
+                        format!("https://github.com/{}/{}/", account, repository) + &string_href;
+                    thing.set_attr("src", &new_string_href);
+                }
+            }
             if string_href.starts_with('/') {
                 let new_string_href = "https://github.com".to_owned() + &string_href;
-                thing.set_attr("src", &new_string_href);
-            }
-            if string_href.starts_with("wiki/") {
-                let new_string_href =
-                    format!("https://github.com/{}/{}/", account, repository) + &string_href;
                 thing.set_attr("src", &new_string_href);
             }
         }
@@ -133,6 +145,7 @@ mod tests {
 
     #[test]
     fn transform_img_src_to_github_root_relative() {
+        // https://github.com/ant-media/Ant-Media-Server/wiki
         let html =
             "<html><head></head><body><img src=\"wiki/images/false-icon.png\"></body></html>";
 
@@ -149,6 +162,17 @@ mod tests {
         assert_eq!(
             process_html(html, "some_account", "some_repo"),
             "<html><head></head><body><img src=\"https://camo.githubusercontent.com/\"></body></html>"
+        );
+    }
+
+    #[test]
+    fn transform_img_src_to_github_root_non_relative_2() {
+        // https://github.com/zanonmark/Google-4-TbSync/wiki/How-to-generate-your-own-Google-API-Console-project-credentials
+        let html = "<html><head></head><body><img src=\"images/something.png\"></body></html>";
+
+        assert_eq!(
+            process_html(html, "some_account", "some_repo"),
+            "<html><head></head><body><img src=\"https://github.com/some_account/some_repo/wiki/images/something.png\"></body></html>"
         );
     }
 }
