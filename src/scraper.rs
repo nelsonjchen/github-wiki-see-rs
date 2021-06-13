@@ -139,4 +139,14 @@ mod tests {
             "<html><head></head><body><img src=\"https://github.com/some_account/some_repo/wiki/images/false-icon.png\"></body></html>"
         );
     }
+
+    #[test]
+    fn transform_img_src_to_github_root_non_relative() {
+        let html = "<html><head></head><body><img src=\"https://camo.githubusercontent.com/\"></body></html>";
+
+        assert_eq!(
+            process_html(html, "some_account", "some_repo"),
+            "<html><head></head><body><img src=\"https://camo.githubusercontent.com/\"></body></html>"
+        );
+    }
 }
