@@ -57,10 +57,10 @@ pub fn process_html(original_html: &str, account: &str, repository: &str) -> Str
             if string_href.starts_with('/') {
                 let new_string_href = "https://github.com".to_owned() + &string_href;
                 thing.set_attr("src", &new_string_href);
-            } else {
+            }
+            if string_href.starts_with("wiki/") {
                 let new_string_href = format!("https://github.com/{}/{}/", account, repository) + &string_href;
                 thing.set_attr("src", &new_string_href);
-
             }
         }
     });
