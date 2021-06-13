@@ -29,7 +29,7 @@ pub async fn get_element_html(
 ) -> Result<HtmlWithInfo, reqwest::Error> {
     let html = download_github_wiki(account, repository, page).await?;
 
-    let processed_html = process_html(html);
+    let processed_html = process_html(&html, account, repository);
 
     let document = Document::from(&processed_html);
     let a = document.select("#wiki-wrapper");
@@ -40,8 +40,8 @@ pub async fn get_element_html(
     })
 }
 
-pub fn process_html(original_html: String) -> String {
-    let document = Document::from(&original_html);
+pub fn process_html(original_html: &str, account: &str, repository: &str) -> String {
+    let document = Document::from(original_html);
     document.select("a").iter().for_each(|mut thing| {
         if let Some(href) = thing.attr("href") {
             let string_href = String::from(href);
@@ -57,6 +57,10 @@ pub fn process_html(original_html: String) -> String {
             if string_href.starts_with('/') {
                 let new_string_href = "https://github.com".to_owned() + &string_href;
                 thing.set_attr("src", &new_string_href);
+            } else {
+                let new_string_href = format!("https://github.com/{}/{}/", account, repository) + &string_href;
+                thing.set_attr("src", &new_string_href);
+
             }
         }
     });
@@ -111,7 +115,7 @@ mod tests {
         let html = "<html><head></head><body><a href=\"/\"></a></body></html>";
 
         assert_eq!(
-            process_html(html.to_string()),
+            process_html(html, "some_account", "some_repo"),
             "<html><head></head><body><a href=\"/m/\"></a></body></html>"
         );
     }
@@ -121,8 +125,18 @@ mod tests {
         let html = "<html><head></head><body><img src=\"/Erithano/Timon-Your-FAQ-bot-for-Microsoft-Teams/wiki/images/Guide1.1.jpg\"></body></html>";
 
         assert_eq!(
-            process_html(html.to_string()),
+            process_html(html, "some_account", "some_repo"),
             "<html><head></head><body><img src=\"https://github.com/Erithano/Timon-Your-FAQ-bot-for-Microsoft-Teams/wiki/images/Guide1.1.jpg\"></body></html>"
+        );
+    }
+
+    #[test]
+    fn transform_img_src_to_github_root_relative() {
+        let html = "<html><head></head><body><img src=\"wiki/images/false-icon.png\"></body></html>";
+
+        assert_eq!(
+            process_html(html, "some_account", "some_repo"),
+            "<html><head></head><body><img src=\"https://github.com/some_account/some_repo/wiki/images/false-icon.png\"></body></html>"
         );
     }
 }
