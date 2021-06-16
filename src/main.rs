@@ -69,25 +69,28 @@ async fn mirror_content(
         mirrored_content: &(html_info.html),
     };
 
-    // Quit in some seconds if rate limit is hit
-    if mirror_content
-        .original_title
-        .to_lowercase()
-        .contains("rate limit")
-    {
-        spawn(async move {
-            let mut interval = time::interval(Duration::from_secs(10));
-            interval.tick().await;
-            process::exit(0);
-        });
-    }
-
     if mirror_content.original_title.contains("Page not found") {
         mirror_content
             .render()
             .unwrap()
             .with_header("Content-Type", "text/html; charset=utf-8")
             .with_status(http::StatusCode::NOT_FOUND)
+    } else if mirror_content
+        .original_title
+        .to_lowercase()
+        .contains("rate limit")
+    {
+        // Quit in some seconds if rate limit is hit
+        spawn(async move {
+            let mut interval = time::interval(Duration::from_secs(10));
+            interval.tick().await;
+            process::exit(0);
+        });
+        mirror_content
+            .render()
+            .unwrap()
+            .with_header("Content-Type", "text/html; charset=utf-8")
+            .with_status(http::StatusCode::SERVICE_UNAVAILABLE)
     } else {
         mirror_content
             .render()
