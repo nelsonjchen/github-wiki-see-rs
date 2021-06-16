@@ -75,11 +75,7 @@ async fn mirror_content(
             .unwrap()
             .with_header("Content-Type", "text/html; charset=utf-8")
             .with_status(http::StatusCode::NOT_FOUND)
-    } else if mirror_content
-        .original_title
-        .to_lowercase()
-        .contains("rate limit")
-    {
+    } else if mirror_content.original_title.eq("Rate limit · GitHub") {
         // Quit in some seconds if rate limit is hit
         spawn(async move {
             let mut interval = time::interval(Duration::from_secs(10));
