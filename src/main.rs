@@ -90,7 +90,7 @@ async fn mirror_content(
             .render()
             .unwrap()
             .with_header("Content-Type", "text/html; charset=utf-8")
-            .with_status(http::StatusCode::SERVICE_UNAVAILABLE)
+            .with_status(http::StatusCode::TOO_MANY_REQUESTS)
     } else {
         mirror_content
             .render()
