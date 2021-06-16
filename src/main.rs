@@ -1,6 +1,9 @@
+use std::{process, time::Duration};
+
 use actix_web::{
     get, http,
     middleware::Logger,
+    rt::{spawn, time},
     web::{self, scope},
     App, HttpRequest, HttpResponse, HttpServer, Responder,
 };
@@ -65,6 +68,19 @@ async fn mirror_content(
         original_url: &url,
         mirrored_content: &(html_info.html),
     };
+
+    // Quit in some seconds if rate limit is hit
+    if mirror_content
+        .original_title
+        .to_lowercase()
+        .contains("rate limit")
+    {
+        spawn(async move {
+            let mut interval = time::interval(Duration::from_secs(10));
+            interval.tick().await;
+            process::exit(0);
+        });
+    }
 
     if mirror_content.original_title.contains("Page not found") {
         mirror_content
