@@ -57,10 +57,19 @@ async fn mirror_content(
     page: Option<String>,
     data: web::Data<Mutex<AppData>>,
 ) -> impl Responder {
+    // Shutdown after 30 connections.
     {
-        data.lock().unwrap().counter += 1;
-        data.lock().unwrap().shutdown_sender.send(()).unwrap();
-        info!("shutdown!");
+        let mut app_data = data.lock().unwrap();
+        app_data.request_odometer += 1;
+        info!("GitHub calls so far: {}", app_data.request_odometer);
+        let limit = 30;
+        if app_data.request_odometer > limit {
+            info!(
+                "Requesting shutdown as odometer ({}) past limit ({})",
+                app_data.request_odometer, limit
+            );
+            app_data.shutdown_sender.send(()).unwrap();
+        }
     }
 
     let url = format!(
@@ -89,9 +98,8 @@ async fn mirror_content(
     } else if mirror_content.original_title.eq("Rate limit · GitHub") {
         // Quit in some seconds if rate limit is hit
         spawn(async move {
-            let mut interval = time::interval(Duration::from_secs(10));
-            interval.tick().await;
-            process::exit(0);
+            info!("Requesting shutdown as rate limit hit!",);
+            data.lock().unwrap().shutdown_sender.send(()).unwrap();
         });
         mirror_content
             .render()
@@ -107,7 +115,7 @@ async fn mirror_content(
 }
 
 struct AppData {
-    counter: usize,
+    request_odometer: usize,
     shutdown_sender: crossbeam_channel::Sender<()>,
 }
 
@@ -119,7 +127,7 @@ async fn main() -> std::io::Result<()> {
     let (s, r) = crossbeam_channel::unbounded::<()>();
 
     let data = web::Data::new(Mutex::new(AppData {
-        counter: 0,
+        request_odometer: 0,
         shutdown_sender: s,
     }));
 
@@ -182,6 +190,7 @@ async fn main() -> std::io::Result<()> {
     })
     .bind("0.0.0.0:8080")?
     .run();
+    // Forever-ish wait for shutdown notice
     r.recv().unwrap();
     server.stop(true).await;
     Ok(())
