@@ -19,3 +19,4 @@ tokio = { version = "0.2", features = ["full"] }
 regex = "1.5.4"
 tokio-test = "0.2.1"
 crossbeam-channel = "0.5.1"
+log = "0.4.14"

@@ -9,6 +9,7 @@ use actix_web::{
 };
 use askama::Template;
 use crossbeam_channel;
+use log::info;
 
 mod scraper;
 
@@ -59,6 +60,7 @@ async fn mirror_content(
     {
         data.lock().unwrap().counter += 1;
         data.lock().unwrap().shutdown_sender.send(()).unwrap();
+        info!("shutdown!");
     }
 
     let url = format!(
@@ -111,7 +113,7 @@ struct AppData {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    std::env::set_var("RUST_LOG", "actix_web=info");
+    std::env::set_var("RUST_LOG", "info");
     env_logger::init();
     // Shutdown Channel
     let (s, r) = crossbeam_channel::unbounded::<()>();
