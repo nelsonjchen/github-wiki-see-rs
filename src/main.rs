@@ -1,4 +1,4 @@
-use std::{process, time::Duration};
+use std::{process, sync::Mutex, time::Duration};
 
 use actix_web::{
     get, http,
@@ -8,6 +8,7 @@ use actix_web::{
     App, HttpRequest, HttpResponse, HttpServer, Responder,
 };
 use askama::Template;
+use crossbeam_channel;
 
 mod scraper;
 
@@ -36,22 +37,30 @@ struct MirrorTemplate<'a> {
 #[get("/{account}/{repository}/wiki")] // <- define path parameters
 async fn mirror_root(
     web::Path((account, repository)): web::Path<(String, String)>,
+    data: web::Data<Mutex<AppData>>,
 ) -> impl Responder {
-    mirror_content(account, repository, None).await
+    mirror_content(account, repository, None, data).await
 }
 
 #[get("/{account}/{repository}/wiki/{page}")] // <- define path parameters
 async fn mirror_page(
     web::Path((account, repository, page)): web::Path<(String, String, String)>,
+    data: web::Data<Mutex<AppData>>,
 ) -> impl Responder {
-    mirror_content(account, repository, Some(page)).await
+    mirror_content(account, repository, Some(page), data).await
 }
 
 async fn mirror_content(
     account: String,
     repository: String,
     page: Option<String>,
+    data: web::Data<Mutex<AppData>>,
 ) -> impl Responder {
+    {
+        data.lock().unwrap().counter += 1;
+        data.lock().unwrap().shutdown_sender.send(()).unwrap();
+    }
+
     let url = format!(
         "https://github.com/{}/{}/wiki/{}",
         account,
@@ -95,13 +104,26 @@ async fn mirror_content(
     }
 }
 
+struct AppData {
+    counter: usize,
+    shutdown_sender: crossbeam_channel::Sender<()>,
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();
+    // Shutdown Channel
+    let (s, r) = crossbeam_channel::unbounded::<()>();
 
-    HttpServer::new(|| {
+    let data = web::Data::new(Mutex::new(AppData {
+        counter: 0,
+        shutdown_sender: s,
+    }));
+
+    let server = HttpServer::new(move || {
         App::new()
+            .app_data(data.clone())
             .route("/", web::get().to(front_page))
             .route(
                 "favicon.ico",
@@ -157,6 +179,8 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
     })
     .bind("0.0.0.0:8080")?
-    .run()
-    .await
+    .run();
+    r.recv().unwrap();
+    server.stop(true).await;
+    Ok(())
 }

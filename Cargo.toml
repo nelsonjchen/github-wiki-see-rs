@@ -18,3 +18,4 @@ askama_actix = "0.11.1"
 tokio = { version = "0.2", features = ["full"] }
 regex = "1.5.4"
 tokio-test = "0.2.1"
+crossbeam-channel = "0.5.1"
