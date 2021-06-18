@@ -1,14 +1,12 @@
-use std::{process, sync::Mutex, time::Duration};
+use std::{net::IpAddr, sync::Mutex};
 
 use actix_web::{
     get, http,
     middleware::Logger,
-    rt::{spawn, time},
     web::{self, scope},
     App, HttpRequest, HttpResponse, HttpServer, Responder,
 };
 use askama::Template;
-use crossbeam_channel;
 use log::info;
 
 mod scraper;
@@ -61,12 +59,15 @@ async fn mirror_content(
     {
         let mut app_data = data.lock().unwrap();
         app_data.request_odometer += 1;
-        info!("GitHub calls so far: {}", app_data.request_odometer);
+        info!(
+            "({}) GitHub request odometer calls so far: {}",
+            app_data.public_ip_addr, app_data.request_odometer
+        );
         let limit = 30;
         if app_data.request_odometer > limit {
             info!(
-                "Requesting shutdown as odometer ({}) past limit ({})",
-                app_data.request_odometer, limit
+                "Requesting shutdown as odometer ({}) past limit ({}) for ip address {:?}",
+                app_data.request_odometer, limit, app_data.public_ip_addr
             );
             app_data.shutdown_sender.send(()).unwrap();
         }
@@ -97,10 +98,13 @@ async fn mirror_content(
             .with_status(http::StatusCode::NOT_FOUND)
     } else if mirror_content.original_title.eq("Rate limit · GitHub") {
         // Quit in some seconds if rate limit is hit
-        spawn(async move {
-            info!("Requesting shutdown as rate limit hit!",);
-            data.lock().unwrap().shutdown_sender.send(()).unwrap();
-        });
+        let app_data = data.lock().unwrap();
+        info!(
+            "Requesting shutdown as rate limit hit for IP address {:?} with odometer at {}",
+            app_data.public_ip_addr, app_data.request_odometer,
+        );
+        app_data.shutdown_sender.send(()).unwrap();
+
         mirror_content
             .render()
             .unwrap()
@@ -117,18 +121,25 @@ async fn mirror_content(
 struct AppData {
     request_odometer: usize,
     shutdown_sender: crossbeam_channel::Sender<()>,
+    public_ip_addr: IpAddr,
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "info");
     env_logger::init();
+
+    // IP Address
+    let public_ip_addr: IpAddr = external_ip::get_ip().await.unwrap();
+    info!("Discovered Public IP address: {:?}", public_ip_addr);
+
     // Shutdown Channel
     let (s, r) = crossbeam_channel::unbounded::<()>();
 
     let data = web::Data::new(Mutex::new(AppData {
         request_odometer: 0,
         shutdown_sender: s,
+        public_ip_addr,
     }));
 
     let server = HttpServer::new(move || {
