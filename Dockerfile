@@ -1,4 +1,4 @@
-FROM rust:1.52.1 as build
+FROM rust:1.53.0 as build
 
 WORKDIR /usr/src/project
 COPY . .
