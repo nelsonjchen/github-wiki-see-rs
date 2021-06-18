@@ -56,22 +56,22 @@ async fn mirror_content(
     data: web::Data<Mutex<AppData>>,
 ) -> impl Responder {
     // Shutdown after 30 connections.
-    {
-        let mut app_data = data.lock().unwrap();
-        app_data.request_odometer += 1;
-        info!(
-            "({}) GitHub request odometer calls so far: {}",
-            app_data.public_ip_addr, app_data.request_odometer
-        );
-        let limit = 30;
-        if app_data.request_odometer > limit {
-            info!(
-                "Requesting shutdown as odometer ({}) past limit ({}) for ip address {:?}",
-                app_data.request_odometer, limit, app_data.public_ip_addr
-            );
-            app_data.shutdown_sender.send(()).unwrap();
-        }
-    }
+    // {
+    //     let mut app_data = data.lock().unwrap();
+    //     app_data.request_odometer += 1;
+    //     info!(
+    //         "({}) GitHub request odometer calls so far: {}",
+    //         app_data.public_ip_addr, app_data.request_odometer
+    //     );
+    //     let limit = 30;
+    //     if app_data.request_odometer > limit {
+    //         info!(
+    //             "Requesting shutdown as odometer ({}) past limit ({}) for ip address {:?}",
+    //             app_data.request_odometer, limit, app_data.public_ip_addr
+    //         );
+    //         app_data.shutdown_sender.send(()).unwrap();
+    //     }
+    // }
 
     let url = format!(
         "https://github.com/{}/{}/wiki/{}",
