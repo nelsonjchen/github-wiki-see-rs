@@ -150,6 +150,7 @@ async fn main() -> std::io::Result<()> {
                 "favicon.ico",
                 web::get().to(|| {
                     HttpResponse::Ok()
+                        .content_type("image/x-icon")
                         .body(include_bytes!("../templates/favicon.ico") as &'static [u8])
                 }),
             )
@@ -157,6 +158,8 @@ async fn main() -> std::io::Result<()> {
                 "robots.txt",
                 web::get().to(|| {
                     HttpResponse::Ok()
+                        .content_type("text/plain")
+                        .set_header("X-Content-Type-Options", "nosniff")
                         .body(include_bytes!("../templates/robots.txt") as &'static [u8])
                 }),
             )
