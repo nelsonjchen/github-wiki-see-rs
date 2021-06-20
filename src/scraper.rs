@@ -47,9 +47,16 @@ pub fn process_html(original_html: &str, account: &str, repository: &str) -> Str
     document.select("a").iter().for_each(|mut thing| {
         if let Some(href) = thing.attr("href") {
             let string_href = String::from(href);
-            if string_href.starts_with('/') {
-                let new_string_href = "/m".to_owned() + &string_href;
-                thing.set_attr("href", &new_string_href);
+            if !string_href.starts_with("http://")
+                && !string_href.starts_with("https://")
+                && !string_href.starts_with("//")
+            {
+                if string_href.starts_with('/') {
+                    let new_string_href = "/m".to_owned() + &string_href;
+                    thing.set_attr("href", &new_string_href);
+                }
+            } else {
+                thing.set_attr("rel", "nofollow ugc");
             }
         }
     });
@@ -130,6 +137,36 @@ mod tests {
         assert_eq!(
             process_html(html, "some_account", "some_repo"),
             "<html><head></head><body><a href=\"/m/\"></a></body></html>"
+        );
+    }
+
+    #[test]
+    fn transform_non_relative_urls_to_nofollow_ugc_https() {
+        let html = "<html><head></head><body><a href=\"https://example.com\"></a></body></html>";
+
+        assert_eq!(
+            process_html(html, "some_account", "some_repo"),
+            "<html><head></head><body><a href=\"https://example.com\" rel=\"nofollow ugc\"></a></body></html>"
+        );
+    }
+
+    #[test]
+    fn transform_non_relative_urls_to_nofollow_ugc_agnostic() {
+        let html = "<html><head></head><body><a href=\"//example.com\"></a></body></html>";
+
+        assert_eq!(
+            process_html(html, "some_account", "some_repo"),
+            "<html><head></head><body><a href=\"//example.com\" rel=\"nofollow ugc\"></a></body></html>"
+        );
+    }
+
+    #[test]
+    fn transform_non_relative_urls_to_nofollow_ugc_http() {
+        let html = "<html><head></head><body><a href=\"http://example.com\"></a></body></html>";
+
+        assert_eq!(
+            process_html(html, "some_account", "some_repo"),
+            "<html><head></head><body><a href=\"http://example.com\" rel=\"nofollow ugc\"></a></body></html>"
         );
     }
 
