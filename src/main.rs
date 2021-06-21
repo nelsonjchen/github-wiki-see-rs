@@ -206,6 +206,7 @@ async fn main() -> std::io::Result<()> {
             .service(scope("m").service(mirror_root).service(mirror_page))
             .wrap(Logger::default())
     })
+    .shutdown_timeout(5)
     .bind("0.0.0.0:8080")?
     .run();
     // Forever-ish wait for shutdown notice
