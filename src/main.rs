@@ -40,6 +40,17 @@ async fn mirror_root(
 ) -> impl Responder {
     mirror_content(account, repository, None, data).await
 }
+#[get("/{account}/{repository}/wiki/")] // <- define path parameters
+async fn mirror_root_trailing(
+    web::Path((account, repository)): web::Path<(String, String)>,
+) -> impl Responder {
+    HttpResponse::MovedPermanently()
+        .header(
+            http::header::LOCATION,
+            format!("/m/{}/{}/wiki", account, repository),
+        )
+        .finish()
+}
 
 #[get("/{account}/{repository}/wiki/{page}")] // <- define path parameters
 async fn mirror_page(
@@ -203,7 +214,7 @@ async fn main() -> std::io::Result<()> {
                     ).finish()
                 }),
             )
-            .service(scope("m").service(mirror_root).service(mirror_page))
+            .service(scope("m").service(mirror_root_trailing).service(mirror_root).service(mirror_page))
             .wrap(Logger::default())
     })
     .shutdown_timeout(5)
