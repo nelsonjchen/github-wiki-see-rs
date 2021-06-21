@@ -73,8 +73,8 @@ async fn mirror_content(
     //     }
     // }
     {
-            let mut app_data = data.lock().unwrap();
-            app_data.request_odometer += 1;
+        let mut app_data = data.lock().unwrap();
+        app_data.request_odometer += 1;
     }
 
     let url = format!(
