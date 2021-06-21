@@ -1,5 +1,7 @@
-# CRAWL ME! ALL OVER!
+# Don't these stupid _history links for some reason. Don't go there for some reason.
 User-agent: *
-Allow: /
+Disallow: /*/_history$
+
+# But otherwise crawl it all.
 
 Sitemap: https://github-wiki-see.page/sitemap.xml
