@@ -72,6 +72,10 @@ async fn mirror_content(
     //         app_data.shutdown_sender.send(()).unwrap();
     //     }
     // }
+    {
+            let mut app_data = data.lock().unwrap();
+            app_data.request_odometer += 1;
+    }
 
     let url = format!(
         "https://github.com/{}/{}/wiki/{}",
