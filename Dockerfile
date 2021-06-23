@@ -1,4 +1,5 @@
-FROM rust:1.53.0 as build
+ARG RUST_BUILD_IMAGE=rust:1.53.0
+FROM ${RUST_BUILD_IMAGE} as build
 
 WORKDIR /usr/src/project
 COPY . .
