@@ -1,4 +1,4 @@
-# Don't these stupid _history links for some reason. Don't go there for some reason.
+# Don't index these _history links as they won't work.
 User-agent: *
 Disallow: /*/_history$
 
