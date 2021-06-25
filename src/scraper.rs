@@ -85,9 +85,12 @@ pub fn process_html(original_html: &str, account: &str, repository: &str) -> Str
         }
     });
     // Unlink revisions _history link
-    document.select("a.Link--muted").iter().for_each(|mut thing| {
-        thing.replace_with_html(thing.text());
-    });
+    document
+        .select("a.Link--muted")
+        .iter()
+        .for_each(|mut thing| {
+            thing.replace_with_html(thing.text());
+        });
     String::from(document.html())
 }
 
