@@ -23,7 +23,7 @@
     </p>
     <p>
         Currently, <a href=https://github.com/isaacs/github/issues/1683>GitHub prevents crawling of repository's Wiki
-            pages</a>. This means Wikis are invisible to search engines such as Google and DuckDuckGo and can be
+        pages</a>. This means GitHub Wikis are invisible to search engines such as Google and DuckDuckGo and can be
         a very unpleasant surprise if you're looking to share searchable knowledge or put a FAQ on a Wiki!
     </p>
     <p>
@@ -33,8 +33,14 @@
         intended to behave like those StackOverflow content mirroring sites but with far less ad-farming.
     </p>
     <p>
+        For anti-abuse reasons, all links rendered in the service that are going out of GitHub
+        are tagged with <code>rel="nofollow ugc"</code> as to not affect search engine rankings
+        or to promote mass vandalism of GitHub Wikis. This was likely the original reason for
+        the indexing blocking.
+    </p>
+    <p>
         If you are a GitHub Wiki maintainer, you may want to consider GitHub Pages backed by a public repository for
-        your community's content as a more stable and blessed alternative.
+        your community's content as a more stable, blessed, and probably higher search ranking alternative.
     </p>
     <h2>Usage</h2>
     <ol>
@@ -43,26 +49,29 @@
         <ul>
             <li>In an issue.</li>
             <li>The bottom of a README.</li>
+            <li>In a tweet.</li>
+            <li>These activities help establish the authoritativeness of the proxied link and give it a higher ranking.</li>
         </ul>
     </ol>
     <p>You can also just edit your page periodically and the
         <a href=https://github.com/nelsonjchen/github-wiki-see-rs-sitemaps>sitemap generator</a>
-        will eventually pick it up and notify search engines!
+        will eventually pick it up and notify search engines! However, the search ranking will be affected by how
+        unique your content is and how well it matches the queries.
     </p>
 
     <p>Note that it may take quite some time for content to be picked up with no guarantee it'll be picked up.</p>
 
     <h2>Examples</h2>
+    <p> These are just examples and testing wikis.</p>
     <ul>
         <li><a href="/m/nelsonjchen/github-wiki-test/wiki">nelsonjchen/github-wiki-test</a></li>
         <li><a href="/m/commaai/openpilot/wiki">commaai/openpilot</a></li>
         <li><a href="/m/Erithano/Timon-Your-FAQ-bot-for-Microsoft-Teams/wiki">Erithano/Timon-Your-FAQ-bot-for-Microsoft-Teams</a></li>
     </ul>
 
-    <h2>Project, Source, Issues, and other information</h2>
+    <h2>Project, README, Source, Issues, and other information</h2>
 
     <a href="https://github.com/nelsonjchen/github-wiki-see-rs">https://github.com/nelsonjchen/github-wiki-see-rs</a>
-
 </body>
 
 </html>
