@@ -20,14 +20,32 @@
             position: sticky;
             top: 0;
             padding: 10px;
-            background-color: gainsboro;
+            background-color: yellow;
+            animation-name: alert_yellow;
+            animation-duration: 1s;
+            animation-iteration-count: infinite;
+        }
+
+        @keyframes alert_yellow {
+            0% {
+                background-color: yellow;
+            }
+            50% {
+                background-color: lightyellow;
+            }
+            100% {
+                background-color: yellow;
+            }
         }
 
         #footer_info {
             position: sticky;
             bottom: 0;
             padding: 10px;
-            background-color: gainsboro;
+            background-color: yellow;
+            animation-name: alert_yellow;
+            animation-duration: 1s;
+            animation-iteration-count: infinite;
         }
 
         /* Hide useless-parts of transcluded HTML */
