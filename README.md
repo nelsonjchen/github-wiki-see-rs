@@ -6,7 +6,7 @@ GitHub Wiki Search Engine Enablement is a service to allow GitHub Wikis to be in
 
 This is a terribly and hastily built service. However, it is usable and MVP!
 
-This was made in response to https://github.com/isaacs/github/issues/1683.
+This was made in response to https://github.com/isaacs/github/issues/1683 which was superceded by https://github.com/github/feedback/discussions/4992.
 
 ## Design
 
