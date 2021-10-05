@@ -1,45 +1,11 @@
 use core::str;
 
+use comrak::{markdown_to_html, ComrakOptions};
 use nipper::Document;
 
-pub struct HtmlWithInfo {
-    pub original_title: String,
-    pub html: String,
-}
-
-async fn download_github_wiki(
-    account: &str,
-    repository: &str,
-    page: Option<&str>,
-) -> Result<String, reqwest::Error> {
-    let body = reqwest::get(&format!(
-        "https://github.com/{}/{}/wiki/{}",
-        account,
-        repository,
-        page.unwrap_or("")
-    ))
-    .await?
-    .text()
-    .await?;
-    Ok(body)
-}
-
-pub async fn get_element_html(
-    account: &str,
-    repository: &str,
-    page: Option<&str>,
-) -> Result<HtmlWithInfo, reqwest::Error> {
-    let html = download_github_wiki(account, repository, page).await?;
-
-    let processed_html = process_html(&html, account, repository);
-
-    let document = Document::from(&processed_html);
-    let a = document.select("#wiki-wrapper");
-    let title = String::from(document.select("title").text());
-    Ok(HtmlWithInfo {
-        original_title: title,
-        html: a.html().to_string(),
-    })
+pub fn process_markdown(original_markdown: &str, account: &str, repository: &str) -> String {
+    let original_html = markdown_to_html(original_markdown, &ComrakOptions::default());
+    process_html(&original_html, account, repository)
 }
 
 pub fn process_html(original_html: &str, account: &str, repository: &str) -> String {
@@ -120,31 +86,6 @@ mod tests {
         let a = document.select("#wiki-wrapper");
         let text: &str = &a.html();
         assert_ne!(text.len(), 0);
-    }
-
-    #[test]
-    fn download_github_wiki_test() {
-        let html = tokio_test::block_on(download_github_wiki(
-            "nelsonjchen",
-            "github-wiki-test",
-            None,
-        ))
-        .unwrap();
-
-        let document = Document::from(&html);
-        let a = document.select("#wiki-wrapper");
-        let text: &str = &a.html();
-        assert_ne!(text.len(), 0);
-    }
-
-    #[test]
-    fn transform_urls_to_new_root() {
-        let html = "<html><head></head><body><a href=\"/\"></a></body></html>";
-
-        assert_eq!(
-            process_html(html, "some_account", "some_repo"),
-            "<html><head></head><body><a href=\"/m/\"></a></body></html>"
-        );
     }
 
     #[test]

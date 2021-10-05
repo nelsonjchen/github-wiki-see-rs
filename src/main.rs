@@ -8,6 +8,10 @@ use rocket::response::Responder;
 
 use askama::Template;
 
+use crate::scraper::process_markdown;
+
+mod scraper;
+
 #[derive(Template)]
 #[template(path = "front_page.html")]
 struct FrontPageTemplate {}
@@ -95,19 +99,23 @@ async fn mirror_page<'a>(
         )));
     }
 
+    let original_markdown = resp.text().await.map_err(|e| {
+        InternalError(status::Custom(
+            Status::InternalServerError,
+            MirrorTemplate {
+                original_title: page_title.clone(),
+                original_url: original_url.clone(),
+                mirrored_content: format!("Internal Server Error - {}", e.to_string()),
+            },
+        ))
+    })?;
+
+    let mirrored_content = process_markdown(&original_markdown, account, repository);
+
     Ok(MirrorTemplate {
         original_title: page_title.clone(),
         original_url: original_url.clone(),
-        mirrored_content: resp.text().await.map_err(|e| {
-            InternalError(status::Custom(
-                Status::InternalServerError,
-                MirrorTemplate {
-                    original_title: page_title.clone(),
-                    original_url: original_url.clone(),
-                    mirrored_content: format!("{}", e.to_string()),
-                },
-            ))
-        })?,
+        mirrored_content,
     })
 }
 
