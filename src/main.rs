@@ -22,21 +22,22 @@ struct MirrorTemplate {
 }
 
 #[get("/<account>/<repository>/wiki")]
-fn mirror_home<'a>(account: &'a str, repository: &'a str) -> MirrorTemplate {
-    mirror_page(account, repository, "Home")
+async fn mirror_home<'a>(account: &'a str, repository: &'a str) -> MirrorTemplate {
+    mirror_page(account, repository, "Home").await
 }
 
 #[get("/<account>/<repository>/wiki/<page>")]
-fn mirror_page<'a>(account: &'a str, repository: &'a str, page: &'a str) -> MirrorTemplate {
-    let url = format!(
+async fn mirror_page<'a>(account: &'a str, repository: &'a str, page: &'a str) -> MirrorTemplate {
+    let original_url = format!(
         "https://github.com/{}/{}/wiki/{}",
         account, repository, page,
     );
-    let title = page.replace("-", " ");
+
+    let page_title = page.replace("-", " ");
 
     MirrorTemplate {
-        original_title: title,
-        original_url: url,
+        original_title: page_title,
+        original_url,
         mirrored_content: "blah blah".to_string(),
     }
 }
