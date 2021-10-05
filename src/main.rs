@@ -130,7 +130,7 @@ async fn mirror_content(
             .render()
             .unwrap()
             .with_header("Content-Type", "text/html; charset=utf-8")
-            .with_header("Cache-Control", "max-age=86400")
+            .with_header("Cache-Control", "public, max-age=86400")
     }
 }
 
