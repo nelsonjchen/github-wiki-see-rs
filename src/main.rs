@@ -1,4 +1,5 @@
-#[macro_use] extern crate rocket;
+#[macro_use]
+extern crate rocket;
 
 use askama::Template;
 
@@ -11,9 +12,33 @@ fn front() -> FrontPageTemplate {
     FrontPageTemplate {}
 }
 
-#[get("/<username>/<repository>/wiki")]
-fn mirror_home(username: &str, repository: &str ) -> String {
-    format!("Grabbing {} from {}!", username, repository)
+#[derive(Template)]
+#[template(path = "mirror.html")]
+
+struct MirrorTemplate {
+    original_title: String,
+    original_url: String,
+    mirrored_content: String,
+}
+
+#[get("/<account>/<repository>/wiki")]
+fn mirror_home<'a>(account: &'a str, repository: &'a str) -> MirrorTemplate {
+    mirror_page(account, repository, "Home")
+}
+
+#[get("/<account>/<repository>/wiki/<page>")]
+fn mirror_page<'a>(account: &'a str, repository: &'a str, page: &'a str) -> MirrorTemplate {
+    let url = format!(
+        "https://github.com/{}/{}/wiki/{}",
+        account, repository, page,
+    );
+    let title = page.replace("-", " ");
+
+    MirrorTemplate {
+        original_title: title,
+        original_url: url,
+        mirrored_content: "blah blah".to_string(),
+    }
 }
 
 #[launch]
@@ -21,9 +46,7 @@ fn rocket() -> _ {
     // Mount front Page
 
     // Mount Mirror
-    rocket::build().mount("/m", routes![
-        mirror_home,
-    ]).mount("/", routes![
-        front,
-    ])
+    rocket::build()
+        .mount("/m", routes![mirror_home, mirror_page,])
+        .mount("/", routes![front,])
 }
