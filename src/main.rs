@@ -1,6 +1,11 @@
 #[macro_use]
 extern crate rocket;
 
+use reqwest::StatusCode;
+use rocket::http::Status;
+use rocket::response::status::{self, NotFound};
+use rocket::response::Responder;
+
 use askama::Template;
 
 #[derive(Template)]
@@ -21,13 +26,35 @@ struct MirrorTemplate {
     mirrored_content: String,
 }
 
+#[derive(Responder)]
+enum MirrorError {
+    DocumentNotFound(NotFound<MirrorTemplate>),
+    InternalError(status::Custom<MirrorTemplate>),
+}
+
 #[get("/<account>/<repository>/wiki")]
-async fn mirror_home<'a>(account: &'a str, repository: &'a str) -> MirrorTemplate {
+async fn mirror_home<'a>(
+    account: &'a str,
+    repository: &'a str,
+) -> Result<MirrorTemplate, MirrorError> {
     mirror_page(account, repository, "Home").await
 }
 
 #[get("/<account>/<repository>/wiki/<page>")]
-async fn mirror_page<'a>(account: &'a str, repository: &'a str, page: &'a str) -> MirrorTemplate {
+async fn mirror_page<'a>(
+    account: &'a str,
+    repository: &'a str,
+    page: &'a str,
+) -> Result<MirrorTemplate, MirrorError> {
+    use MirrorError::*;
+
+    // Check github_assets
+    let raw_github_assets_url = format!(
+        "https://raw.githubusercontent.com/wiki/{}/{}/{}.md",
+        account, repository, page,
+    );
+
+    // Have original URL to forward to if there is an error.
     let original_url = format!(
         "https://github.com/{}/{}/wiki/{}",
         account, repository, page,
@@ -35,11 +62,53 @@ async fn mirror_page<'a>(account: &'a str, repository: &'a str, page: &'a str) -
 
     let page_title = page.replace("-", " ");
 
-    MirrorTemplate {
-        original_title: page_title,
-        original_url,
-        mirrored_content: "blah blah".to_string(),
+    // Try to grab Stuff
+
+    // Download raw_github_assets_url
+    let resp = reqwest::get(&raw_github_assets_url).await.map_err(|e| {
+        InternalError(status::Custom(
+            Status::InternalServerError,
+            MirrorTemplate {
+                original_title: page_title.clone(),
+                original_url: original_url.clone(),
+                mirrored_content: format!("500 Internal Server Error - {}", e),
+            },
+        ))
+    })?;
+
+    if resp.status() == StatusCode::NOT_FOUND {
+        return Err(DocumentNotFound(NotFound(MirrorTemplate {
+            original_title: page_title.clone(),
+            original_url: original_url.clone(),
+            mirrored_content: format!("{}", resp.status()),
+        })));
     }
+
+    if !resp.status().is_success() {
+        return Err(InternalError(status::Custom(
+            Status::InternalServerError,
+            MirrorTemplate {
+                original_title: page_title.clone(),
+                original_url: original_url.clone(),
+                mirrored_content: format!("Remote: {}", resp.status()),
+            },
+        )));
+    }
+
+    Ok(MirrorTemplate {
+        original_title: page_title.clone(),
+        original_url: original_url.clone(),
+        mirrored_content: resp.text().await.map_err(|e| {
+            InternalError(status::Custom(
+                Status::InternalServerError,
+                MirrorTemplate {
+                    original_title: page_title.clone(),
+                    original_url: original_url.clone(),
+                    mirrored_content: format!("{}", e.to_string()),
+                },
+            ))
+        })?,
+    })
 }
 
 #[launch]
