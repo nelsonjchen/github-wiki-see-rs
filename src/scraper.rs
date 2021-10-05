@@ -9,7 +9,15 @@ pub fn process_markdown(
     repository: &str,
     homepage_prepend: bool,
 ) -> String {
-    let original_html = markdown_to_html(original_markdown, &ComrakOptions::default());
+    let mut options = ComrakOptions::default();
+    options.extension.strikethrough = true;
+    options.extension.tagfilter = true;
+    options.extension.table = true;
+    options.extension.autolink = true;
+    options.extension.tasklist = true;
+    options.render.github_pre_lang = true;
+
+    let original_html = markdown_to_html(original_markdown, &options);
     process_html(&original_html, account, repository, homepage_prepend)
 }
 
