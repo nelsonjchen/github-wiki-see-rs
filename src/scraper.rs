@@ -3,12 +3,22 @@ use core::str;
 use comrak::{markdown_to_html, ComrakOptions};
 use nipper::Document;
 
-pub fn process_markdown(original_markdown: &str, account: &str, repository: &str) -> String {
+pub fn process_markdown(
+    original_markdown: &str,
+    account: &str,
+    repository: &str,
+    homepage_prepend: bool,
+) -> String {
     let original_html = markdown_to_html(original_markdown, &ComrakOptions::default());
-    process_html(&original_html, account, repository)
+    process_html(&original_html, account, repository, homepage_prepend)
 }
 
-pub fn process_html(original_html: &str, account: &str, repository: &str) -> String {
+pub fn process_html(
+    original_html: &str,
+    account: &str,
+    repository: &str,
+    homepage_prepend: bool,
+) -> String {
     let document = Document::from(original_html);
     document.select("a").iter().for_each(|mut thing| {
         if let Some(href) = thing.attr("href") {
@@ -20,6 +30,12 @@ pub fn process_html(original_html: &str, account: &str, repository: &str) -> Str
                 if string_href.starts_with('/') {
                     let new_string_href = "/m".to_owned() + &string_href;
                     thing.set_attr("href", &new_string_href);
+                } else {
+                    // Prepend wiki if homepage
+                    if homepage_prepend {
+                        let new_string_href = "wiki/".to_owned() + &string_href;
+                        thing.set_attr("href", &new_string_href);
+                    }
                 }
             } else {
                 thing.set_attr("rel", "nofollow ugc");
@@ -93,7 +109,7 @@ mod tests {
         let html = "<html><head></head><body><a href=\"https://example.com\"></a></body></html>";
 
         assert_eq!(
-            process_html(html, "some_account", "some_repo"),
+            process_html(html, "some_account", "some_repo", false),
             "<html><head></head><body><a href=\"https://example.com\" rel=\"nofollow ugc\"></a></body></html>"
         );
     }
@@ -103,7 +119,7 @@ mod tests {
         let html = "<html><head></head><body><a href=\"//example.com\"></a></body></html>";
 
         assert_eq!(
-            process_html(html, "some_account", "some_repo"),
+            process_html(html, "some_account", "some_repo", false),
             "<html><head></head><body><a href=\"//example.com\" rel=\"nofollow ugc\"></a></body></html>"
         );
     }
@@ -113,7 +129,7 @@ mod tests {
         let html = "<html><head></head><body><a href=\"http://example.com\"></a></body></html>";
 
         assert_eq!(
-            process_html(html, "some_account", "some_repo"),
+            process_html(html, "some_account", "some_repo", false),
             "<html><head></head><body><a href=\"http://example.com\" rel=\"nofollow ugc\"></a></body></html>"
         );
     }
@@ -123,7 +139,7 @@ mod tests {
         let html = "<html><head></head><body><img src=\"/Erithano/Timon-Your-FAQ-bot-for-Microsoft-Teams/wiki/images/Guide1.1.jpg\"></body></html>";
 
         assert_eq!(
-            process_html(html, "some_account", "some_repo"),
+            process_html(html, "some_account", "some_repo", false),
             "<html><head></head><body><img src=\"https://github.com/Erithano/Timon-Your-FAQ-bot-for-Microsoft-Teams/wiki/images/Guide1.1.jpg\"></body></html>"
         );
     }
@@ -135,7 +151,7 @@ mod tests {
             "<html><head></head><body><img src=\"wiki/images/false-icon.png\"></body></html>";
 
         assert_eq!(
-            process_html(html, "some_account", "some_repo"),
+            process_html(html, "some_account", "some_repo", false),
             "<html><head></head><body><img src=\"https://github.com/some_account/some_repo/wiki/images/false-icon.png\"></body></html>"
         );
     }
@@ -145,7 +161,7 @@ mod tests {
         let html = "<html><head></head><body><img src=\"https://camo.githubusercontent.com/\"></body></html>";
 
         assert_eq!(
-            process_html(html, "some_account", "some_repo"),
+            process_html(html, "some_account", "some_repo", false),
             "<html><head></head><body><img src=\"https://camo.githubusercontent.com/\"></body></html>"
         );
     }
@@ -156,7 +172,7 @@ mod tests {
         let html = "<html><head></head><body><img src=\"images/something.png\"></body></html>";
 
         assert_eq!(
-            process_html(html, "some_account", "some_repo"),
+            process_html(html, "some_account", "some_repo", false),
             "<html><head></head><body><img src=\"https://github.com/some_account/some_repo/wiki/images/something.png\"></body></html>"
         );
     }

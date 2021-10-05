@@ -110,7 +110,11 @@ async fn mirror_page<'a>(
         ))
     })?;
 
-    let mirrored_content = process_markdown(&original_markdown, account, repository);
+    let mirrored_content = if page == "Home" {
+        process_markdown(&original_markdown, account, repository, true)
+    } else {
+        process_markdown(&original_markdown, account, repository, false)
+    };
 
     Ok(MirrorTemplate {
         original_title: page_title.clone(),
