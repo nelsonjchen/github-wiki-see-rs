@@ -170,7 +170,8 @@ async fn mirror_page<'a>(
         ))
     })?;
 
-    let pure_markdown = github_wiki_markdown_to_pure_markdown(&original_markdown, account, repository);
+    let pure_markdown =
+        github_wiki_markdown_to_pure_markdown(&original_markdown, account, repository);
 
     let mirrored_content = if page == "Home" {
         process_markdown(&pure_markdown, account, repository, true)
