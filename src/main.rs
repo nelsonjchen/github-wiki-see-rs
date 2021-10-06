@@ -87,8 +87,9 @@ struct MirrorTemplate {
 
 #[derive(Responder)]
 enum MirrorError {
-    DocumentNotFound(NotFound<MirrorTemplate>),
+    // DocumentNotFound(NotFound<MirrorTemplate>),
     InternalError(status::Custom<MirrorTemplate>),
+    GiveUpSendToGitHub(Redirect)
 }
 
 #[get("/<account>/<repository>/wiki")]
@@ -142,11 +143,14 @@ async fn mirror_page<'a>(
         })?;
 
     if resp.status() == StatusCode::NOT_FOUND {
-        return Err(DocumentNotFound(NotFound(MirrorTemplate {
-            original_title: page_title.clone(),
-            original_url: original_url.clone(),
-            mirrored_content: format!("{}", resp.status()),
-        })));
+        // return Err(DocumentNotFound(NotFound(MirrorTemplate {
+        //     original_title: page_title.clone(),
+        //     original_url: original_url.clone(),
+        //     mirrored_content: format!("{}", resp.status()),
+        // })));
+
+        // Just send them onto GitHub
+        return Err(GiveUpSendToGitHub(Redirect::temporary(original_url)));
     }
 
     if !resp.status().is_success() {
