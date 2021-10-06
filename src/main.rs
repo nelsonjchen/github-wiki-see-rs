@@ -10,6 +10,7 @@ use askama::Template;
 
 use crate::scraper::process_markdown;
 
+mod gh_extensions;
 mod scraper;
 
 #[derive(Template)]
