@@ -4,7 +4,7 @@ extern crate rocket;
 use reqwest::StatusCode;
 use rocket::http::{ContentType, Status};
 use rocket::response::status::{self, NotFound};
-use rocket::response::Responder;
+use rocket::response::{Redirect, Responder};
 
 use askama::Template;
 
@@ -30,6 +30,46 @@ fn favicon() -> (Status, (ContentType, &'static [u8])) {
             include_bytes!("../templates/favicon.ico"),
         ),
     )
+}
+
+#[get("/robots.txt")]
+fn robots_txt() -> (Status, (ContentType, &'static [u8])) {
+    (
+        Status::Ok,
+        (
+            ContentType::Plain,
+            include_bytes!("../templates/robots.txt"),
+        ),
+    )
+}
+
+#[get("/sitemap.xml")]
+fn sitemap_xml() -> Redirect {
+    Redirect::permanent(uri!(
+        "https://nelsonjchen.github.io/github-wiki-see-rs-sitemaps/sitemap_index.xml"
+    ))
+}
+
+#[get("/base_sitemap.xml")]
+fn base_sitemap_xml() -> Redirect {
+    Redirect::permanent(uri!(
+        "https://nelsonjchen.github.io/github-wiki-see-rs-sitemaps/base_sitemap.xml"
+    ))
+}
+
+#[get("/generated_sitemap.xml")]
+fn generated_sitemap_xml() -> Redirect {
+    Redirect::permanent(uri!(
+        "https://nelsonjchen.github.io/github-wiki-see-rs-sitemaps/generated_sitemap.xml"
+    ))
+}
+
+#[get("/seed_sitemaps/<id>")]
+fn seed_sitemaps(id: &str) -> Redirect {
+    Redirect::permanent(format!(
+        "https://nelsonjchen.github.io/github-wiki-see-rs-sitemaps/seed_sitemaps/{}",
+        id
+    ))
 }
 
 #[derive(Template)]
@@ -141,5 +181,16 @@ fn rocket() -> _ {
     // Mount Mirror
     rocket::build()
         .mount("/m", routes![mirror_home, mirror_page,])
-        .mount("/", routes![front, favicon])
+        .mount(
+            "/",
+            routes![
+                front,
+                favicon,
+                robots_txt,
+                sitemap_xml,
+                base_sitemap_xml,
+                generated_sitemap_xml,
+                seed_sitemaps
+            ],
+        )
 }
