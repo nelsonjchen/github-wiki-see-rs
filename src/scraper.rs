@@ -1,48 +1,32 @@
 use core::str;
 
+use comrak::{markdown_to_html, ComrakOptions};
 use nipper::Document;
 
-pub struct HtmlWithInfo {
-    pub original_title: String,
-    pub html: String,
-}
-
-async fn download_github_wiki(
+pub fn process_markdown(
+    original_markdown: &str,
     account: &str,
     repository: &str,
-    page: Option<&str>,
-) -> Result<String, reqwest::Error> {
-    let body = reqwest::get(&format!(
-        "https://github.com/{}/{}/wiki/{}",
-        account,
-        repository,
-        page.unwrap_or("")
-    ))
-    .await?
-    .text()
-    .await?;
-    Ok(body)
+    homepage_prepend: bool,
+) -> String {
+    let mut options = ComrakOptions::default();
+    options.extension.strikethrough = true;
+    options.extension.tagfilter = true;
+    options.extension.table = true;
+    options.extension.autolink = true;
+    options.extension.tasklist = true;
+    options.render.github_pre_lang = true;
+
+    let original_html = markdown_to_html(original_markdown, &options);
+    process_html(&original_html, account, repository, homepage_prepend)
 }
 
-pub async fn get_element_html(
+pub fn process_html(
+    original_html: &str,
     account: &str,
     repository: &str,
-    page: Option<&str>,
-) -> Result<HtmlWithInfo, reqwest::Error> {
-    let html = download_github_wiki(account, repository, page).await?;
-
-    let processed_html = process_html(&html, account, repository);
-
-    let document = Document::from(&processed_html);
-    let a = document.select("#wiki-wrapper");
-    let title = String::from(document.select("title").text());
-    Ok(HtmlWithInfo {
-        original_title: title,
-        html: a.html().to_string(),
-    })
-}
-
-pub fn process_html(original_html: &str, account: &str, repository: &str) -> String {
+    homepage_prepend: bool,
+) -> String {
     let document = Document::from(original_html);
     document.select("a").iter().for_each(|mut thing| {
         if let Some(href) = thing.attr("href") {
@@ -54,6 +38,12 @@ pub fn process_html(original_html: &str, account: &str, repository: &str) -> Str
                 if string_href.starts_with('/') {
                     let new_string_href = "/m".to_owned() + &string_href;
                     thing.set_attr("href", &new_string_href);
+                } else {
+                    // Prepend wiki if homepage
+                    if homepage_prepend {
+                        let new_string_href = "wiki/".to_owned() + &string_href;
+                        thing.set_attr("href", &new_string_href);
+                    }
                 }
             } else {
                 thing.set_attr("rel", "nofollow ugc");
@@ -123,36 +113,11 @@ mod tests {
     }
 
     #[test]
-    fn download_github_wiki_test() {
-        let html = tokio_test::block_on(download_github_wiki(
-            "nelsonjchen",
-            "github-wiki-test",
-            None,
-        ))
-        .unwrap();
-
-        let document = Document::from(&html);
-        let a = document.select("#wiki-wrapper");
-        let text: &str = &a.html();
-        assert_ne!(text.len(), 0);
-    }
-
-    #[test]
-    fn transform_urls_to_new_root() {
-        let html = "<html><head></head><body><a href=\"/\"></a></body></html>";
-
-        assert_eq!(
-            process_html(html, "some_account", "some_repo"),
-            "<html><head></head><body><a href=\"/m/\"></a></body></html>"
-        );
-    }
-
-    #[test]
     fn transform_non_relative_urls_to_nofollow_ugc_https() {
         let html = "<html><head></head><body><a href=\"https://example.com\"></a></body></html>";
 
         assert_eq!(
-            process_html(html, "some_account", "some_repo"),
+            process_html(html, "some_account", "some_repo", false),
             "<html><head></head><body><a href=\"https://example.com\" rel=\"nofollow ugc\"></a></body></html>"
         );
     }
@@ -162,7 +127,7 @@ mod tests {
         let html = "<html><head></head><body><a href=\"//example.com\"></a></body></html>";
 
         assert_eq!(
-            process_html(html, "some_account", "some_repo"),
+            process_html(html, "some_account", "some_repo", false),
             "<html><head></head><body><a href=\"//example.com\" rel=\"nofollow ugc\"></a></body></html>"
         );
     }
@@ -172,7 +137,7 @@ mod tests {
         let html = "<html><head></head><body><a href=\"http://example.com\"></a></body></html>";
 
         assert_eq!(
-            process_html(html, "some_account", "some_repo"),
+            process_html(html, "some_account", "some_repo", false),
             "<html><head></head><body><a href=\"http://example.com\" rel=\"nofollow ugc\"></a></body></html>"
         );
     }
@@ -182,7 +147,7 @@ mod tests {
         let html = "<html><head></head><body><img src=\"/Erithano/Timon-Your-FAQ-bot-for-Microsoft-Teams/wiki/images/Guide1.1.jpg\"></body></html>";
 
         assert_eq!(
-            process_html(html, "some_account", "some_repo"),
+            process_html(html, "some_account", "some_repo", false),
             "<html><head></head><body><img src=\"https://github.com/Erithano/Timon-Your-FAQ-bot-for-Microsoft-Teams/wiki/images/Guide1.1.jpg\"></body></html>"
         );
     }
@@ -194,7 +159,7 @@ mod tests {
             "<html><head></head><body><img src=\"wiki/images/false-icon.png\"></body></html>";
 
         assert_eq!(
-            process_html(html, "some_account", "some_repo"),
+            process_html(html, "some_account", "some_repo", false),
             "<html><head></head><body><img src=\"https://github.com/some_account/some_repo/wiki/images/false-icon.png\"></body></html>"
         );
     }
@@ -204,7 +169,7 @@ mod tests {
         let html = "<html><head></head><body><img src=\"https://camo.githubusercontent.com/\"></body></html>";
 
         assert_eq!(
-            process_html(html, "some_account", "some_repo"),
+            process_html(html, "some_account", "some_repo", false),
             "<html><head></head><body><img src=\"https://camo.githubusercontent.com/\"></body></html>"
         );
     }
@@ -215,7 +180,7 @@ mod tests {
         let html = "<html><head></head><body><img src=\"images/something.png\"></body></html>";
 
         assert_eq!(
-            process_html(html, "some_account", "some_repo"),
+            process_html(html, "some_account", "some_repo", false),
             "<html><head></head><body><img src=\"https://github.com/some_account/some_repo/wiki/images/something.png\"></body></html>"
         );
     }
