@@ -1,10 +1,11 @@
 #[macro_use]
 extern crate rocket;
 
-use reqwest::StatusCode;
+use reqwest::{Client, StatusCode};
 use rocket::http::{ContentType, Status};
 use rocket::response::status::{self, NotFound};
 use rocket::response::{Redirect, Responder};
+use rocket::State;
 
 use askama::Template;
 
@@ -93,8 +94,9 @@ enum MirrorError {
 async fn mirror_home<'a>(
     account: &'a str,
     repository: &'a str,
+    client: &State<Client>,
 ) -> Result<MirrorTemplate, MirrorError> {
-    mirror_page(account, repository, "Home").await
+    mirror_page(account, repository, "Home", client).await
 }
 
 #[get("/<account>/<repository>/wiki/<page>")]
@@ -102,6 +104,7 @@ async fn mirror_page<'a>(
     account: &'a str,
     repository: &'a str,
     page: &'a str,
+    client: &State<Client>,
 ) -> Result<MirrorTemplate, MirrorError> {
     use MirrorError::*;
 
@@ -122,16 +125,20 @@ async fn mirror_page<'a>(
     // Try to grab Stuff
 
     // Download raw_github_assets_url
-    let resp = reqwest::get(&raw_github_assets_url).await.map_err(|e| {
-        InternalError(status::Custom(
-            Status::InternalServerError,
-            MirrorTemplate {
-                original_title: page_title.clone(),
-                original_url: original_url.clone(),
-                mirrored_content: format!("500 Internal Server Error - {}", e),
-            },
-        ))
-    })?;
+    let resp = client
+        .get(&raw_github_assets_url)
+        .send()
+        .await
+        .map_err(|e| {
+            InternalError(status::Custom(
+                Status::InternalServerError,
+                MirrorTemplate {
+                    original_title: page_title.clone(),
+                    original_url: original_url.clone(),
+                    mirrored_content: format!("500 Internal Server Error - {}", e),
+                },
+            ))
+        })?;
 
     if resp.status() == StatusCode::NOT_FOUND {
         return Err(DocumentNotFound(NotFound(MirrorTemplate {
@@ -197,4 +204,5 @@ fn rocket() -> _ {
                 seed_sitemaps
             ],
         )
+        .manage(Client::new())
 }
