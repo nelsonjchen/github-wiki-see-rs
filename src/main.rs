@@ -8,6 +8,7 @@ use rocket::response::{Redirect, Responder};
 
 use askama::Template;
 
+use crate::gh_extensions::github_wiki_markdown_to_pure_markdown;
 use crate::scraper::process_markdown;
 
 mod gh_extensions;
@@ -162,10 +163,12 @@ async fn mirror_page<'a>(
         ))
     })?;
 
+    let pure_markdown = github_wiki_markdown_to_pure_markdown(&original_markdown, account, repository);
+
     let mirrored_content = if page == "Home" {
-        process_markdown(&original_markdown, account, repository, true)
+        process_markdown(&pure_markdown, account, repository, true)
     } else {
-        process_markdown(&original_markdown, account, repository, false)
+        process_markdown(&pure_markdown, account, repository, false)
     };
 
     Ok(MirrorTemplate {

@@ -34,6 +34,7 @@ pub fn github_wiki_markdown_to_pure_markdown<'a, 'b>(
         .to_string()
 }
 
+#[cfg(test)]
 mod tests {
     use super::*;
 
