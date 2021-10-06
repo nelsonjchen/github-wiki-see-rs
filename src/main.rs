@@ -2,6 +2,7 @@
 extern crate rocket;
 
 use reqwest::{Client, StatusCode};
+use rocket::futures::{FutureExt, TryFutureExt};
 use rocket::http::{ContentType, Status};
 use rocket::response::status::{self, NotFound};
 use rocket::response::{Redirect, Responder};
@@ -170,8 +171,30 @@ async fn mirror_page<'a>(
         ))
     })?;
 
+    let sidebar_markdown_future = client
+        .get(format!(
+            "https://github.com/{}/{}/wiki/_Sidebar.md",
+            account, repository
+        ))
+        .send()
+        .map(|r| r.map(|r| r.text()))
+        .and_then(|f| f);
+
+    let sidebar_markdown_option: Option<String> = sidebar_markdown_future
+        .await
+        .ok()
+        .map(|s| format!("\n\n# Sidebar\n\n{}", s));
+
+    let content_markdown = {
+        if let Some(sidebar_markdown) = sidebar_markdown_option {
+            format!("{}{}", original_markdown, sidebar_markdown)
+        } else {
+            original_markdown
+        }
+    };
+
     let pure_markdown =
-        github_wiki_markdown_to_pure_markdown(&original_markdown, account, repository);
+        github_wiki_markdown_to_pure_markdown(&content_markdown, account, repository);
 
     let mirrored_content = if page == "Home" {
         process_markdown(&pure_markdown, account, repository, true)

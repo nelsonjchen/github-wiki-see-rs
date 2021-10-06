@@ -20,7 +20,7 @@ pub fn github_wiki_markdown_to_pure_markdown<'a, 'b>(
     }
     // Disregard alt for now.
     let processed_img_md = IMG_RE.replace_all(
-        &md,
+        md,
         format!(
             "![$link_text](https://raw.githubusercontent.com/wiki/{}/{}$image_url)",
             account, repo
