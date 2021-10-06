@@ -2,7 +2,7 @@
 extern crate rocket;
 
 use reqwest::StatusCode;
-use rocket::http::Status;
+use rocket::http::{ContentType, Status};
 use rocket::response::status::{self, NotFound};
 use rocket::response::Responder;
 
@@ -19,6 +19,17 @@ struct FrontPageTemplate {}
 #[get("/")]
 fn front() -> FrontPageTemplate {
     FrontPageTemplate {}
+}
+
+#[get("/favicon.ico")]
+fn favicon() -> (Status, (ContentType, &'static [u8])) {
+    (
+        Status::Ok,
+        (
+            ContentType::Icon,
+            include_bytes!("../templates/favicon.ico"),
+        ),
+    )
 }
 
 #[derive(Template)]
@@ -130,5 +141,5 @@ fn rocket() -> _ {
     // Mount Mirror
     rocket::build()
         .mount("/m", routes![mirror_home, mirror_page,])
-        .mount("/", routes![front,])
+        .mount("/", routes![front, favicon])
 }
