@@ -673,6 +673,7 @@ dependencies = [
  "comrak",
  "lazy_static",
  "nipper",
+ "percent-encoding",
  "regex",
  "reqwest",
  "rocket",

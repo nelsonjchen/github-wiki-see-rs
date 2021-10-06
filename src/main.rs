@@ -4,7 +4,7 @@ extern crate rocket;
 use reqwest::{Client, StatusCode};
 use rocket::futures::{FutureExt, TryFutureExt};
 use rocket::http::{ContentType, Status};
-use rocket::response::status::{self, NotFound};
+use rocket::response::status;
 use rocket::response::{Redirect, Responder};
 use rocket::State;
 
@@ -85,11 +85,12 @@ struct MirrorTemplate {
     mirrored_content: String,
 }
 
+#[allow(clippy::large_enum_variant)]
 #[derive(Responder)]
 enum MirrorError {
     // DocumentNotFound(NotFound<MirrorTemplate>),
     InternalError(status::Custom<MirrorTemplate>),
-    GiveUpSendToGitHub(Redirect)
+    GiveUpSendToGitHub(Redirect),
 }
 
 #[get("/<account>/<repository>/wiki")]
@@ -121,6 +122,12 @@ async fn mirror_page<'a>(
         "https://github.com/{}/{}/wiki/{}",
         account, repository, page,
     );
+    let original_url_encoded = format!(
+        "https://github.com/{}/{}/wiki/{}",
+        account,
+        repository,
+        percent_encoding::utf8_percent_encode(page, percent_encoding::NON_ALPHANUMERIC),
+    );
 
     let page_title = page.replace("-", " ");
 
@@ -150,7 +157,9 @@ async fn mirror_page<'a>(
         // })));
 
         // Just send them onto GitHub
-        return Err(GiveUpSendToGitHub(Redirect::temporary(original_url)));
+        return Err(GiveUpSendToGitHub(Redirect::temporary(
+            original_url_encoded,
+        )));
     }
 
     if !resp.status().is_success() {

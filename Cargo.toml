@@ -20,3 +20,4 @@ tokio = { version = "1", features = ["full"] }
 comrak = "0.12.1"
 regex = "1.5.4"
 lazy_static = "1.4.0"
+percent-encoding = "2.1.0"
