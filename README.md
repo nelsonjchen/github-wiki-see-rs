@@ -22,8 +22,7 @@ All links rendered in the tool going outside of GitHub were tagged with `rel="no
 
 ## Decomissioning
 
-GitHub had removed wikis from their `robots.txt` and this tool be modified to simply "308" permanently redirect the link to
-GitHub.
+GitHub had removed wikis from their `robots.txt` and this tool was modified to simply "308" permanently redirect incoming links to GitHub.
 
 https://github.com/github/feedback/discussions/4992#discussioncomment-1439485
 
