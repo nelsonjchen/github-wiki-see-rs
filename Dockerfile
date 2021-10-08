@@ -1,16 +1,26 @@
-ARG RUST_BUILD_IMAGE=rust:1.54.0
-FROM ${RUST_BUILD_IMAGE} as build
+FROM rust:1.55.0 AS chef
+# We only pay the installation cost once,
+# it will be cached from the second build onwards
+RUN cargo install cargo-chef
+WORKDIR app
 
-WORKDIR /usr/src/project
+FROM chef AS planner
 COPY . .
+RUN cargo chef prepare  --recipe-path recipe.json
 
-RUN cargo install --path .
+FROM chef AS builder
+COPY --from=planner /app/recipe.json recipe.json
+# Build dependencies - this is the caching Docker layer!
+RUN cargo chef cook --release --recipe-path recipe.json
+# Build application
+COPY . .
+RUN cargo build --release --bin github-wiki-see
 
-FROM gcr.io/distroless/cc-debian10
-
-COPY --from=build /usr/local/cargo/bin/github-wiki-see /usr/local/bin/github-wiki-see
+# We do not need the Rust toolchain to run the binary!
+FROM gcr.io/distroless/cc-debian11 AS runtime
+WORKDIR app
+COPY --from=builder /app/target/release/github-wiki-see /usr/local/bin/github-wiki-see
 
 ENV ROCKET_ADDRESS=0.0.0.0
-ENV ROCKET_PORT=8080
 
-CMD ["github-wiki-see"]
+CMD ["/usr/local/bin/github-wiki-see"]
