@@ -14,16 +14,17 @@ This is designed as a Rust web proxy application. It is not very Rusty and has l
 
 It is designed to run ondemand as a Docker application on a service such as [Google Cloud Run][gcr]. Uptime and latency are important so that the service appears on search engines and gets a high ranking.
 
-301/302s are intentionally **not** used as to not give search engines the impression that the page is a redirect and to
-ignore the content. Humans should see it as a redirect; the robots should not.
+301/302/307/308s are intentionally **not** used as to not give search engines the impression that the page is a redirect and to
+ignore the content.
+Humans should see it as a redirect; the robots should not.
 
 All links rendered in the tool going outside of GitHub are tagged with `rel="nofollow ugc"` to prevent ranking
  manipulation which was probably the reason wiki content was excluded from indexing.
 
-## Decomissioning
+## Decommissioning
 
-When GitHub removes wikis from their `robots.txt`, this tool will be modified to simply "301" redirect the link to
-GitHub. May this happen someday and soon.
+When GitHub removes wikis from their `robots.txt` and `x-robots-tag: none` from the pages on GitHub,
+this tool will be modified to simply "308" redirect the link to GitHub. May this happen someday and soon.
 
 If some other unforeseen consequence of the tool happens, this may be done as well.
 

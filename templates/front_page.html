@@ -18,16 +18,18 @@
     <h1>GitHub Wiki SEE</h1>
     <p>
         <em>GitHub Wiki Search Engine Enablement</em> allows GitHub Wikis to be indexed by search engines. There's no
-        <a href="/robots.txt"><code>robots.txt</code></a> on this site preventing indexing of wiki content
+        <a href="/robots.txt"><code>robots.txt</code></a> or headers on this site preventing indexing of wiki content
         and wiki content proxied from GitHub and served from this domain will be crawled and indexed.
     </p>
     <p>
         Currently, <a href=https://github.com/github/feedback/discussions/4992>GitHub prevents crawling of repository Wiki
-        pages</a>. This means GitHub Wikis are invisible to search engines such as Google and DuckDuckGo and can be
-        a very unpleasant surprise if you're looking to share searchable knowledge or put a FAQ on a Wiki!
+        pages</a>. As such, GitHub Wikis are invisible to search engines such as Google and DuckDuckGo and this can be
+        a very unpleasant surprise if you're looking to share searchable knowledge such as a FAQ on a Wiki!
+        It is also uncomfortable for searchers to know that they aren't searching
+        against the full possible world of documentation.
     </p>
     <p>
-        GHWSEE simply proxies the rendered contents of the pages and has a link at the top to visit the page on GitHub
+        GHWSEE proxies the rendered contents of the pages and has a link at the top to visit the page on GitHub
         for normal usage and a link at the bottom explaining what GHWSEE is.
         The content of this service is not meant to be read by users and is meant for crawlers. It is
         intended to behave like those StackOverflow content mirroring sites but with far less ad-farming.
@@ -49,7 +51,9 @@
     <p>If you are an editor, edit your page periodically and the
         <a href=https://github.com/nelsonjchen/github-wiki-see-rs-sitemaps>sitemap generator</a>
         will eventually pick it up and notify search engines! However, the search ranking will be affected by how
-        unique your content is and how well it matches the queries. Generally don't expect a high ranking but it'll probably be on page 2 or 3 which is better than the previous alternative of not being there at all!
+        unique your content is and how well it matches the queries.
+        Generally don't expect a high ranking but it'll probably be on page 2 or 3 which
+         is better than the previous alternative of not being there at all!
     </p>
 
     <p>Note that it may take quite some time for content to be picked up and there is no guarantee it'll be picked up.</p>
@@ -65,6 +69,11 @@
     <h2>Project, README, Source, Issues, and other information</h2>
 
     <a href="https://github.com/nelsonjchen/github-wiki-see-rs">https://github.com/nelsonjchen/github-wiki-see-rs</a>
+
+    <h2>Decommissioning</h2>
+
+    <p>This site will be decommissioned to redirect old links once the block is lifted.</p>
+    <p>People shouldn't have linked to this site but maybe the warnings weren't big and red enough.</p>
 </body>
 
 </html>
