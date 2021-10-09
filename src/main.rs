@@ -15,6 +15,7 @@ use crate::scraper::process_markdown;
 
 mod gh_extensions;
 mod scraper;
+mod retrieval;
 
 #[derive(Template)]
 #[template(path = "front_page.html")]
