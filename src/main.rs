@@ -267,12 +267,18 @@ rst
     }
 }
 
+#[catch(404)]
+fn not_found() -> String {
+    format!("Links on this site may not work! CONTENT IS FOR CRAWLERS ONLY. Go back and visit the original URL.")
+}
+
 #[launch]
 fn rocket() -> _ {
     // Mount front Page
 
     // Mount Mirror
     rocket::build()
+        .register("/", catchers![not_found])
         .mount("/m", routes![mirror_home, mirror_page,])
         .mount(
             "/",
