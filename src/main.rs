@@ -11,6 +11,7 @@ use rocket::response::status;
 use rocket::response::{Redirect, Responder};
 use rocket::State;
 
+use crate::scraper::process_html;
 use askama::Template;
 
 use crate::gh_extensions::github_wiki_markdown_to_pure_markdown;
@@ -136,7 +137,10 @@ async fn mirror_page<'a>(
     // Consider it "fatal" if this doesn't exist/errors and forward to GitHub or return an error.
     let content = retrieve_source_file(account, repository, page, client)
         .map_err(|e| match e {
-            ContentError::NotFound => GiveUpSendToGitHub(Redirect::temporary(original_url_encoded)),
+            ContentError::NotFound => GiveUpSendToGitHub(Redirect::to(original_url_encoded)),
+            ContentError::TooMayRequests => {
+                GiveUpSendToGitHub(Redirect::temporary(original_url_encoded))
+            }
             ContentError::OtherError(e) => InternalError(status::Custom(
                 Status::InternalServerError,
                 MirrorTemplate {
@@ -263,6 +267,10 @@ tt
 rst
             );
             process_markdown(&md, account, repository, page == "Home")
+        }
+        Content::Fallback(html) => {
+            let annotated_html = format!("{} <h6>⚠️ **GitHub.com Fallback** ⚠️</h6>", html);
+            process_html(&annotated_html, account, repository, page == "Home")
         }
     }
 }
