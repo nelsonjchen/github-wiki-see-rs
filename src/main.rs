@@ -119,6 +119,7 @@ async fn mirror_page<'a>(
         "https://github.com/{}/{}/wiki/{}",
         account, repository, page,
     );
+    // Rocket's Redirect doesn't like unencoded URLs.
     let original_url_encoded = format!(
         "https://github.com/{}/{}/wiki/{}",
         account,
@@ -128,8 +129,7 @@ async fn mirror_page<'a>(
 
     let page_title = page.replace("-", " ");
 
-    // Try to grab Stuff
-
+    // Grab Source in many possible languages
     let content = retrieve_source_file(account, repository, page, client)
         .map_err(|e| match e {
             ContentError::NotFound => GiveUpSendToGitHub(Redirect::temporary(original_url_encoded)),
@@ -174,11 +174,9 @@ async fn mirror_page<'a>(
     let pure_markdown =
         github_wiki_markdown_to_pure_markdown(&content_markdown, account, repository);
 
-    let mirrored_content = if page == "Home" {
-        process_markdown(&pure_markdown, account, repository, true)
-    } else {
-        process_markdown(&pure_markdown, account, repository, false)
-    };
+    let mirrored_content =
+        process_markdown(&pure_markdown, account, repository, page == "Home" );
+
 
     Ok(MirrorTemplate {
         original_title: page_title.clone(),
