@@ -17,8 +17,8 @@ processes = []
   script_checks = []
 
   [services.concurrency]
-    hard_limit = 10
-    soft_limit = 10
+    hard_limit = 60
+    soft_limit = 60
     type = "connections"
 
   [[services.ports]]
@@ -36,9 +36,9 @@ processes = []
     timeout = "2s"
 
   [[services.http_checks]]
-    grace_period = "5s"
+    grace_period = "10s"
     interval = "15s"
-    restart_limit = 1
+    restart_limit = 2
     timeout = "10s"
     method="get"
     path="/m/nelsonjchen/github-wiki-test/wiki"
