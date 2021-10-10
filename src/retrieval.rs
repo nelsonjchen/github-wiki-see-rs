@@ -57,16 +57,6 @@ pub async fn retrieve_source_file<'a>(
             //     "creole",
             // )
             // .boxed(),
-            // Markdown
-            retrieve_source_file_extension(
-                account,
-                repository,
-                page,
-                client,
-                &Content::Markdown,
-                "md",
-            )
-            .boxed(),
             // retrieve_source_file_extension(
             //     account,
             //     repository,
