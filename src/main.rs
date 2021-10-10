@@ -2,7 +2,8 @@
 extern crate rocket;
 
 use reqwest::Client;
-use rocket::futures::{FutureExt, TryFutureExt};
+use retrieval::Content;
+use rocket::futures::TryFutureExt;
 use rocket::http::{ContentType, Status};
 use rocket::response::status;
 use rocket::response::{Redirect, Responder};
@@ -129,7 +130,8 @@ async fn mirror_page<'a>(
 
     let page_title = page.replace("-", " ");
 
-    // Grab Source in many possible languages
+    // Grab main content from GitHub
+    // Consider it "fatal" if this doesn't exist/errors and forward to GitHub or return an error.
     let content = retrieve_source_file(account, repository, page, client)
         .map_err(|e| match e {
             ContentError::NotFound => GiveUpSendToGitHub(Redirect::temporary(original_url_encoded)),
@@ -144,43 +146,44 @@ async fn mirror_page<'a>(
         })
         .await?;
 
-    // let original_markdown = match content {
-    //     retrieval::Content::Markdown(md) => md,
-    // };
-    let retrieval::Content::Markdown(original_markdown) = content;
+    let original_html = content_to_html(content, account, repository, page);
 
-    let sidebar_markdown_future = client
-        .get(format!(
-            "https://github.com/{}/{}/wiki/_Sidebar.md",
-            account, repository
-        ))
-        .send()
-        .map(|r| r.map(|r| r.text()))
-        .and_then(|f| f);
-
-    let sidebar_markdown_option: Option<String> = sidebar_markdown_future
+    // The content exists. Now try to get the sidebar.
+    let sidebar_content = retrieve_source_file(account, repository, page, client)
         .await
-        .ok()
-        .map(|s| format!("\n\n# Sidebar\n\n{}", s));
+        .ok();
 
-    let content_markdown = {
-        if let Some(sidebar_markdown) = sidebar_markdown_option {
-            format!("{}{}", original_markdown, sidebar_markdown)
-        } else {
-            original_markdown
-        }
+    let sidebar_html =
+        sidebar_content.map(|content| content_to_html(content, account, repository, page));
+
+    // Append the sidebar if it exists
+    let mirrored_content = if let Some(sidebar_html) = sidebar_html {
+        format!(
+            "{}\n
+            <h1>Sidebar</h1>
+            \n{}",
+            original_html, sidebar_html,
+        )
+    } else {
+        original_html
     };
-
-    let pure_markdown =
-        github_wiki_markdown_to_pure_markdown(&content_markdown, account, repository);
-
-    let mirrored_content = process_markdown(&pure_markdown, account, repository, page == "Home");
 
     Ok(MirrorTemplate {
         original_title: page_title.clone(),
         original_url: original_url.clone(),
         mirrored_content,
     })
+}
+
+fn content_to_html(content: Content, account: &str, repository: &str, page: &str) -> String {
+    match content {
+        retrieval::Content::Markdown(md) => {
+            // Markdown can have mediawiki links in them apparently
+            let pure_markdown = github_wiki_markdown_to_pure_markdown(&md, account, repository);
+            process_markdown(&pure_markdown, account, repository, page == "Home")
+        }
+        retrieval::Content::AsciiDoc(ascii_doc) => ascii_doc,
+    }
 }
 
 #[launch]

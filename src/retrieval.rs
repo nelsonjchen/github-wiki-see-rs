@@ -6,6 +6,7 @@ use rocket::futures::{future::select_ok, FutureExt, TryFutureExt};
 #[derive(Debug)]
 pub enum Content {
     Markdown(String),
+    AsciiDoc(String),
     // Unhandled(String),
 }
 
@@ -61,6 +62,15 @@ pub async fn retrieve_source_file<'a>(
             client,
             &Content::Markdown,
             "markdown",
+        )
+        .boxed(),
+        retrieve_source_file_extension(
+            account,
+            repository,
+            page,
+            client,
+            &Content::AsciiDoc,
+            "asciidoc",
         )
         .boxed(),
     ])
