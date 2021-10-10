@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate rocket;
 
-use reqwest::{Client, StatusCode};
+use reqwest::Client;
 use rocket::futures::{FutureExt, TryFutureExt};
 use rocket::http::{ContentType, Status};
 use rocket::response::status;
@@ -14,8 +14,8 @@ use crate::gh_extensions::github_wiki_markdown_to_pure_markdown;
 use crate::scraper::process_markdown;
 
 mod gh_extensions;
-mod scraper;
 mod retrieval;
+mod scraper;
 
 #[derive(Template)]
 #[template(path = "front_page.html")]
@@ -110,13 +110,9 @@ async fn mirror_page<'a>(
     page: &'a str,
     client: &State<Client>,
 ) -> Result<MirrorTemplate, MirrorError> {
+    use retrieval::retrieve_source_file;
+    use retrieval::ContentError;
     use MirrorError::*;
-
-    // Check github_assets
-    let raw_github_assets_url = format!(
-        "https://raw.githubusercontent.com/wiki/{}/{}/{}.md",
-        account, repository, page,
-    );
 
     // Have original URL to forward to if there is an error.
     let original_url = format!(
@@ -134,56 +130,24 @@ async fn mirror_page<'a>(
 
     // Try to grab Stuff
 
-    // Download raw_github_assets_url
-    let resp = client
-        .get(&raw_github_assets_url)
-        .send()
-        .await
-        .map_err(|e| {
-            InternalError(status::Custom(
+    let content = retrieve_source_file(account, repository, page, client)
+        .map_err(|e| match e {
+            ContentError::NotFound => GiveUpSendToGitHub(Redirect::temporary(original_url_encoded)),
+            ContentError::OtherError(e) => InternalError(status::Custom(
                 Status::InternalServerError,
                 MirrorTemplate {
                     original_title: page_title.clone(),
                     original_url: original_url.clone(),
                     mirrored_content: format!("500 Internal Server Error - {}", e),
                 },
-            ))
-        })?;
+            )),
+        })
+        .await?;
 
-    if resp.status() == StatusCode::NOT_FOUND {
-        // return Err(DocumentNotFound(NotFound(MirrorTemplate {
-        //     original_title: page_title.clone(),
-        //     original_url: original_url.clone(),
-        //     mirrored_content: format!("{}", resp.status()),
-        // })));
-
-        // Just send them onto GitHub
-        return Err(GiveUpSendToGitHub(Redirect::temporary(
-            original_url_encoded,
-        )));
-    }
-
-    if !resp.status().is_success() {
-        return Err(InternalError(status::Custom(
-            Status::InternalServerError,
-            MirrorTemplate {
-                original_title: page_title.clone(),
-                original_url: original_url.clone(),
-                mirrored_content: format!("Remote: {}", resp.status()),
-            },
-        )));
-    }
-
-    let original_markdown = resp.text().await.map_err(|e| {
-        InternalError(status::Custom(
-            Status::InternalServerError,
-            MirrorTemplate {
-                original_title: page_title.clone(),
-                original_url: original_url.clone(),
-                mirrored_content: format!("Internal Server Error - {}", e.to_string()),
-            },
-        ))
-    })?;
+    // let original_markdown = match content {
+    //     retrieval::Content::Markdown(md) => md,
+    // };
+    let retrieval::Content::Markdown(original_markdown) = content;
 
     let sidebar_markdown_future = client
         .get(format!(
