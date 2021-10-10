@@ -1,8 +1,9 @@
 #[macro_use]
 extern crate rocket;
 
-use reqwest::{Client, StatusCode};
-use rocket::futures::{FutureExt, TryFutureExt};
+use reqwest::Client;
+use retrieval::Content;
+use rocket::futures::TryFutureExt;
 use rocket::http::{ContentType, Status};
 use rocket::response::status;
 use rocket::response::{Redirect, Responder};
@@ -14,6 +15,7 @@ use crate::gh_extensions::github_wiki_markdown_to_pure_markdown;
 use crate::scraper::process_markdown;
 
 mod gh_extensions;
+mod retrieval;
 mod scraper;
 
 #[derive(Template)]
@@ -109,19 +111,16 @@ async fn mirror_page<'a>(
     page: &'a str,
     client: &State<Client>,
 ) -> Result<MirrorTemplate, MirrorError> {
+    use retrieval::retrieve_source_file;
+    use retrieval::ContentError;
     use MirrorError::*;
-
-    // Check github_assets
-    let raw_github_assets_url = format!(
-        "https://raw.githubusercontent.com/wiki/{}/{}/{}.md",
-        account, repository, page,
-    );
 
     // Have original URL to forward to if there is an error.
     let original_url = format!(
         "https://github.com/{}/{}/wiki/{}",
         account, repository, page,
     );
+    // Rocket's Redirect doesn't like unencoded URLs.
     let original_url_encoded = format!(
         "https://github.com/{}/{}/wiki/{}",
         account,
@@ -131,88 +130,42 @@ async fn mirror_page<'a>(
 
     let page_title = page.replace("-", " ");
 
-    // Try to grab Stuff
-
-    // Download raw_github_assets_url
-    let resp = client
-        .get(&raw_github_assets_url)
-        .send()
-        .await
-        .map_err(|e| {
-            InternalError(status::Custom(
+    // Grab main content from GitHub
+    // Consider it "fatal" if this doesn't exist/errors and forward to GitHub or return an error.
+    let content = retrieve_source_file(account, repository, page, client)
+        .map_err(|e| match e {
+            ContentError::NotFound => GiveUpSendToGitHub(Redirect::temporary(original_url_encoded)),
+            ContentError::OtherError(e) => InternalError(status::Custom(
                 Status::InternalServerError,
                 MirrorTemplate {
                     original_title: page_title.clone(),
                     original_url: original_url.clone(),
                     mirrored_content: format!("500 Internal Server Error - {}", e),
                 },
-            ))
-        })?;
+            )),
+        })
+        .await?;
 
-    if resp.status() == StatusCode::NOT_FOUND {
-        // return Err(DocumentNotFound(NotFound(MirrorTemplate {
-        //     original_title: page_title.clone(),
-        //     original_url: original_url.clone(),
-        //     mirrored_content: format!("{}", resp.status()),
-        // })));
+    let original_html = content_to_html(content, account, repository, page);
 
-        // Just send them onto GitHub
-        return Err(GiveUpSendToGitHub(Redirect::temporary(
-            original_url_encoded,
-        )));
-    }
-
-    if !resp.status().is_success() {
-        return Err(InternalError(status::Custom(
-            Status::InternalServerError,
-            MirrorTemplate {
-                original_title: page_title.clone(),
-                original_url: original_url.clone(),
-                mirrored_content: format!("Remote: {}", resp.status()),
-            },
-        )));
-    }
-
-    let original_markdown = resp.text().await.map_err(|e| {
-        InternalError(status::Custom(
-            Status::InternalServerError,
-            MirrorTemplate {
-                original_title: page_title.clone(),
-                original_url: original_url.clone(),
-                mirrored_content: format!("Internal Server Error - {}", e.to_string()),
-            },
-        ))
-    })?;
-
-    let sidebar_markdown_future = client
-        .get(format!(
-            "https://github.com/{}/{}/wiki/_Sidebar.md",
-            account, repository
-        ))
-        .send()
-        .map(|r| r.map(|r| r.text()))
-        .and_then(|f| f);
-
-    let sidebar_markdown_option: Option<String> = sidebar_markdown_future
+    // The content exists. Now try to get the sidebar.
+    let sidebar_content = retrieve_source_file(account, repository, "_Sidebar", client)
         .await
-        .ok()
-        .map(|s| format!("\n\n# Sidebar\n\n{}", s));
+        .ok();
 
-    let content_markdown = {
-        if let Some(sidebar_markdown) = sidebar_markdown_option {
-            format!("{}{}", original_markdown, sidebar_markdown)
-        } else {
-            original_markdown
-        }
-    };
+    let sidebar_html =
+        sidebar_content.map(|content| content_to_html(content, account, repository, page));
 
-    let pure_markdown =
-        github_wiki_markdown_to_pure_markdown(&content_markdown, account, repository);
-
-    let mirrored_content = if page == "Home" {
-        process_markdown(&pure_markdown, account, repository, true)
+    // Append the sidebar if it exists
+    let mirrored_content = if let Some(sidebar_html) = sidebar_html {
+        format!(
+            "{}\n
+            <h1>Sidebar</h1>
+            \n{}",
+            original_html, sidebar_html,
+        )
     } else {
-        process_markdown(&pure_markdown, account, repository, false)
+        original_html
     };
 
     Ok(MirrorTemplate {
@@ -220,6 +173,96 @@ async fn mirror_page<'a>(
         original_url: original_url.clone(),
         mirrored_content,
     })
+}
+
+fn content_to_html(content: Content, account: &str, repository: &str, page: &str) -> String {
+    match content {
+        Content::AsciiDoc(ascii_doc) => {
+            let md = format!(
+                "🚨 **github-wiki-see.page does not render asciidoc. Source for crawling below. Please visit the Original URL!** 🚨\n
+```asciidoc\n
+{}\n
+```\n",
+                ascii_doc
+            );
+            process_markdown(&md, account, repository, page == "Home")
+        }
+        Content::Creole(cr) => {
+            let md = format!(
+                "🚨 **github-wiki-see.page does not render Creole. Source for crawling below. Please visit the Original URL!** 🚨\n
+```creole\n
+{}\n
+```\n",
+                cr
+            );
+            process_markdown(&md, account, repository, page == "Home")
+        }
+        Content::Markdown(md) => {
+            // Markdown can have mediawiki links in them apparently
+            let pure_markdown = github_wiki_markdown_to_pure_markdown(&md, account, repository);
+            process_markdown(&pure_markdown, account, repository, page == "Home")
+        }
+        Content::Mediawiki(mw) => {
+            let md = format!(
+                "🚨 **github-wiki-see.page does not render Mediawiki. Source for crawling below. Please visit the Original URL!** 🚨\n
+```creole\n
+{}\n
+```\n",
+mw
+            );
+            process_markdown(&md, account, repository, page == "Home")
+        }
+        Content::Orgmode(og) => {
+            let md = format!(
+                "🚨 **github-wiki-see.page does not render Org-Mode. Source for crawling below. Please visit the Original URL!** 🚨\n
+```org\n
+{}\n
+```\n",
+og
+            );
+            process_markdown(&md, account, repository, page == "Home")
+        }
+        Content::Pod(p) => {
+            let md = format!(
+                "🚨 **github-wiki-see.page does not render Pod. Source for crawling below. Please visit the Original URL!** 🚨\n
+```pod\n
+{}\n
+```\n",
+p
+            );
+            process_markdown(&md, account, repository, page == "Home")
+        }
+        Content::Rdoc(rd) => {
+            let md = format!(
+                "🚨 **github-wiki-see.page does not render Rdoc. Source for crawling below. Please visit the Original URL!** 🚨\n
+```rdoc\n
+{}\n
+```\n",
+rd
+            );
+            process_markdown(&md, account, repository, page == "Home")
+        }
+        Content::Textile(tt) => {
+            let md = format!(
+                "🚨 **github-wiki-see.page does not render Textile. Source for crawling below. Please visit the Original URL!** 🚨\n
+```textile\n
+{}\n
+```\n",
+tt
+            );
+            process_markdown(&md, account, repository, page == "Home")
+        }
+        Content::ReStructuredText(rst) => {
+            let md = format!(
+                "🚨 **github-wiki-see.page does not render ReStructuredText. Source for crawling below. Please visit the Original URL!** 🚨\n
+```rst\n
+{}\n
+```\n",
+rst
+            );
+            process_markdown(&md, account, repository, page == "Home")
+        }
+    }
 }
 
 #[launch]
