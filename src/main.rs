@@ -177,19 +177,88 @@ async fn mirror_page<'a>(
 
 fn content_to_html(content: Content, account: &str, repository: &str, page: &str) -> String {
     match content {
-        retrieval::Content::Markdown(md) => {
-            // Markdown can have mediawiki links in them apparently
-            let pure_markdown = github_wiki_markdown_to_pure_markdown(&md, account, repository);
-            process_markdown(&pure_markdown, account, repository, page == "Home")
-        }
-        // Fallback to Pre Markdown
-        retrieval::Content::AsciiDoc(ascii_doc) => {
+        Content::AsciiDoc(ascii_doc) => {
             let md = format!(
-                "⚠ **github-wiki-see.page does not render asciidoc. Source presented below. Please visit the Original URL!** ⚠\n
+                "🚨 **github-wiki-see.page does not render asciidoc. Source for crawling below. Please visit the Original URL!** 🚨\n
 ```asciidoc\n
 {}\n
 ```\n",
                 ascii_doc
+            );
+            process_markdown(&md, account, repository, page == "Home")
+        }
+        Content::Creole(cr) => {
+            let md = format!(
+                "🚨 **github-wiki-see.page does not render Creole. Source for crawling below. Please visit the Original URL!** 🚨\n
+```creole\n
+{}\n
+```\n",
+                cr
+            );
+            process_markdown(&md, account, repository, page == "Home")
+        }
+        Content::Markdown(md) => {
+            // Markdown can have mediawiki links in them apparently
+            let pure_markdown = github_wiki_markdown_to_pure_markdown(&md, account, repository);
+            process_markdown(&pure_markdown, account, repository, page == "Home")
+        }
+        Content::Mediawiki(mw) => {
+            let md = format!(
+                "🚨 **github-wiki-see.page does not render Mediawiki. Source for crawling below. Please visit the Original URL!** 🚨\n
+```creole\n
+{}\n
+```\n",
+mw
+            );
+            process_markdown(&md, account, repository, page == "Home")
+        }
+        Content::Orgmode(og) => {
+            let md = format!(
+                "🚨 **github-wiki-see.page does not render Org-Mode. Source for crawling below. Please visit the Original URL!** 🚨\n
+```org\n
+{}\n
+```\n",
+og
+            );
+            process_markdown(&md, account, repository, page == "Home")
+        }
+        Content::Pod(p) => {
+            let md = format!(
+                "🚨 **github-wiki-see.page does not render Pod. Source for crawling below. Please visit the Original URL!** 🚨\n
+```pod\n
+{}\n
+```\n",
+p
+            );
+            process_markdown(&md, account, repository, page == "Home")
+        }
+        Content::Rdoc(rd) => {
+            let md = format!(
+                "🚨 **github-wiki-see.page does not render Rdoc. Source for crawling below. Please visit the Original URL!** 🚨\n
+```rdoc\n
+{}\n
+```\n",
+rd
+            );
+            process_markdown(&md, account, repository, page == "Home")
+        }
+        Content::Textile(tt) => {
+            let md = format!(
+                "🚨 **github-wiki-see.page does not render Textile. Source for crawling below. Please visit the Original URL!** 🚨\n
+```textile\n
+{}\n
+```\n",
+tt
+            );
+            process_markdown(&md, account, repository, page == "Home")
+        }
+        Content::ReStructuredText(rst) => {
+            let md = format!(
+                "🚨 **github-wiki-see.page does not render ReStructuredText. Source for crawling below. Please visit the Original URL!** 🚨\n
+```rst\n
+{}\n
+```\n",
+rst
             );
             process_markdown(&md, account, repository, page == "Home")
         }
