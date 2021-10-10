@@ -1,7 +1,7 @@
 use std::future::Future;
 
 use reqwest::{Client, StatusCode};
-use rocket::futures::TryFutureExt;
+use rocket::futures::{FutureExt, TryFutureExt, future::select_ok};
 
 #[derive(Debug)]
 pub enum Content {
@@ -15,13 +15,18 @@ pub enum ContentError {
     OtherError(String),
 }
 
-pub fn retrieve_source_file<'a>(
+ pub async fn retrieve_source_file<'a>(
     account: &'a str,
     repository: &'a str,
     page: &'a str,
     client: &'a Client,
-) -> impl Future<Output = Result<Content, ContentError>> {
-    retrieve_source_file_extension(account, repository, page, client, &Content::Markdown, "md")
+) -> Result<Content, ContentError> {
+    select_ok([
+        retrieve_source_file_extension(account, repository, page, client, &Content::Markdown, "md").boxed(),
+        retrieve_source_file_extension(account, repository, page, client, &Content::Markdown, "markdown").boxed(),
+    ])
+    .await
+    .map(|o| o.0)
 }
 
 fn retrieve_source_file_extension<'a, T: Fn(String) -> Content>(
