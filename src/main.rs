@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate rocket;
 
+use std::time::Duration;
+
 use reqwest::Client;
 use retrieval::Content;
 use rocket::futures::TryFutureExt;
@@ -284,5 +286,10 @@ fn rocket() -> _ {
                 seed_sitemaps
             ],
         )
-        .manage(Client::new())
+        .manage(
+            Client::builder()
+                .timeout(Duration::from_secs(10))
+                .build()
+                .expect("Could not build client"),
+        )
 }
