@@ -42,54 +42,54 @@ pub async fn retrieve_source_file<'a>(
         )
         .boxed(),
         // Creole
-        retrieve_source_file_extension(
-            account,
-            repository,
-            page,
-            client,
-            &Content::Creole,
-            "creole",
-        )
-        .boxed(),
+        // retrieve_source_file_extension(
+        //     account,
+        //     repository,
+        //     page,
+        //     client,
+        //     &Content::Creole,
+        //     "creole",
+        // )
+        // .boxed(),
         // Markdown
         retrieve_source_file_extension(account, repository, page, client, &Content::Markdown, "md")
             .boxed(),
-        retrieve_source_file_extension(
-            account,
-            repository,
-            page,
-            client,
-            &Content::Markdown,
-            "mkd",
-        )
-        .boxed(),
-        retrieve_source_file_extension(
-            account,
-            repository,
-            page,
-            client,
-            &Content::Markdown,
-            "mkdn",
-        )
-        .boxed(),
-        retrieve_source_file_extension(
-            account,
-            repository,
-            page,
-            client,
-            &Content::Markdown,
-            "mdown",
-        )
-        .boxed(),
-        retrieve_source_file_extension(
-            account,
-            repository,
-            page,
-            client,
-            &Content::Markdown,
-            "markdown",
-        )
-        .boxed(),
+        // retrieve_source_file_extension(
+        //     account,
+        //     repository,
+        //     page,
+        //     client,
+        //     &Content::Markdown,
+        //     "mkd",
+        // )
+        // .boxed(),
+        // retrieve_source_file_extension(
+        //     account,
+        //     repository,
+        //     page,
+        //     client,
+        //     &Content::Markdown,
+        //     "mkdn",
+        // )
+        // .boxed(),
+        // retrieve_source_file_extension(
+        //     account,
+        //     repository,
+        //     page,
+        //     client,
+        //     &Content::Markdown,
+        //     "mdown",
+        // )
+        // .boxed(),
+        // retrieve_source_file_extension(
+        //     account,
+        //     repository,
+        //     page,
+        //     client,
+        //     &Content::Markdown,
+        //     "markdown",
+        // )
+        // .boxed(),
         // Mediawiki
         retrieve_source_file_extension(
             account,
@@ -101,24 +101,24 @@ pub async fn retrieve_source_file<'a>(
         )
         .boxed(),
         // Mediawiki
-        retrieve_source_file_extension(
-            account,
-            repository,
-            page,
-            client,
-            &Content::Mediawiki,
-            "wiki",
-        )
-        .boxed(),
+        // retrieve_source_file_extension(
+        //     account,
+        //     repository,
+        //     page,
+        //     client,
+        //     &Content::Mediawiki,
+        //     "wiki",
+        // )
+        // .boxed(),
         // Org-Mode
         retrieve_source_file_extension(account, repository, page, client, &Content::Orgmode, "org")
             .boxed(),
         // Pod
-        retrieve_source_file_extension(account, repository, page, client, &Content::Pod, "pod")
-            .boxed(),
+        // retrieve_source_file_extension(account, repository, page, client, &Content::Pod, "pod")
+        //     .boxed(),
         // Rdoc
-        retrieve_source_file_extension(account, repository, page, client, &Content::Rdoc, "rdoc")
-            .boxed(),
+        // retrieve_source_file_extension(account, repository, page, client, &Content::Rdoc, "rdoc")
+        //     .boxed(),
         // Textile
         retrieve_source_file_extension(
             account,
@@ -139,15 +139,15 @@ pub async fn retrieve_source_file<'a>(
             "rest",
         )
         .boxed(),
-        retrieve_source_file_extension(
-            account,
-            repository,
-            page,
-            client,
-            &Content::ReStructuredText,
-            "rst",
-        )
-        .boxed(),
+        // retrieve_source_file_extension(
+        //     account,
+        //     repository,
+        //     page,
+        //     client,
+        //     &Content::ReStructuredText,
+        //     "rst",
+        // )
+        // .boxed(),
     ])
     .await
     .map(|o| o.0)
