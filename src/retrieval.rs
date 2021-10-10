@@ -3,6 +3,7 @@ use std::future::Future;
 use reqwest::{Client, StatusCode};
 use rocket::futures::{future::select_ok, FutureExt, TryFutureExt};
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub enum Content {
     AsciiDoc(String),
