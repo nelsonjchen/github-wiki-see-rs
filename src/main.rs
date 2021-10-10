@@ -182,7 +182,17 @@ fn content_to_html(content: Content, account: &str, repository: &str, page: &str
             let pure_markdown = github_wiki_markdown_to_pure_markdown(&md, account, repository);
             process_markdown(&pure_markdown, account, repository, page == "Home")
         }
-        retrieval::Content::AsciiDoc(ascii_doc) => ascii_doc,
+        // Fallback to Pre Markdown
+        retrieval::Content::AsciiDoc(ascii_doc) => {
+            let md = format!(
+                "⚠ **github-wiki-see.page does not render asciidoc. Source presented below. Please visit the Original URL!** ⚠\n
+```asciidoc\n
+{}\n
+```\n",
+                ascii_doc
+            );
+            process_markdown(&md, account, repository, page == "Home")
+        }
     }
 }
 
