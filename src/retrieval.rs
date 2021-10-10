@@ -165,7 +165,20 @@ pub async fn retrieve_source_file<'a>(
             .await
             .map(|o| o.0)
         })
-        .or_else(|_| async { retrieve_fallback_plaintext(account, repository, page, client).await })
+        .or_else(|_| async {
+            retrieve_fallback_plaintext(account, repository, page, client, "https://github.com")
+                .await
+        })
+        .or_else(|_| async {
+            retrieve_fallback_plaintext(
+                account,
+                repository,
+                page,
+                client,
+                "https://github.55860.com",
+            )
+            .await
+        })
         .await
 }
 
@@ -174,11 +187,9 @@ fn retrieve_fallback_plaintext<'a>(
     repository: &'a str,
     page: &'a str,
     client: &'a Client,
+    domain: &'a str,
 ) -> impl Future<Output = Result<Content, ContentError>> {
-    let raw_github_url = format!(
-        "https://github.com/{}/{}/wiki/{}",
-        account, repository, page
-    );
+    let raw_github_url = format!("{}/{}/{}/wiki/{}", domain, account, repository, page);
 
     client
         .get(&raw_github_url)
