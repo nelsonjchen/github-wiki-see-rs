@@ -276,8 +276,8 @@ rst
 }
 
 #[catch(404)]
-fn not_found() -> String {
-    format!("Links on this site may not work! CONTENT IS FOR CRAWLERS ONLY. Go back and visit the original URL.")
+fn not_found() -> &'static str {
+    "Links on this site may not work! CONTENT IS FOR CRAWLERS ONLY. Go back and visit the original URL."
 }
 
 #[launch]

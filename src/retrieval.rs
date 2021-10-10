@@ -208,7 +208,7 @@ fn retrieve_fallback_plaintext<'a>(
                 .select(&Selector::parse("#wiki-body").unwrap())
                 .next()
                 .map(|e| e.inner_html())
-                .map(|s| Content::Fallback(s))
+                .map(Content::Fallback)
                 .ok_or(ContentError::NotFound)
         })
 }
