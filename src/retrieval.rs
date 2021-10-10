@@ -1,7 +1,7 @@
 use std::future::Future;
 
 use reqwest::{Client, StatusCode};
-use rocket::futures::{FutureExt, TryFutureExt, future::select_ok};
+use rocket::futures::{future::select_ok, FutureExt, TryFutureExt};
 
 #[derive(Debug)]
 pub enum Content {
@@ -15,15 +15,54 @@ pub enum ContentError {
     OtherError(String),
 }
 
- pub async fn retrieve_source_file<'a>(
+pub async fn retrieve_source_file<'a>(
     account: &'a str,
     repository: &'a str,
     page: &'a str,
     client: &'a Client,
 ) -> Result<Content, ContentError> {
+    // Pull extensions from
+    // https://github.com/gollum/gollum-lib/blob/b074c6314dc47571cae91dd333bd1b1f2a816c48/lib/gollum-lib/markups.rb#L70
     select_ok([
-        retrieve_source_file_extension(account, repository, page, client, &Content::Markdown, "md").boxed(),
-        retrieve_source_file_extension(account, repository, page, client, &Content::Markdown, "markdown").boxed(),
+        // Markdown
+        retrieve_source_file_extension(account, repository, page, client, &Content::Markdown, "md")
+            .boxed(),
+        retrieve_source_file_extension(
+            account,
+            repository,
+            page,
+            client,
+            &Content::Markdown,
+            "mkd",
+        )
+        .boxed(),
+        retrieve_source_file_extension(
+            account,
+            repository,
+            page,
+            client,
+            &Content::Markdown,
+            "mkdn",
+        )
+        .boxed(),
+        retrieve_source_file_extension(
+            account,
+            repository,
+            page,
+            client,
+            &Content::Markdown,
+            "mdown",
+        )
+        .boxed(),
+        retrieve_source_file_extension(
+            account,
+            repository,
+            page,
+            client,
+            &Content::Markdown,
+            "markdown",
+        )
+        .boxed(),
     ])
     .await
     .map(|o| o.0)

@@ -174,9 +174,7 @@ async fn mirror_page<'a>(
     let pure_markdown =
         github_wiki_markdown_to_pure_markdown(&content_markdown, account, repository);
 
-    let mirrored_content =
-        process_markdown(&pure_markdown, account, repository, page == "Home" );
-
+    let mirrored_content = process_markdown(&pure_markdown, account, repository, page == "Home");
 
     Ok(MirrorTemplate {
         original_title: page_title.clone(),
