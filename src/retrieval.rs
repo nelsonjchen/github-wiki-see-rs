@@ -31,127 +31,148 @@ pub async fn retrieve_source_file<'a>(
 ) -> Result<Content, ContentError> {
     // Pull extensions from
     // https://github.com/gollum/gollum-lib/blob/b074c6314dc47571cae91dd333bd1b1f2a816c48/lib/gollum-lib/markups.rb#L70
-    select_ok([
-        // AsciiDoc
-        retrieve_source_file_extension(
-            account,
-            repository,
-            page,
-            client,
-            &Content::AsciiDoc,
-            "asciidoc",
-        )
-        .boxed(),
-        // Creole
-        // retrieve_source_file_extension(
-        //     account,
-        //     repository,
-        //     page,
-        //     client,
-        //     &Content::Creole,
-        //     "creole",
-        // )
-        // .boxed(),
-        // Markdown
-        retrieve_source_file_extension(account, repository, page, client, &Content::Markdown, "md")
+
+    // Try markdown first
+    let md =
+        retrieve_source_file_extension(account, repository, page, client, &Content::Markdown, "md");
+    md.or_else(|_| async {
+        select_ok([
+            // AsciiDoc
+            retrieve_source_file_extension(
+                account,
+                repository,
+                page,
+                client,
+                &Content::AsciiDoc,
+                "asciidoc",
+            )
             .boxed(),
-        // retrieve_source_file_extension(
-        //     account,
-        //     repository,
-        //     page,
-        //     client,
-        //     &Content::Markdown,
-        //     "mkd",
-        // )
-        // .boxed(),
-        // retrieve_source_file_extension(
-        //     account,
-        //     repository,
-        //     page,
-        //     client,
-        //     &Content::Markdown,
-        //     "mkdn",
-        // )
-        // .boxed(),
-        // retrieve_source_file_extension(
-        //     account,
-        //     repository,
-        //     page,
-        //     client,
-        //     &Content::Markdown,
-        //     "mdown",
-        // )
-        // .boxed(),
-        // retrieve_source_file_extension(
-        //     account,
-        //     repository,
-        //     page,
-        //     client,
-        //     &Content::Markdown,
-        //     "markdown",
-        // )
-        // .boxed(),
-        // Mediawiki
-        retrieve_source_file_extension(
-            account,
-            repository,
-            page,
-            client,
-            &Content::Mediawiki,
-            "mediawiki",
-        )
-        .boxed(),
-        // Mediawiki
-        // retrieve_source_file_extension(
-        //     account,
-        //     repository,
-        //     page,
-        //     client,
-        //     &Content::Mediawiki,
-        //     "wiki",
-        // )
-        // .boxed(),
-        // Org-Mode
-        retrieve_source_file_extension(account, repository, page, client, &Content::Orgmode, "org")
+            // Creole
+            // retrieve_source_file_extension(
+            //     account,
+            //     repository,
+            //     page,
+            //     client,
+            //     &Content::Creole,
+            //     "creole",
+            // )
+            // .boxed(),
+            // Markdown
+            retrieve_source_file_extension(
+                account,
+                repository,
+                page,
+                client,
+                &Content::Markdown,
+                "md",
+            )
             .boxed(),
-        // Pod
-        // retrieve_source_file_extension(account, repository, page, client, &Content::Pod, "pod")
-        //     .boxed(),
-        // Rdoc
-        // retrieve_source_file_extension(account, repository, page, client, &Content::Rdoc, "rdoc")
-        //     .boxed(),
-        // Textile
-        retrieve_source_file_extension(
-            account,
-            repository,
-            page,
-            client,
-            &Content::Textile,
-            "textile",
-        )
-        .boxed(),
-        // ReStructuredText
-        retrieve_source_file_extension(
-            account,
-            repository,
-            page,
-            client,
-            &Content::ReStructuredText,
-            "rest",
-        )
-        .boxed(),
-        // retrieve_source_file_extension(
-        //     account,
-        //     repository,
-        //     page,
-        //     client,
-        //     &Content::ReStructuredText,
-        //     "rst",
-        // )
-        // .boxed(),
-    ])
+            // retrieve_source_file_extension(
+            //     account,
+            //     repository,
+            //     page,
+            //     client,
+            //     &Content::Markdown,
+            //     "mkd",
+            // )
+            // .boxed(),
+            // retrieve_source_file_extension(
+            //     account,
+            //     repository,
+            //     page,
+            //     client,
+            //     &Content::Markdown,
+            //     "mkdn",
+            // )
+            // .boxed(),
+            // retrieve_source_file_extension(
+            //     account,
+            //     repository,
+            //     page,
+            //     client,
+            //     &Content::Markdown,
+            //     "mdown",
+            // )
+            // .boxed(),
+            // retrieve_source_file_extension(
+            //     account,
+            //     repository,
+            //     page,
+            //     client,
+            //     &Content::Markdown,
+            //     "markdown",
+            // )
+            // .boxed(),
+            // Mediawiki
+            retrieve_source_file_extension(
+                account,
+                repository,
+                page,
+                client,
+                &Content::Mediawiki,
+                "mediawiki",
+            )
+            .boxed(),
+            // Mediawiki
+            // retrieve_source_file_extension(
+            //     account,
+            //     repository,
+            //     page,
+            //     client,
+            //     &Content::Mediawiki,
+            //     "wiki",
+            // )
+            // .boxed(),
+            // Org-Mode
+            retrieve_source_file_extension(
+                account,
+                repository,
+                page,
+                client,
+                &Content::Orgmode,
+                "org",
+            )
+            .boxed(),
+            // Pod
+            // retrieve_source_file_extension(account, repository, page, client, &Content::Pod, "pod")
+            //     .boxed(),
+            // Rdoc
+            // retrieve_source_file_extension(account, repository, page, client, &Content::Rdoc, "rdoc")
+            //     .boxed(),
+            // Textile
+            retrieve_source_file_extension(
+                account,
+                repository,
+                page,
+                client,
+                &Content::Textile,
+                "textile",
+            )
+            .boxed(),
+            // ReStructuredText
+            retrieve_source_file_extension(
+                account,
+                repository,
+                page,
+                client,
+                &Content::ReStructuredText,
+                "rest",
+            )
+            .boxed(),
+            // retrieve_source_file_extension(
+            //     account,
+            //     repository,
+            //     page,
+            //     client,
+            //     &Content::ReStructuredText,
+            //     "rst",
+            // )
+            // .boxed(),
+        ])
+        .await
+        .map(|o| o.0)
+    })
     .await
-    .map(|o| o.0)
 }
 
 fn retrieve_source_file_extension<'a, T: Fn(String) -> Content>(
