@@ -32,5 +32,5 @@ this tool will be modified to simply "308" redirect the link to GitHub. May this
 If some other unforeseen consequence of the tool happens, this may be done as well.
 
 [gcr]: https://cloud.google.com/run
-[flyio]: fly.io
+[flyio]: https://fly.io
 
