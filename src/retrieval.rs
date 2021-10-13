@@ -198,6 +198,15 @@ fn retrieve_fallback_html<'a>(
             if r.status() == StatusCode::NOT_FOUND {
                 return Err(ContentError::NotFound);
             }
+            
+            // GitHub does this for unlogged in
+            if r.status() == StatusCode::FOUND {
+                return Err(ContentError::NotFound);
+            }
+            if r.status() == StatusCode::MOVED_PERMANENTLY {
+                return Err(ContentError::NotFound);
+            }
+
             if r.status() == StatusCode::TOO_MANY_REQUESTS {
                 return Err(ContentError::TooMayRequests);
             }
