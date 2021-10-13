@@ -131,7 +131,12 @@ async fn mirror_page<'a>(
         percent_encoding::utf8_percent_encode(page, percent_encoding::NON_ALPHANUMERIC),
     );
 
-    let page_title = page.replace("-", " ");
+    let page_title = format!(
+        "{} - {}/{} Wiki",
+        page.replace("-", " "),
+        account,
+        repository
+    );
 
     // Grab main content from GitHub
     // Consider it "fatal" if this doesn't exist/errors and forward to GitHub or return an error.
@@ -277,7 +282,7 @@ rst
 
 #[catch(404)]
 fn not_found() -> &'static str {
-    "Links on this site may not work! CONTENT IS FOR CRAWLERS ONLY. Go back and visit the original URL."
+    "404 Not Found - Links on this service may not work! CONTENT IS FOR CRAWLERS ONLY. Go back and visit the original URL."
 }
 
 #[launch]
