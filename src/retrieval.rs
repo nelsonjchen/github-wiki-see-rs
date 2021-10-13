@@ -19,7 +19,7 @@ pub enum Content {
     FallbackHtml(String),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum ContentError {
     NotFound,
     TooMayRequests,
@@ -168,15 +168,19 @@ pub async fn retrieve_source_file<'a>(
         .or_else(|_| async {
             retrieve_fallback_html(account, repository, page, client, "https://github.com").await
         })
-        .or_else(|_| async {
-            retrieve_fallback_html(
-                account,
-                repository,
-                page,
-                client,
-                "https://gh-mirror-gucl6ahvva-uc.a.run.app",
-            )
-            .await
+        .or_else(|err| async {
+            if err == ContentError::TooMayRequests {
+                retrieve_fallback_html(
+                    account,
+                    repository,
+                    page,
+                    client,
+                    "https://gh-mirror-gucl6ahvva-uc.a.run.app",
+                )
+                .await
+            } else {
+                Err(err)
+            }
         })
         .await
 }
