@@ -268,7 +268,7 @@ rst
             );
             process_markdown(&md, account, repository, page == "Home")
         }
-        Content::Fallback(html) => {
+        Content::FallbackHtml(html) => {
             let annotated_html = format!("{} <h6>⚠️ **GitHub.com Fallback** ⚠️</h6>", html);
             process_html(&annotated_html, account, repository, page == "Home")
         }

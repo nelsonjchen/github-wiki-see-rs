@@ -16,7 +16,7 @@ pub enum Content {
     Rdoc(String),
     Textile(String),
     ReStructuredText(String),
-    Fallback(String),
+    FallbackHtml(String),
 }
 
 #[derive(Debug)]
@@ -166,11 +166,11 @@ pub async fn retrieve_source_file<'a>(
             .map(|o| o.0)
         })
         .or_else(|_| async {
-            retrieve_fallback_plaintext(account, repository, page, client, "https://github.com")
+            retrieve_fallback_html(account, repository, page, client, "https://github.com")
                 .await
         })
         .or_else(|_| async {
-            retrieve_fallback_plaintext(
+            retrieve_fallback_html(
                 account,
                 repository,
                 page,
@@ -182,7 +182,7 @@ pub async fn retrieve_source_file<'a>(
         .await
 }
 
-fn retrieve_fallback_plaintext<'a>(
+fn retrieve_fallback_html<'a>(
     account: &'a str,
     repository: &'a str,
     page: &'a str,
@@ -219,7 +219,7 @@ fn retrieve_fallback_plaintext<'a>(
                 .select(&Selector::parse("#wiki-body").unwrap())
                 .next()
                 .map(|e| e.inner_html())
-                .map(Content::Fallback)
+                .map(Content::FallbackHtml)
                 .ok_or(ContentError::NotFound)
         })
 }
