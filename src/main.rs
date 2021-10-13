@@ -160,9 +160,13 @@ async fn mirror_page<'a>(
     let original_html = content_to_html(content, account, repository, page);
 
     // The content exists. Now try to get the sidebar.
-    let sidebar_content = retrieve_source_file(account, repository, "_Sidebar", client)
-        .await
-        .ok();
+    //
+    // Disabled for load reasons
+    //
+    // let sidebar_content = retrieve_source_file(account, repository, "_Sidebar", client)
+    //     .await
+    //     .ok();
+    let sidebar_content = None;
 
     let sidebar_html =
         sidebar_content.map(|content| content_to_html(content, account, repository, page));
