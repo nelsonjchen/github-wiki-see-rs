@@ -166,8 +166,7 @@ pub async fn retrieve_source_file<'a>(
             .map(|o| o.0)
         })
         .or_else(|_| async {
-            retrieve_fallback_html(account, repository, page, client, "https://github.com")
-                .await
+            retrieve_fallback_html(account, repository, page, client, "https://github.com").await
         })
         .or_else(|_| async {
             retrieve_fallback_html(
