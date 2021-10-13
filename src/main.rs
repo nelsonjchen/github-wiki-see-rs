@@ -308,6 +308,7 @@ fn rocket() -> _ {
         .manage(
             Client::builder()
                 .timeout(Duration::from_secs(10))
+                .redirect(reqwest::redirect::Policy::none())
                 .build()
                 .expect("Could not build client"),
         )
