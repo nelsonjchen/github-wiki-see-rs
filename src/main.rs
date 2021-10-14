@@ -289,6 +289,8 @@ fn not_found() -> &'static str {
     "404 Not Found - Links on this service may not work! CONTENT IS FOR CRAWLERS ONLY. Go back and visit the original URL."
 }
 
+static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"),);
+
 #[launch]
 fn rocket() -> _ {
     // Mount front Page
@@ -311,6 +313,7 @@ fn rocket() -> _ {
         )
         .manage(
             Client::builder()
+                .user_agent(APP_USER_AGENT)
                 .timeout(Duration::from_secs(10))
                 .redirect(reqwest::redirect::Policy::none())
                 .build()
