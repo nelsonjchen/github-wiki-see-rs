@@ -16,13 +16,13 @@
             height: auto;
         }
 
-        #mirror_info {
+        #header_info {
             position: sticky;
             top: 0;
             padding: 10px;
             border-style: ridge;
             border-color: lightgrey;
-            border-width: thick;
+            border-width: thin;
             color: red;
             font-weight: bold;
             background-color: honeydew;
@@ -35,10 +35,17 @@
             padding: 10px;
             border-style: ridge;
             border-color: lightgrey;
-            border-width: thick;
+            border-width: thin;
             color: red;
             font-weight: bold;
             background-color: honeydew;
+        }
+
+        #footer_info .blocks {
+            background: black;
+            color: white;
+            /* outline: 1px solid blue; */
+            padding: .1em .2em;
         }
 
         /* Hide useless-parts of transcluded HTML */
@@ -91,33 +98,106 @@
             display: none;
         }
 
-        .visit_url_button button {
+        a.visit_url_button {
+            display: inline-block;
+            padding: 1.7em 0.4em;
+            margin: 0em 0.3em 0.3em 0;
+            border-radius: 10.15em;
+            box-sizing: border-box;
+            text-decoration: none;
+            font-family: sans-serif;
+            text-transform: uppercase;
+            font-size: 1.7em;
+            font-weight: 400;
+            color: #FFFFFF;
+            background-color: #3369ff;
+            box-shadow: inset 0 -0.8em 0 -0.3em rgba(0, 0, 0, 0.17);
+            text-align: center;
+            position: relative;
             width: 100%;
-            height: 50px;
-            font-size: 30px;
         }
+
+        a.visit_url_button:active {
+            top: 0.1em;
+        }
+
+        a.visit_url_button:hover {
+            background-color: #678ffd;
+            /* border-color: rgba(255, 255, 255, 1); */
+        }
+
+        @media all and (max-width:30em) {
+            a.visit_url_button {
+                display: block;
+                margin: 0.4em auto;
+            }
+        }
+
+        .bouncy {
+            animation: bouncy 5s infinite linear;
+            position: relative;
+        }
+
+        @keyframes bouncy {
+            0% {
+                top: 0em
+            }
+
+            40% {
+                top: 0em
+            }
+
+            43% {
+                top: -0.9em
+            }
+
+            46% {
+                top: 0em
+            }
+
+            48% {
+                top: -0.4em
+            }
+
+            50% {
+                top: 0em
+            }
+
+            100% {
+                top: 0em;
+            }
+        }
+
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body id="main">
-    <h1>{{ original_title }}</h1>
-    <div id="mirror_info">
-        Original URL: <a href="{{ original_url }}">{{ original_url }}</a>
-        <br>
-        <a href="{{ original_url }}" class="visit_url_button"><button>Visit Original URL</button></a>
-    </div>
 
-    <div id="mirrored">
-        {{ mirrored_content|safe }}
-    </div>
-    <div id="footer_info">
-        <p><a href="/">About GitHub Wiki SEE, a crawler enabler for GitHub Wikis as <strong>GitHub prevents crawling of
-                    repository Wiki pages.</strong></a></p>
+    <aside id="header_info">
+        <a href="{{ original_url }}" class="visit_url_button">
+            Visit Original URL
+        </a>
+        <br>
+        Original URL: <a href="{{ original_url }}">{{ original_url }}</a>
+    </aside>
+
+    <article id="content">
+        <h1>{{ original_title }}</h1>
+
+        <div id="mirrored">
+            {{ mirrored_content|safe }}
+        </div>
+    </article>
+
+    <aside id="footer_info">
+        <p><a href="/">About GitHub Wiki SEE, a crawler enabler for GitHub Wikis as <span class="blocks">GitHub blocks
+                    contents of
+                    GitHub Wiki pages from search engines.</span></a></p>
         <p>⚠️ Content here is for search engine crawlers. <em>Rewritten URLs on this mirrored page may not work.</em>
             Humans should visit the <a href="{{ original_url }}">Original URL</a> for working links, table of contents
             and pages, and to view the page as intended!</p>
-    </div>
+    </aside>
 </body>
 
 </html>
