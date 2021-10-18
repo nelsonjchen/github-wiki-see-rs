@@ -315,6 +315,7 @@ fn rocket() -> _ {
             Client::builder()
                 .user_agent(APP_USER_AGENT)
                 .timeout(Duration::from_secs(10))
+                .connect_timeout(Duration::from_secs(3))
                 .redirect(reqwest::redirect::Policy::none())
                 .build()
                 .expect("Could not build client"),
