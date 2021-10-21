@@ -17,15 +17,15 @@
 <body id="main">
     <h1>GitHub Wiki SEE</h1>
     <p>
-        <em>GitHub Wiki Search Engine Enablement</em> allows GitHub Wikis to be indexed by search engines. There's no
+        <em>GitHub Wiki Search Engine Enablement</em> (GHWSEE) allows GitHub Wikis to be indexed by search engines. There's no
         <a href="/robots.txt"><code>robots.txt</code></a> or headers on this site preventing indexing of wiki content
-        and wiki content proxied from GitHub and served from this domain will be crawled and indexed.
+        and wiki content proxied from GitHub and served from this service will be crawled and indexed.
     </p>
     <p>
         Currently, <a href=https://github.com/github/feedback/discussions/4992>GitHub prevents crawling of repository Wiki
-        pages</a>. As such, GitHub Wikis are invisible to search engines such as Google and DuckDuckGo and this can be
-        a very unpleasant surprise if you're looking to share searchable knowledge such as a FAQ on a Wiki!
-        It is also uncomfortable for searchers to know that they aren't searching
+        pages</a>. As such, GitHub Wikis are invisible to search engines such as Google and DuckDuckGo and this state of affairs can be
+        a very unpleasant surprise if you were looking to share searchable knowledge such as a FAQ on a Wiki!
+        The situation is also uncomfortable for searchers to know that they aren't searching
         against the full possible world of documentation.
     </p>
     <p>
@@ -37,12 +37,16 @@
     <p>
         For anti-abuse reasons, all links rendered in the service that are going out of GitHub
         are tagged with <code>rel="nofollow ugc"</code> as to not affect search engine rankings
-        or to promote mass vandalism of GitHub Wikis. This was likely the original reason for
-        the indexing blocking.
+        or to promote mass vandalism of GitHub Wikis.
     </p>
     <p>
         If you are a GitHub Wiki maintainer, you may want to consider GitHub Pages backed by a public repository for
         your community's content as a more stable, blessed, and probably higher search ranking alternative.
+    </p>
+
+    <p>
+        If you are interested in providing feedback to GitHub or seeing what GitHub staff has said about their blocking of Wiki content from appearing in search engines, participate in the discussion here:
+        <a href="https://github.com/github/feedback/discussions/4992">https://github.com/github/feedback/discussions/4992</a>. Hopefully, GitHub can find a solution to unblock wiki content in harmony with their SEO concerns and GHWSEE can be <a href="#decommissioning">decommissioned</a>.
     </p>
     <h2>Usage</h2>
     <ol>
@@ -52,11 +56,11 @@
         <a href=https://github.com/nelsonjchen/github-wiki-see-rs-sitemaps>sitemap generator</a>
         will eventually pick it up and notify search engines! However, the search ranking will be affected by how
         unique your content is and how well it matches the queries.
-        Generally don't expect a high ranking but it'll probably be on page 2 or 3 which
-         is better than the previous alternative of not being there at all!
+        Generally don't expect a high ranking but your content will probably be on page 2 or 3 which
+         is much better than the previous alternative of not being there at all!
     </p>
 
-    <p>Note that it may take quite some time for content to be picked up and there is no guarantee it'll be picked up.</p>
+    <p>Note that it may take quite some time for content to be picked up and there is no guarantee it'll be picked up. The mechanism is unreliable.</p>
 
     <h2>Examples</h2>
     <p> These are just examples and testing wikis.</p>
@@ -70,7 +74,7 @@
 
     <a href="https://github.com/nelsonjchen/github-wiki-see-rs">https://github.com/nelsonjchen/github-wiki-see-rs</a>
 
-    <h2>Decommissioning</h2>
+    <h2 id="decommissioning">Decommissioning</h2>
 
     <p>This site will be decommissioned to redirect old links once the block is lifted.</p>
     <p>People shouldn't have linked to this site but maybe the warnings weren't big and red enough.</p>
