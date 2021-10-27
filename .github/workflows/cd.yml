@@ -1,0 +1,39 @@
+on:
+  # Trigger the workflow on push
+  # but only for the main branch
+  push:
+    branches:
+      - master
+
+name: Continuous Deployment
+
+jobs:
+  check-env:
+    runs-on: ubuntu-latest
+    outputs:
+      fly-api-token: ${{ steps.fly-api-token.outputs.defined }}
+    steps:
+      - id: fly-api-token
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        if: "${{ env.FLY_API_TOKEN != '' }}"
+        run: echo "::set-output name=defined::true"
+
+  deploy:
+    needs: [check-env]
+    if: needs.check-env.outputs.fly-api-token == 'true'
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      # In this step, this action saves a list of existing images,
+      # the cache is created without them in the post run.
+      # It also restores the cache if it exists.
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        # Ignore the failure of a step and avoid terminating the job.
+        continue-on-error: true
+      - uses: superfly/flyctl-actions@1.1
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        with:
+          args: "deploy"
