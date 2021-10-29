@@ -3,7 +3,7 @@ on: [push, pull_request]
 name: Continuous Integration
 
 concurrency:
-  group: ${{ github.ref }}
+  group: ${{ github.ref }}-ci
   cancel-in-progress: true
 
 jobs:

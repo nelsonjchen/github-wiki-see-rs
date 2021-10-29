@@ -8,7 +8,7 @@ on:
 name: Continuous Deployment
 
 concurrency:
-  group: ${{ github.ref }}
+  group: ${{ github.ref }}-cd
   cancel-in-progress: true
 
 jobs:
