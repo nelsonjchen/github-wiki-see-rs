@@ -7,6 +7,10 @@ on:
 
 name: Continuous Deployment
 
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check-env:
     runs-on: ubuntu-latest
