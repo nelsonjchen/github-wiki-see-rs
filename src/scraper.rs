@@ -84,6 +84,20 @@ pub fn process_html(
     String::from(document.html())
 }
 
+pub fn process_html_index(original_html: &str) -> Vec<String> {
+    let document = Document::from(original_html);
+    let mut links = Vec::new();
+    document
+        .select(".flex-1.py-1.text-bold")
+        .iter()
+        .for_each(|element| {
+            if let Some(href) = element.attr("href") {
+                links.push(String::from(href));
+            }
+        });
+    links
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -183,5 +197,16 @@ mod tests {
             process_html(html, "some_account", "some_repo", false),
             "<html><head></head><body><img src=\"https://github.com/some_account/some_repo/wiki/images/something.png\"></body></html>"
         );
+    }
+
+    #[test]
+    fn get_page_list() {
+        let html = include_str!("../test-data/wiki-index.html");
+
+        let pages = process_html_index(html);
+        assert!(pages.len() > 3);
+        let page_1 = pages.get(0).unwrap();
+        assert!(page_1.contains("nelsonjchen"));
+        assert!(page_1.contains("wiki"));
     }
 }
