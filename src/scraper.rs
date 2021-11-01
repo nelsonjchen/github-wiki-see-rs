@@ -84,18 +84,17 @@ pub fn process_html(
     String::from(document.html())
 }
 
-pub fn process_html_index(original_html: &str) -> Vec<String> {
+pub fn process_html_index(original_html: &str) -> Vec<(String, String)> {
     let document = Document::from(original_html);
-    let mut links = Vec::new();
     document
         .select(".flex-1.py-1.text-bold")
         .iter()
-        .for_each(|element| {
-            if let Some(href) = element.attr("href") {
-                links.push(String::from(href));
-            }
-        });
-    links
+        .filter_map(|element| {
+            element
+                .attr("href")
+                .map(|attr_value| (String::from(attr_value), String::from(element.text())))
+        })
+        .collect()
 }
 
 #[cfg(test)]
@@ -206,7 +205,7 @@ mod tests {
         let pages = process_html_index(html);
         assert!(pages.len() > 3);
         let page_1 = pages.get(0).unwrap();
-        assert!(page_1.contains("nelsonjchen"));
-        assert!(page_1.contains("wiki"));
+        assert!(page_1.0.contains("nelsonjchen"));
+        assert!(page_1.0.contains("wiki"));
     }
 }

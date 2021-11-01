@@ -4,6 +4,8 @@ use reqwest::{Client, StatusCode};
 use rocket::futures::{future::select_ok, FutureExt, TryFutureExt};
 use scraper::{Html, Selector};
 
+use crate::scraper::process_html_index;
+
 #[allow(dead_code)]
 #[derive(Debug)]
 pub enum Content {
@@ -185,55 +187,62 @@ pub async fn retrieve_source_file<'a>(
         .await
 }
 
-fn retrieve_fallback_html<'a>(
+async fn retrieve_github_com_html<'a>(
+    account: &str,
+    repository: &str,
+    page: &str,
+    client: &'a Client,
+    domain: &'a str,
+) -> Result<String, ContentError> {
+    let raw_github_url = format!("{}/{}/{}/wiki/{}", domain, account, repository, page);
+
+    let resp_attempt = client.get(raw_github_url).send().await;
+
+    let resp = resp_attempt.map_err(|e| ContentError::OtherError(e.to_string()))?;
+
+    if resp.status() == StatusCode::NOT_FOUND {
+        return Err(ContentError::NotFound);
+    }
+
+    // GitHub does this for unlogged in pages.
+    if resp.status() == StatusCode::FOUND {
+        return Err(ContentError::NotFound);
+    }
+    if resp.status() == StatusCode::MOVED_PERMANENTLY {
+        return Err(ContentError::NotFound);
+    }
+
+    if resp.status() == StatusCode::TOO_MANY_REQUESTS {
+        return Err(ContentError::TooMayRequests);
+    }
+    if !resp.status().is_success() {
+        return Err(ContentError::OtherError(format!(
+            "Remote: {}",
+            resp.status()
+        )));
+    }
+
+    resp.text()
+        .await
+        .map_err(|e| ContentError::OtherError(e.to_string()))
+}
+
+async fn retrieve_fallback_html<'a>(
     account: &'a str,
     repository: &'a str,
     page: &'a str,
     client: &'a Client,
     domain: &'a str,
-) -> impl Future<Output = Result<Content, ContentError>> {
-    let raw_github_url = format!("{}/{}/{}/wiki/{}", domain, account, repository, page);
+) -> Result<Content, ContentError> {
+    let html = retrieve_github_com_html(account, repository, page, client, domain).await?;
 
-    client
-        .get(&raw_github_url)
-        .send()
-        .map_err(|e| ContentError::OtherError(e.to_string()))
-        .and_then(|r| async {
-            if r.status() == StatusCode::NOT_FOUND {
-                return Err(ContentError::NotFound);
-            }
-
-            // GitHub does this for unlogged in
-            if r.status() == StatusCode::FOUND {
-                return Err(ContentError::NotFound);
-            }
-            if r.status() == StatusCode::MOVED_PERMANENTLY {
-                return Err(ContentError::NotFound);
-            }
-
-            if r.status() == StatusCode::TOO_MANY_REQUESTS {
-                return Err(ContentError::TooMayRequests);
-            }
-            if !r.status().is_success() {
-                return Err(ContentError::OtherError(format!("Remote: {}", r.status())));
-            }
-            Ok(r)
-        })
-        .map_ok(|r| {
-            r.text()
-                .map_err(|e| ContentError::OtherError(e.to_string()))
-        })
-        .and_then(|t| t)
-        .and_then(|html| async move {
-            // Find #wiki-body and save it.
-            let document = Html::parse_document(&html);
-            document
-                .select(&Selector::parse("#wiki-body").unwrap())
-                .next()
-                .map(|e| e.inner_html())
-                .map(Content::FallbackHtml)
-                .ok_or(ContentError::NotFound)
-        })
+    let document = Html::parse_document(&html);
+    document
+        .select(&Selector::parse("#wiki-body").unwrap())
+        .next()
+        .map(|e| e.inner_html())
+        .map(Content::FallbackHtml)
+        .ok_or(ContentError::NotFound)
 }
 
 // https://github-wiki-see.page/m/nelsonjchen/github-wiki-test/wiki/Fallback
@@ -271,20 +280,71 @@ fn retrieve_source_file_extension<'a, T: Fn(String) -> Content>(
         .map_ok(move |t| enum_constructor(t))
 }
 
+pub async fn retrieve_wiki_index<'a>(
+    account: &'a str,
+    repository: &'a str,
+    client: &'a Client,
+) -> Result<Content, ContentError> {
+    let html = retrieve_github_com_html(account, repository, "Home", client, "https://github.com")
+        .or_else(|err| async {
+            if err == ContentError::TooMayRequests {
+                retrieve_github_com_html(
+                    account,
+                    repository,
+                    "Home",
+                    client,
+                    "https://gh-mirror-gucl6ahvva-uc.a.run.app",
+                )
+                .await
+            } else {
+                Err(err)
+            }
+        })
+        .await?;
+    let wiki_page_urls = process_html_index(&html);
+    let content = Content::Markdown(format!(
+        "
+            # Page index for {}/{}
+
+            {}
+            ",
+        account,
+        repository,
+        wiki_page_urls
+            .into_iter()
+            .map(|(url, text)| format!("* [{}](/m{})", text, url))
+            .collect::<Vec<String>>()
+            .join("\n"),
+    ));
+    Ok(content)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[tokio::test]
     async fn basic() {
+        let client = Client::new();
+
         let future = retrieve_source_file_extension(
             "nelsonjchen",
             "github-wiki-test",
             "Home",
-            &Client::new(),
+            &client,
             &Content::Markdown,
             "md",
         );
+        let content = future.await;
+
+        println!("{:?}", content);
+        assert!(content.is_ok());
+    }
+
+    #[tokio::test]
+    async fn page_list() {
+        let client = Client::new();
+        let future = retrieve_wiki_index("nelsonjchen", "github-wiki-test", &client);
         let content = future.await;
 
         println!("{:?}", content);
