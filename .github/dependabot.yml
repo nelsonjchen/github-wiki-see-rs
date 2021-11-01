@@ -7,8 +7,17 @@ updates:
     schedule:
       interval: "daily"
 
-  # Maintain dependencies for npm
+  # Maintain dependencies for Rust Cargo
   - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    allow:
+      # Allow both direct and indirect updates for all packages
+      - dependency-type: "all"
+      
+  # Maintain dependencies for Docker
+  - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "daily"
