@@ -88,6 +88,7 @@ struct MirrorTemplate {
     original_title: String,
     original_url: String,
     mirrored_content: String,
+    index_url: String,
 }
 
 #[allow(clippy::large_enum_variant)]
@@ -152,6 +153,7 @@ async fn mirror_page<'a>(
                     original_title: page_title.clone(),
                     original_url: original_url.clone(),
                     mirrored_content: format!("500 Internal Server Error - {}", e),
+                    index_url: format!("/m/{}/{}/wiki_index", account, repository),
                 },
             )),
         })
@@ -187,6 +189,7 @@ async fn mirror_page<'a>(
         original_title: page_title.clone(),
         original_url: original_url.clone(),
         mirrored_content,
+        index_url: format!("/m/{}/{}/wiki_index", account, repository),
     })
 }
 
@@ -219,6 +222,7 @@ async fn mirror_page_index<'a>(
                     original_title: page_title.clone(),
                     original_url: original_url.clone(),
                     mirrored_content: format!("500 Internal Server Error - {}", e),
+                    index_url: format!("/m/{}/{}/wiki_index", account, repository),
                 },
             )),
         })
@@ -230,6 +234,7 @@ async fn mirror_page_index<'a>(
         original_title: page_title.clone(),
         original_url: original_url.clone(),
         mirrored_content: original_html,
+        index_url: format!("/m/{}/{}/wiki_index", account, repository),
     })
 }
 
