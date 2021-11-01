@@ -285,13 +285,13 @@ pub async fn retrieve_wiki_index<'a>(
     repository: &'a str,
     client: &'a Client,
 ) -> Result<Content, ContentError> {
-    let html = retrieve_github_com_html(account, repository, "Home", client, "https://github.com")
+    let html = retrieve_github_com_html(account, repository, "", client, "https://github.com")
         .or_else(|err| async {
             if err == ContentError::TooMayRequests {
                 retrieve_github_com_html(
                     account,
                     repository,
-                    "Home",
+                    "",
                     client,
                     "https://gh-mirror-gucl6ahvva-uc.a.run.app",
                 )
@@ -303,16 +303,14 @@ pub async fn retrieve_wiki_index<'a>(
         .await?;
     let wiki_page_urls = process_html_index(&html);
     let content = Content::Markdown(format!(
-        "
-            # Page index for {}/{}
+        "{} page(s) in this GitHub Wiki:
 
-            {}
-            ",
-        account,
-        repository,
+{}
+",
+        wiki_page_urls.len(),
         wiki_page_urls
             .into_iter()
-            .map(|(url, text)| format!("* [{}](/m{})", text, url))
+            .map(|(url, text)| format!("* [{}]({})", text, url))
             .collect::<Vec<String>>()
             .join("\n"),
     ));
