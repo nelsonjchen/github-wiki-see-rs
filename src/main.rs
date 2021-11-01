@@ -88,6 +88,7 @@ struct MirrorTemplate {
     original_title: String,
     original_url: String,
     mirrored_content: String,
+    index_url: String,
 }
 
 #[allow(clippy::large_enum_variant)]
@@ -152,6 +153,7 @@ async fn mirror_page<'a>(
                     original_title: page_title.clone(),
                     original_url: original_url.clone(),
                     mirrored_content: format!("500 Internal Server Error - {}", e),
+                    index_url: format!("/m/{}/{}/wiki_index", account, repository),
                 },
             )),
         })
@@ -187,6 +189,52 @@ async fn mirror_page<'a>(
         original_title: page_title.clone(),
         original_url: original_url.clone(),
         mirrored_content,
+        index_url: format!("/m/{}/{}/wiki_index", account, repository),
+    })
+}
+
+#[get("/<account>/<repository>/wiki_index")]
+async fn mirror_page_index<'a>(
+    account: &'a str,
+    repository: &'a str,
+    client: &State<Client>,
+) -> Result<MirrorTemplate, MirrorError> {
+    use retrieval::retrieve_wiki_index;
+    use retrieval::ContentError;
+    use MirrorError::*;
+
+    // Have original URL to forward to if there is an error.
+    let original_url = format!("https://github.com/{}/{}/wiki/Home", account, repository);
+
+    let page_title = format!("Page Index - {}/{} Wiki", account, repository);
+
+    // Grab main content from GitHub
+    // Consider it "fatal" if this doesn't exist/errors and forward to GitHub or return an error.
+    let content = retrieve_wiki_index(account, repository, client)
+        .map_err(|e| match e {
+            ContentError::NotFound => GiveUpSendToGitHub(Redirect::to(original_url.clone())),
+            ContentError::TooMayRequests => {
+                GiveUpSendToGitHub(Redirect::temporary(original_url.clone()))
+            }
+            ContentError::OtherError(e) => InternalError(status::Custom(
+                Status::InternalServerError,
+                MirrorTemplate {
+                    original_title: page_title.clone(),
+                    original_url: original_url.clone(),
+                    mirrored_content: format!("500 Internal Server Error - {}", e),
+                    index_url: format!("/m/{}/{}/wiki_index", account, repository),
+                },
+            )),
+        })
+        .await?;
+
+    let original_html = content_to_html(content, account, repository, "Home");
+
+    Ok(MirrorTemplate {
+        original_title: page_title.clone(),
+        original_url: original_url.clone(),
+        mirrored_content: original_html,
+        index_url: format!("/m/{}/{}/wiki_index", account, repository),
     })
 }
 
@@ -298,7 +346,7 @@ fn rocket() -> _ {
     // Mount Mirror
     rocket::build()
         .register("/", catchers![not_found])
-        .mount("/m", routes![mirror_home, mirror_page,])
+        .mount("/m", routes![mirror_home, mirror_page, mirror_page_index])
         .mount(
             "/",
             routes![
