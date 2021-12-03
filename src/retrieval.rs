@@ -277,7 +277,7 @@ fn retrieve_source_file_extension<'a, T: Fn(String) -> Content>(
                 .map_err(|e| ContentError::OtherError(e.to_string()))
         })
         .and_then(|t| t)
-        .map_ok(move |t| enum_constructor(t))
+        .map_ok(enum_constructor)
 }
 
 pub async fn retrieve_wiki_index<'a>(
