@@ -16,20 +16,25 @@
 <body id="main">
     <h1>GitHub Wiki SEE</h1>
     <p>
-        <em>GitHub Wiki Search Engine Enablement</em> (GHWSEE) allows GitHub Wikis to be indexed by search engines.
-        There is no <a href="/robots.txt"><code>robots.txt</code></a> or header on this site preventing indexing of wiki
-        content and GitHub Wiki content proxied from GitHub and served from this service can be crawled and indexed.
+        <em>GitHub Wiki Search Engine Enablement</em> (GHWSEE) allows GitHub Wikis to be indexed by search engines. The
+        <a href="/robots.txt"><code>robots.txt</code></a> and headers on this site do not prevent indexing of wiki
+        content and GitHub Wiki content proxied from GitHub and served from this service can be crawled and indexed by
+        major search engines.
     </p>
     <p> Currently, <a href=https://github.com/github/feedback/discussions/4992>GitHub prevents crawling of repository
-            wiki content</a>. As such, GitHub Wikis are invisible to search engines such as Google and DuckDuckGo and
-        this situation can be very unpleasant if you were looking to share searchable knowledge such as a FAQ on a Wiki!
-        The situation is also uncomfortable for searchers to know that they aren't searching against the full possible
-        world of documentation. </p>
+            wiki content</a>. You won't find GitHub.com Wiki content on search engines such as Google and DuckDuckGo.
+        This negatively impacts the effectiveness of FAQs and other knowledge bases on GitHub Wikis. It also negatively
+        impacts users who search for information that may only be found in GitHub Wikis.</p>
     <p> GHWSEE proxies the rendered contents of the pages and has a link with a large button at the top to visit the
-        page on GitHub for normal usage and a link at the bottom explaining what GHWSEE is. The content of this service
-        is not meant to be read by users and is intended for crawlers. GHWSEE is designed to behave like those
-        StackOverflow content mirroring sites that rank high with "stolen" content from StackOverflow but with far less
-        ad-farming. </p>
+        page on GitHub for everyday usage and a link at the bottom explaining what GHWSEE is. The content of this
+        service is not meant to be read directly by users and is intended for crawlers. GHWSEE is designed to behave
+        like those StackOverflow content mirroring sites that rank high with "stolen" content from StackOverflow but
+        with far less ad-farming. Unlike its inspiration, GHWSEE has no ads and tries to make it obvious, quick, and
+        easy for users to get to the content they want directly on GitHub.com.</p>
+    <p> Another purpose of GHWSEE is to bring awareness to the issue of GitHub Wikis purposefully not being indexed.
+        Many are caught off-guard and have produced massive libraries of information that they are unaware of being
+        generally invisible to the internet. Likewise, many searching for information in these libraries are not aware
+        that the information is invisible to them if it was in a GitHub Wiki.</p>
     <p> If you are a GitHub Wiki maintainer, you may want to consider GitHub Pages backed by a public repository for
         your community's content as a more crawlable, stable, blessed, and probably higher search ranking alternative.
         <a
@@ -37,16 +42,17 @@
             alternative is also mentioned in GitHub Docs about GitHub Wikis</a>. <a
             href="https://github.com/tokio-rs/website/pull/109">Consider adding an "<em>Edit on GitHub</em>" link to the
             content on GitHub Pages to have an experience closer to wikis, easily permit editing, and to encourage
-            contributions</a>. </p>
+            contributions</a>. This is the official solution which can be burdensome. You are welcome to continue <a
+            href="#usage">using</a> GHWSEE.</a></p>
     <p> If you are interested in providing feedback to GitHub or seeing what GitHub staff has said about their blocking
         of Wiki content from appearing in search engines, participate in the discussion here: <a
             href="https://github.com/github/feedback/discussions/4992">https://github.com/github/feedback/discussions/4992</a>.
-        Let us hope that GitHub can find a solution to unblock GitHub Wiki content in harmony with their SEO concerns
+        Let us hope that GitHub can find a solution to unblock GitHub Wiki content in harmony with their SEO concerns,
         and GHWSEE can be <a href="#decommissioning">decommissioned</a>. </p>
     <p> For anti-abuse reasons, all links rendered in the service that are going out of GitHub are tagged with
         <code>rel="nofollow ugc"</code> as to not affect search engine rankings or to promote mass vandalism of GitHub
-        Wikis. </p>
-    <h2>Usage</h2>
+        Wikis. This is in addition to <code>rel="nofollow"</code> in the original content. </p>
+    <h2 id="usage">Usage</h2>
     <ul>
         <li>Wiki Reader: Use your favorite search engine! That is the intended interface to the content "on" this
             service and to get a link to the original GitHub content. Do not read the content on this site as it may
@@ -78,7 +84,8 @@
     <h2>Project, README, Source, Issues, and other information</h2>
     <a href="https://github.com/nelsonjchen/github-wiki-see-rs">https://github.com/nelsonjchen/github-wiki-see-rs</a>
     <h2 id="decommissioning">Decommissioning</h2>
-    <p>This site will be decommissioned to redirect old links once the block is lifted.</p>
+    <p>This site will be decommissioned to redirect old links once the block is lifted or GitHub produces some other
+        solution to index GitHub Wikis in harmony with their SEO concerns.</p>
     <p>People shouldn't have linked to this site but maybe the warnings weren't big and red enough. <a
             href="https://github.com/nelsonjchen/github-wiki-see-rs/issues/6">Flashing yellow was very unpopular.</a>
     </p>
