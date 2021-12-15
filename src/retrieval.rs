@@ -360,6 +360,23 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn fallback_encoded() {
+        let client = Client::new();
+
+        let future = retrieve_github_com_html(
+            "naver",
+            "billboard.js",
+            "How-to-bundle-for-legacy-browsers?",
+            &client,
+            "https://github.com",
+        );
+        let content = future.await;
+
+        println!("{:?}", content);
+        assert!(content.is_ok());
+    }
+
+    #[tokio::test]
     async fn page_list() {
         let client = Client::new();
         let future = retrieve_wiki_index("nelsonjchen", "github-wiki-test", &client);
