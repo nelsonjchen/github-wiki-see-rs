@@ -254,9 +254,11 @@ fn retrieve_source_file_extension<'a, T: Fn(String) -> Content>(
     enum_constructor: T,
     extension: &'a str,
 ) -> impl Future<Output = Result<Content, ContentError>> {
+    let page_encoded =
+        percent_encoding::utf8_percent_encode(page, percent_encoding::NON_ALPHANUMERIC);
     let raw_github_assets_url = format!(
         "https://raw.githubusercontent.com/wiki/{}/{}/{}.{}",
-        account, repository, page, extension
+        account, repository, page_encoded, extension
     );
 
     client
@@ -329,6 +331,24 @@ mod tests {
             "nelsonjchen",
             "github-wiki-test",
             "Home",
+            &client,
+            &Content::Markdown,
+            "md",
+        );
+        let content = future.await;
+
+        println!("{:?}", content);
+        assert!(content.is_ok());
+    }
+
+    #[tokio::test]
+    async fn encoded() {
+        let client = Client::new();
+
+        let future = retrieve_source_file_extension(
+            "naver",
+            "billboard.js",
+            "How-to-bundle-for-legacy-browsers?",
             &client,
             &Content::Markdown,
             "md",
