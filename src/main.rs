@@ -143,9 +143,11 @@ async fn mirror_page<'a>(
     // Consider it "fatal" if this doesn't exist/errors and forward to GitHub or return an error.
     let content = retrieve_source_file(account, repository, page, client)
         .map_err(|e| match e {
-            ContentError::NotFound => GiveUpSendToGitHub(Redirect::to(original_url_encoded)),
+            ContentError::NotFound => {
+                GiveUpSendToGitHub(Redirect::to(original_url_encoded.clone()))
+            }
             ContentError::TooMayRequests => {
-                GiveUpSendToGitHub(Redirect::temporary(original_url_encoded))
+                GiveUpSendToGitHub(Redirect::temporary(original_url_encoded.clone()))
             }
             ContentError::OtherError(e) => InternalError(status::Custom(
                 Status::InternalServerError,
@@ -187,7 +189,7 @@ async fn mirror_page<'a>(
 
     Ok(MirrorTemplate {
         original_title: page_title.clone(),
-        original_url: original_url.clone(),
+        original_url: original_url_encoded.clone(),
         mirrored_content,
         index_url: format!("/m/{}/{}/wiki_index", account, repository),
     })
