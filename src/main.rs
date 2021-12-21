@@ -108,6 +108,42 @@ async fn mirror_home<'a>(
     mirror_page(account, repository, "Home", client).await
 }
 
+// Copied from percent_encoding crate but modified for what GitHub is OK with.
+pub const NON_ALPHANUMERIC_GH: &percent_encoding::AsciiSet = &percent_encoding::CONTROLS
+    .add(b' ')
+    .add(b'!')
+    .add(b'"')
+    .add(b'#')
+    .add(b'$')
+    .add(b'%')
+    .add(b'&')
+    .add(b'\'')
+    .add(b'(')
+    .add(b')')
+    .add(b'*')
+    .add(b'+')
+    .add(b',')
+    // .add(b'-') // OK to exist in URL
+    .add(b'.')
+    .add(b'/')
+    .add(b':')
+    .add(b';')
+    .add(b'<')
+    .add(b'=')
+    .add(b'>')
+    .add(b'?')
+    .add(b'@')
+    .add(b'[')
+    .add(b'\\')
+    .add(b']')
+    .add(b'^')
+    .add(b'_')
+    .add(b'`')
+    .add(b'{')
+    .add(b'|')
+    .add(b'}')
+    .add(b'~');
+
 #[get("/<account>/<repository>/wiki/<page>")]
 async fn mirror_page<'a>(
     account: &'a str,
@@ -124,12 +160,13 @@ async fn mirror_page<'a>(
         "https://github.com/{}/{}/wiki/{}",
         account, repository, page,
     );
-    // Rocket's Redirect doesn't like unencoded URLs.
+
+    // Rocket's Redirect / GitHub itself doesn't like unencoded URLs.
     let original_url_encoded = format!(
         "https://github.com/{}/{}/wiki/{}",
         account,
         repository,
-        percent_encoding::utf8_percent_encode(page, percent_encoding::NON_ALPHANUMERIC),
+        percent_encoding::utf8_percent_encode(page, NON_ALPHANUMERIC_GH),
     );
 
     let page_title = format!(
