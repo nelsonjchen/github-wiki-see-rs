@@ -1,9 +1,7 @@
 <html>
 
 <head>
-    <title>
-        {{ original_title }}
-    </title>
+    <title> {{ original_title }} </title>
     <style>
         body {
             max-width: 38rem;
@@ -17,10 +15,21 @@
             height: auto;
         }
 
-        #header_info {
+        #header_button {
             position: sticky;
             top: 0;
             padding: 10px;
+            border-style: ridge;
+            border-color: lightgrey;
+            border-width: thin;
+            color: red;
+            font-weight: bold;
+            background-color: honeydew;
+            font-size: large;
+        }
+
+        #header_info {
+            padding: 5px;
             border-style: ridge;
             border-color: lightgrey;
             border-width: thin;
@@ -174,36 +183,24 @@
 </head>
 
 <body id="main">
-
-    <aside id="header_info">
-        <a href="{{ original_url }}" class="visit_url_button">
-            Visit Original URL
-        </a>
-        <br>
-        Original URL: <a href="{{ original_url }}">{{ original_url }}</a>
-        <p>
-            The preview below may have <em>rendering errors</em> and <em>broken links</em>. Please visit the Original URL to view the full page.
-        </p>
+    <aside id="header_button">
+        <a href="{{ original_url }}" class="visit_url_button"> Visit Original URL </a>
     </aside>
-
+    <aside id="header_info">
+        <br> Original URL: <a href="{{ original_url }}">{{ original_url }}</a>
+        <p> The preview below may have <em>rendering errors</em> and <em>broken links</em>. Please visit the Original
+            URL to view the last updated date and the full page. </p>
+    </aside>
     <article id="content">
         <h1>{{ original_title }}</h1>
-
-        <div id="mirrored">
-            {{ mirrored_content|safe }}
-        </div>
+        <div id="mirrored"> {{ mirrored_content|safe }} </div>
     </article>
-
     <nav id="index">
         <a href="{{ index_url }}">Page Index for this GitHub Wiki</a>
     </nav>
-
     <aside id="footer_info">
         <p><a href="/">About GitHub Wiki SEE, a crawler enabler for GitHub Wikis as <span class="blocks">GitHub blocks
-                    contents of
-                    GitHub Wiki pages from search engines.</span></a></p>
-        <p>⚠️ Content here is for search engine crawlers. <em>Rewritten URLs on this mirrored page may not work.</em>
-            Humans should visit the <a href="{{ original_url }}">Original URL</a>.</p>
+                    contents of GitHub Wiki pages from search engines.</span></a></p>
     </aside>
 </body>
 
