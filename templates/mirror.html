@@ -28,8 +28,13 @@
             font-size: large;
         }
 
+        #header_button p {
+            margin-bottom: 0;
+            margin-top: 0;
+        }
+
         #header_info {
-            padding: 5px;
+            padding: 10px;
             border-style: ridge;
             border-color: lightgrey;
             border-width: thin;
@@ -184,12 +189,13 @@
 
 <body id="main">
     <aside id="header_button">
-        <a href="{{ original_url }}" class="visit_url_button"> Visit Original URL and Full Page</a>
+        <a href="{{ original_url }}" class="visit_url_button"> Visit Full Page on GitHub.com</a>
+        <p> The preview below may have <em>rendering errors</em>, <em>broken links</em>, and does not include the
+            <em>last updated date.</em></p>
     </aside>
     <aside id="header_info">
-        <br> Original URL: <a href="{{ original_url }}">{{ original_url }}</a>
-        <p> The preview below may have <em>rendering errors</em>, <em>broken links</em>, and does not include the
-            <em>last updated date</em>. Please visit the Original URL to see the full page. </p>
+        <p> Original URL: <a href="{{ original_url }}">{{ original_url }}</a>
+        </p>
     </aside>
     <article id="content">
         <h1>{{ original_title }}</h1>
