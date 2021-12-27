@@ -87,7 +87,7 @@ pub fn process_html(
 pub fn process_html_index(original_html: &str) -> Vec<(String, String)> {
     let document = Document::from(original_html);
     document
-        .select(".flex-1.py-1.text-bold")
+        .select(".flex-1.py-1.text-bold, #wiki-content > div.Box a")
         .iter()
         .filter_map(|element| {
             element
@@ -207,5 +207,16 @@ mod tests {
         let page_1 = pages.get(0).unwrap();
         assert!(page_1.0.contains("nelsonjchen"));
         assert!(page_1.0.contains("wiki"));
+    }
+
+    #[test]
+    fn get_page_list_homeless() {
+        let html = include_str!("../test-data/wiki-homeless-index.html");
+
+        let pages = process_html_index(html);
+        assert!(pages.len() > 3);
+        let page_1 = pages.get(0).unwrap();
+        assert!(page_1.0.contains("yuchberry"));
+        assert!(page_1.0.contains("DDNS"));
     }
 }
