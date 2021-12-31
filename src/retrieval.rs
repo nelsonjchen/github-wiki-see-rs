@@ -1,7 +1,7 @@
 use std::future::Future;
 
 use reqwest::{Client, StatusCode};
-use rocket::futures::{future::select_ok, FutureExt, TryFutureExt};
+use rocket::futures::TryFutureExt;
 use scraper::{Html, Selector};
 
 use crate::scraper::process_html_index;
@@ -41,133 +41,6 @@ pub async fn retrieve_source_file<'a>(
 
     retrieve_source_file_extension(account, repository, page, client, &Content::Markdown, "md")
         .or_else(|_| async {
-            select_ok([
-                // AsciiDoc
-                retrieve_source_file_extension(
-                    account,
-                    repository,
-                    page,
-                    client,
-                    &Content::AsciiDoc,
-                    "asciidoc",
-                )
-                .boxed(),
-                // Creole
-                // retrieve_source_file_extension(
-                //     account,
-                //     repository,
-                //     page,
-                //     client,
-                //     &Content::Creole,
-                //     "creole",
-                // )
-                // .boxed(),
-                // retrieve_source_file_extension(
-                //     account,
-                //     repository,
-                //     page,
-                //     client,
-                //     &Content::Markdown,
-                //     "mkd",
-                // )
-                // .boxed(),
-                // retrieve_source_file_extension(
-                //     account,
-                //     repository,
-                //     page,
-                //     client,
-                //     &Content::Markdown,
-                //     "mkdn",
-                // )
-                // .boxed(),
-                // retrieve_source_file_extension(
-                //     account,
-                //     repository,
-                //     page,
-                //     client,
-                //     &Content::Markdown,
-                //     "mdown",
-                // )
-                // .boxed(),
-                // retrieve_source_file_extension(
-                //     account,
-                //     repository,
-                //     page,
-                //     client,
-                //     &Content::Markdown,
-                //     "markdown",
-                // )
-                // .boxed(),
-                // Mediawiki
-                retrieve_source_file_extension(
-                    account,
-                    repository,
-                    page,
-                    client,
-                    &Content::Mediawiki,
-                    "mediawiki",
-                )
-                .boxed(),
-                // Mediawiki
-                // retrieve_source_file_extension(
-                //     account,
-                //     repository,
-                //     page,
-                //     client,
-                //     &Content::Mediawiki,
-                //     "wiki",
-                // )
-                // .boxed(),
-                // Org-Mode
-                retrieve_source_file_extension(
-                    account,
-                    repository,
-                    page,
-                    client,
-                    &Content::Orgmode,
-                    "org",
-                )
-                .boxed(),
-                // Pod
-                // retrieve_source_file_extension(account, repository, page, client, &Content::Pod, "pod")
-                //     .boxed(),
-                // Rdoc
-                // retrieve_source_file_extension(account, repository, page, client, &Content::Rdoc, "rdoc")
-                //     .boxed(),
-                // Textile
-                retrieve_source_file_extension(
-                    account,
-                    repository,
-                    page,
-                    client,
-                    &Content::Textile,
-                    "textile",
-                )
-                .boxed(),
-                // ReStructuredText
-                retrieve_source_file_extension(
-                    account,
-                    repository,
-                    page,
-                    client,
-                    &Content::ReStructuredText,
-                    "rest",
-                )
-                .boxed(),
-                // retrieve_source_file_extension(
-                //     account,
-                //     repository,
-                //     page,
-                //     client,
-                //     &Content::ReStructuredText,
-                //     "rst",
-                // )
-                // .boxed(),
-            ])
-            .await
-            .map(|o| o.0)
-        })
-        .or_else(|_| async {
             retrieve_fallback_html(account, repository, page, client, "https://github.com").await
         })
         .or_else(|err| async {
@@ -194,7 +67,12 @@ async fn retrieve_github_com_html<'a>(
     client: &'a Client,
     domain: &'a str,
 ) -> Result<String, ContentError> {
-    let raw_github_url = format!("{}/{}/{}/wiki/{}", domain, account, repository, page);
+    // Home is special
+    let raw_github_url = if page == "Home" {
+        format!("{}/{}/{}/wiki", domain, account, repository)
+    } else {
+        format!("{}/{}/{}/wiki/{}", domain, account, repository, page)
+    };
 
     let resp_attempt = client.get(raw_github_url).send().await;
 
@@ -237,6 +115,7 @@ async fn retrieve_fallback_html<'a>(
     let html = retrieve_github_com_html(account, repository, page, client, domain).await?;
 
     let document = Html::parse_document(&html);
+    println!("{:?}", document);
     document
         .select(&Selector::parse("#wiki-body").unwrap())
         .next()
@@ -367,6 +246,23 @@ mod tests {
             "naver",
             "billboard.js",
             "How-to-bundle-for-legacy-browsers?",
+            &client,
+            "https://github.com",
+        );
+        let content = future.await;
+
+        println!("{:?}", content);
+        assert!(content.is_ok());
+    }
+
+    #[tokio::test]
+    async fn fallback_soapy() {
+        let client = Client::new();
+
+        let future = retrieve_github_com_html(
+            "pothosware",
+            "SoapySDR",
+            "Home",
             &client,
             "https://github.com",
         );
