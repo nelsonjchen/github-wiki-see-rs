@@ -115,7 +115,6 @@ async fn retrieve_fallback_html<'a>(
     let html = retrieve_github_com_html(account, repository, page, client, domain).await?;
 
     let document = Html::parse_document(&html);
-    println!("{:?}", document);
     document
         .select(&Selector::parse("#wiki-body").unwrap())
         .next()
