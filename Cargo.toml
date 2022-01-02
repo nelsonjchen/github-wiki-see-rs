@@ -14,7 +14,7 @@ rocket = "0.5.0-rc.1"
 # WIP
 askama = { git = "https://github.com/djc/askama.git", features = ["with-rocket", "mime", "mime_guess"] }
 askama_rocket = { git = "https://github.com/djc/askama.git" }
-reqwest = { version = "0.11", features = ["deflate", "brotli", "gzip", "json"] }
+reqwest = { version = "0.11", features = ["deflate", "brotli", "gzip"] }
 tokio = { version = "1", features = ["full"] }
 comrak = "0.12.1"
 regex = "1.5.4"
