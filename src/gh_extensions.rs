@@ -1,5 +1,5 @@
 use lazy_static::lazy_static;
-use regex::Regex;
+use regex::{Captures, Regex};
 
 // Apparently the wiki part of GitHub can also take mediawiki syntax!
 // https://docs.github.com/en/communities/documenting-your-project-with-wikis/editing-wiki-content
@@ -16,7 +16,7 @@ pub fn github_wiki_markdown_to_pure_markdown<'a, 'b>(
         )
         .unwrap();
         static ref LINK_RE: Regex =
-            Regex::new("\\[\\[(?P<link_text>.*?)\\| *(?P<page_name>.*?)\\]\\]").unwrap();
+            Regex::new("\\[\\[((?P<link_text>.*?)\\| *)?(?P<page_name>.*?)\\]\\]").unwrap();
     }
     // Disregard alt for now.
     let processed_img_md = IMG_RE.replace_all(
@@ -26,11 +26,24 @@ pub fn github_wiki_markdown_to_pure_markdown<'a, 'b>(
             account, repo
         ),
     );
+
     LINK_RE
-        .replace_all(
-            &processed_img_md,
-            format!("[$link_text](/{}/{}/wiki/$page_name)", account, repo),
-        )
+        .replace_all(&processed_img_md, |caps: &Captures<'_>| {
+            let link_text = match caps.name("link_text") {
+                Some(link_text) => link_text.as_str(),
+                None => match caps.name("page_name") {
+                    Some(page_name) => page_name.as_str(),
+                    None => "",
+                },
+            };
+
+            let page_name = match caps.name("page_name") {
+                Some(page_name) => page_name.as_str().replace(" ", "-"),
+                None => "".to_string(),
+            };
+
+            format!("[{}](/{}/{}/wiki/{})", link_text, account, repo, page_name)
+        })
         .to_string()
 }
 
@@ -49,6 +62,16 @@ mod tests {
         assert_eq!(
             result,
             "![Timon (Global), Tima (Swedish)](https://raw.githubusercontent.com/wiki/Erithano/Timon-Your-FAQ-bot-for-Microsoft-Teams/images/TimonHiWhite.jpg)"
+        );
+    }
+
+    #[test]
+    fn media_wiki_page_links() {
+        let md = r#"[[Meeting with James 30th March]]"#;
+        let result = github_wiki_markdown_to_pure_markdown(md, "hamstar", "Braincase");
+        assert_eq!(
+            result,
+            "[Meeting with James 30th March](/hamstar/Braincase/wiki/Meeting-with-James-30th-March)"
         );
     }
 
