@@ -29,20 +29,22 @@ pub fn github_wiki_markdown_to_pure_markdown<'a, 'b>(
 
     LINK_RE
         .replace_all(&processed_img_md, |caps: &Captures<'_>| {
+            let page_name = match caps.name("page_name") {
+                Some(page_name) => page_name.as_str(),
+                None => "",
+            };
+
             let link_text = match caps.name("link_text") {
                 Some(link_text) => link_text.as_str(),
-                None => match caps.name("page_name") {
-                    Some(page_name) => page_name.as_str(),
-                    None => "",
-                },
+                None => page_name,
             };
 
-            let page_name = match caps.name("page_name") {
-                Some(page_name) => page_name.as_str().replace(" ", "-"),
-                None => "".to_string(),
-            };
+            let page_name_link = page_name.replace(" ", "-");
 
-            format!("[{}](/{}/{}/wiki/{})", link_text, account, repo, page_name)
+            format!(
+                "[{}](/{}/{}/wiki/{})",
+                link_text, account, repo, page_name_link
+            )
         })
         .to_string()
 }
