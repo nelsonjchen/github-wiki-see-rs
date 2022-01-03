@@ -137,7 +137,7 @@ pub const NON_ALPHANUMERIC_GH: &percent_encoding::AsciiSet = &percent_encoding::
     .add(b'\\')
     .add(b']')
     .add(b'^')
-    .add(b'_')
+    // .add(b'_') // OK to exist in URL
     .add(b'`')
     .add(b'{')
     .add(b'|')
