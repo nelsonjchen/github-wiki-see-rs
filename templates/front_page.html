@@ -10,6 +10,7 @@
             overflow-wrap: break-word;
             min-width: 0;
         }
+
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
@@ -36,10 +37,13 @@
         with far less ad-farming. Unlike its inspiration, GHWSEE has no ads and tries to make it obvious, quick, and
         easy for users to get to the content they want directly on GitHub.com short of an automatic redirect that may
         make search engines not crawl the content.</p>
-    <p> Another purpose of GHWSEE is to bring awareness to the issue of GitHub Wikis purposefully not being indexed.
-        Many are caught off-guard and have produced massive libraries of information that they are unaware of being
-        generally invisible to the internet. Likewise, many searching for information in these libraries are not aware
-        that the information is invisible to them if it was in a GitHub Wiki.</p>
+    <p> Another purpose of GHWSEE is to bring awareness to the issue of GitHub Wikis purposefully not being indexed
+        since <a href="https://github.com/isaacs/github/issues/1683#issuecomment-763628184">2012</a>. Many are caught
+        off-guard and have produced massive libraries of information that they are unaware of being generally invisible
+        to the internet. Likewise, many searching for information in these libraries are not aware that the information
+        is invisible to them if it was in a GitHub Wiki. <a href="https://github.com/github/docs/pull/5054">Up until
+            April 2021 (9 years since 2012), GitHub did not document this limitation, and a warning is not present in
+            GitHub's UI itself; the only way you knew was by previously looking at robots.txt.</a></p>
     <p> If you are a GitHub Wiki maintainer, you may want to consider GitHub Pages backed by a public repository for
         your community's content as a more crawlable, stable, blessed, and probably higher search ranking alternative.
         <a
@@ -61,8 +65,7 @@
             unknown.</a></p>
     <p> For anti-abuse reasons, all links rendered in the service that are going out of GitHub are tagged with
         <code>rel="nofollow ugc"</code> as to not affect search engine rankings or to promote mass vandalism of GitHub
-        Wikis. This is in addition to <code>rel="nofollow"</code> in the original content.
-    </p>
+        Wikis. This is in addition to <code>rel="nofollow"</code> in the original content. </p>
     <h2 id="usage">Usage</h2>
     <ul>
         <li>Wiki Reader: Use your favorite search engine! That is the intended interface to the content "on" this
@@ -96,12 +99,10 @@
     </ul>
     <h2>Project, README, Source, Issues, and other information</h2>
     <a href="https://github.com/nelsonjchen/github-wiki-see-rs">https://github.com/nelsonjchen/github-wiki-see-rs</a>
-    <p>
-        So far, about $300 have been spent on experiments, queries, and so on with this service during its initial
+    <p> So far, about $300 have been spent on experiments, queries, and so on with this service during its initial
         ramp-up. The good news is that the cost to currently host the service is very low. In leiu of any compensation,
         please consider donating money recurringly or one-time to the <a href="https://archive.org">Internet Archive</a>
-        and/or your time to <a href="https://archiveteam.org">Archive Team</a> projects.
-    </p>
+        and/or your time to <a href="https://archiveteam.org">Archive Team</a> projects. </p>
     <h2 id="decommissioning">Decommissioning</h2>
     <p>This site will be decommissioned to redirect old links once the block is lifted or GitHub produces some other
         solution to index GitHub Wikis in harmony with their SEO concerns.</p>
