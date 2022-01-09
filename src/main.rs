@@ -17,6 +17,7 @@ use askama::Template;
 use crate::gh_extensions::github_wiki_markdown_to_pure_markdown;
 use crate::scraper::process_markdown;
 
+mod decommission;
 mod gh_extensions;
 mod retrieval;
 mod scraper;
@@ -186,6 +187,9 @@ async fn mirror_page<'a>(
             ContentError::TooMayRequests => {
                 GiveUpSendToGitHub(Redirect::temporary(original_url_encoded.clone()))
             }
+            ContentError::Decommissioned => {
+                GiveUpSendToGitHub(Redirect::permanent(original_url_encoded.clone()))
+            }
             ContentError::OtherError(e) => InternalError(status::Custom(
                 Status::InternalServerError,
                 MirrorTemplate {
@@ -251,7 +255,10 @@ async fn mirror_page_index<'a>(
     // Consider it "fatal" if this doesn't exist/errors and forward to GitHub or return an error.
     let content = retrieve_wiki_index(account, repository, client)
         .map_err(|e| match e {
-            ContentError::NotFound => GiveUpSendToGitHub(Redirect::to(original_url.clone())),
+            // Retreive wiki index never returns decomissioned
+            ContentError::NotFound | ContentError::Decommissioned => {
+                GiveUpSendToGitHub(Redirect::to(original_url.clone()))
+            }
             ContentError::TooMayRequests => {
                 GiveUpSendToGitHub(Redirect::temporary(original_url.clone()))
             }

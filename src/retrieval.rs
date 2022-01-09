@@ -1,9 +1,12 @@
+use std::collections::HashSet;
 use std::future::Future;
 
+use lazy_static::lazy_static;
 use reqwest::{Client, StatusCode};
 use rocket::futures::TryFutureExt;
 use scraper::{Html, Selector};
 
+use crate::decommission::generate_decommission_list;
 use crate::scraper::process_html_index;
 
 #[allow(dead_code)]
@@ -25,7 +28,12 @@ pub enum Content {
 pub enum ContentError {
     NotFound,
     TooMayRequests,
+    Decommissioned,
     OtherError(String),
+}
+
+lazy_static! {
+    static ref DECOMMISSION_LIST: HashSet<&'static str> = generate_decommission_list();
 }
 
 pub async fn retrieve_source_file<'a>(
@@ -34,6 +42,11 @@ pub async fn retrieve_source_file<'a>(
     page: &'a str,
     client: &'a Client,
 ) -> Result<Content, ContentError> {
+    // Skip decomissioned wikis
+    if DECOMMISSION_LIST.contains(format!("{}/{}", account, repository).as_str()) {
+        return Err(ContentError::Decommissioned);
+    }
+
     // Pull extensions from
     // https://github.com/gollum/gollum-lib/blob/b074c6314dc47571cae91dd333bd1b1f2a816c48/lib/gollum-lib/markups.rb#L70
 

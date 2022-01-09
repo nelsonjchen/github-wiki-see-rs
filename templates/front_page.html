@@ -105,16 +105,22 @@
         and/or your time to <a href="https://archiveteam.org">Archive Team</a> projects. </p>
     <h2 id="decommissioning">Decommissioning</h2>
     <p>This site will be decommissioned to redirect old links once the block is lifted or GitHub produces some other
-        solution to index GitHub Wikis in harmony with their SEO concerns.</p>
+        solution to index all useful GitHub Wikis in harmony with their SEO concerns.</p>
     <p>People shouldn't have linked to this site but maybe the warnings weren't big and red enough. <a
             href="https://github.com/nelsonjchen/github-wiki-see-rs/issues/6">Flashing yellow was very unpopular.</a>
     </p>
-    <p> As of January 2022, GitHub does appear to be letting some Wikis be indexed. A scan may be done to see what
-        amount of Wikis are permitted to be indexed and gradually or partially decomission GHWSEE for those Wikis. The
-        results of the scan may be used to generate a list of GitHub Wikis to automatically redirect users to and
-        disengage GHWSEE for those Wikis. The GHWSEE <code>wiki_index</code> synthesized views URLs might still be left
-        to index though as GitHub Wiki's default site design does not show wiki page links and that might hinder
-        crawling effectiveness. </p>
+    <p> As of January 2022, GitHub does appear to be letting a few Wikis be indexed according to some non-public
+        uncriteria. Here is a small sample of Wikis that GitHub allows native indexing without
+        <code>x-robots-tag: none</code>. GHWSEE has a manually periodically generated list of these Wikis burned in and
+        will permanently automatically redirect URLs with them to GitHub.com. At the moment, there are about 1.2k GitHub
+        Wikis permitted out of 420k GitHub Wikis to be directly indexed. Links below are for testing. This links help
+        test the partial decommissioning functionality.</p>
+    <ul>
+        <li><a href="/m/microsoft/A-TALE-OF-THREE-CITIES/wiki">microsoft/A-TALE-OF-THREE-CITIES</a>
+        </li>
+        <li><a href="/m/zaclimon/xipl/wiki">zaclimon/xipl</a>
+        </li>
+    </ul>
     <hr>
     <p> This project is not affiliated with GitHub in any way, if it wasn't obvious from the substandard CSS and code.
     </p>
