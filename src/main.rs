@@ -256,11 +256,13 @@ async fn mirror_page_index<'a>(
     let content = retrieve_wiki_index(account, repository, client)
         .map_err(|e| match e {
             // Retreive wiki index never returns decomissioned
-            ContentError::NotFound | ContentError::Decommissioned => {
-                GiveUpSendToGitHub(Redirect::to(original_url.clone()))
-            }
+            ContentError::NotFound => GiveUpSendToGitHub(Redirect::to(original_url.clone())),
             ContentError::TooMayRequests => {
                 GiveUpSendToGitHub(Redirect::temporary(original_url.clone()))
+            }
+            // Not used, but could be if index is decommisioned
+            ContentError::Decommissioned => {
+                GiveUpSendToGitHub(Redirect::permanent(original_url.clone()))
             }
             ContentError::OtherError(e) => InternalError(status::Custom(
                 Status::InternalServerError,
