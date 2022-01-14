@@ -145,7 +145,12 @@ pub const NON_ALPHANUMERIC_GH: &percent_encoding::AsciiSet = &percent_encoding::
     .add(b'}')
     .add(b'~');
 
-#[get("/<account>/<repository>/wiki/<page>")]
+#[get("/<account>/<repository>/wiki/Home", rank = 1)]
+async fn mirror_page_redirect_home<'a>(account: &'a str, repository: &'a str) -> Redirect {
+    Redirect::permanent(format!("/m/{account}/{repository}/wiki"))
+}
+
+#[get("/<account>/<repository>/wiki/<page>", rank = 2)]
 async fn mirror_page<'a>(
     account: &'a str,
     repository: &'a str,
@@ -394,7 +399,15 @@ fn rocket() -> _ {
     // Mount Mirror
     rocket::build()
         .register("/", catchers![not_found])
-        .mount("/m", routes![mirror_home, mirror_page, mirror_page_index])
+        .mount(
+            "/m",
+            routes![
+                mirror_home,
+                mirror_page_redirect_home,
+                mirror_page,
+                mirror_page_index
+            ],
+        )
         .mount(
             "/",
             routes![
