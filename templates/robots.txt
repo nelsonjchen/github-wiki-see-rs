@@ -1,7 +1,3 @@
-# Don't index these _history links as they won't work.
-User-agent: *
-Disallow: /*/_history$
-
-# But otherwise crawl it all.
+# Crawl it all. 🟢
 
 Sitemap: https://github-wiki-see.page/sitemap.xml
