@@ -18,7 +18,7 @@ processes = []
 
   [services.concurrency]
     hard_limit = 30
-    soft_limit = 20
+    soft_limit = 4
     type = "connections"
 
   [[services.ports]]
