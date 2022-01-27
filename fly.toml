@@ -18,8 +18,8 @@ processes = []
 
   [services.concurrency]
     hard_limit = 30
-    soft_limit = 3
-    type = "requests"
+    soft_limit = 2
+    type = "connections"
 
   [[services.ports]]
     handlers = ["http"]
