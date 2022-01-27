@@ -41,3 +41,9 @@ jobs:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         with:
           args: "deploy"
+      - name: Cloudflare Cache Purge Action
+        uses: NathanVaughn/actions-cloudflare-purge@v2.0.0
+        if: success()
+        with:
+          cf_zone: ${{ secrets.CLOUDFLARE_ZONE }}
+          cf_auth: ${{ secrets.CLOUDFLARE_AUTH_KEY }}
