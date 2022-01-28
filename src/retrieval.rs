@@ -36,6 +36,8 @@ lazy_static! {
     static ref DECOMMISSION_LIST: HashSet<&'static str> = generate_decommission_list();
 }
 
+const FALLBACK_HOST: &'static str = "https://gh-mirror-gucl6ahvva-uc.a.run.app";
+
 pub async fn retrieve_source_file<'a>(
     account: &'a str,
     repository: &'a str,
@@ -63,7 +65,7 @@ pub async fn retrieve_source_file<'a>(
                     repository,
                     page,
                     client,
-                    "https://gh-mirror-gucl6ahvva-uc.a.run.app",
+                    FALLBACK_HOST,
                 )
                 .await
             } else {
@@ -186,7 +188,7 @@ pub async fn retrieve_wiki_index<'a>(
                     repository,
                     "",
                     client,
-                    "https://gh-mirror-gucl6ahvva-uc.a.run.app",
+                    FALLBACK_HOST,
                 )
                 .await
             } else {
