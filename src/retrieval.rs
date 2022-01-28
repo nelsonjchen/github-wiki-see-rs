@@ -39,7 +39,7 @@ pub async fn retrieve_source_file<'a>(
     client: &'a Client,
 ) -> Result<Content, ContentError> {
     // Skip decomissioned wikis
-    if DECOMMISSION_LIST.contains_key(format!("{}/{}", account, repository).as_str()) {
+    if DECOMMISSION_LIST.contains(format!("{}/{}", account, repository).as_str()) {
         return Err(ContentError::Decommissioned);
     }
 
