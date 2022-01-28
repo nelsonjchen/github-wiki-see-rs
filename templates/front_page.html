@@ -10,7 +10,6 @@
             overflow-wrap: break-word;
             min-width: 0;
         }
-
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description"
@@ -28,9 +27,9 @@
     <p>
         <em>GitHub Wiki Search Engine Enablement</em> (GHWSEE) allows non-indexed GitHub Wikis to be indexed by search
         engines. The <a href="/robots.txt"><code>robots.txt</code></a> and <a
-            href="https://github.com/github/feedback/discussions/4992#discussioncomment-1448177">headers</a> on this
-        site do not prevent indexing of wiki content and GitHub Wiki content proxied from GitHub and served from this
-        service can be crawled and indexed by major search engines.
+            href="https://github.com/github/feedback/discussions/4992#discussioncomment-1448177">HTTP headers</a> on
+        this site do not prevent indexing of wiki content and GitHub Wiki content proxied from GitHub and served from
+        this service can be crawled and indexed by major search engines.
     </p>
     <p> Currently, <a href=https://github.com/github/feedback/discussions/4992>GitHub prevents crawling of repository
             wiki content</a> for wikis that are publically editable and some other unknown criteria(s). You can find <a
@@ -79,7 +78,8 @@
     <p> For anti-abuse reasons, all links rendered in the service that are going out of GitHub are tagged with
         <code>rel="nofollow <a href="https://developers.google.com/search/blog/2019/09/evolving-nofollow-new-ways-to-identify">ugc</a>"</code>
         as to not affect search engine rankings or to promote mass vandalism of GitHub Wikis. This is in addition to
-        <code>rel="nofollow"</code> in the original content. </p>
+        <code>rel="nofollow"</code> in the original content.
+    </p>
     <h2 id="usage">Usage</h2>
     <ul>
         <li>Wiki Reader: Use your favorite search engine! That is the intended interface to the content "on" this
@@ -125,7 +125,7 @@
     </p>
     <p> As of January 2022, GitHub does appear to be letting a few Wikis be indexed according to some non-public
         criteria. These small sample of Wikis allow native indexing by not having a <code>x-robots-tag: none</code>
-        header. GHWSEE has a manually periodically generated list of these Wikis burned in and will permanently
+        HTTP header. GHWSEE has a manually periodically generated list of these Wikis burned in and will permanently
         automatically redirect URLs with them to GitHub.com. The sample of links links below help test the partial
         decommissioning functionality. Hopefully the permanent redirects in GHWSEE will help GHWSEE fall off search
         engines for all currently directly indexable repositories. </p>
