@@ -213,7 +213,13 @@ pub async fn retrieve_wiki_sitemap_index<'a>(
             }
         })
         .await?;
-    let wiki_page_urls = process_html_index(&html);
+    let mut wiki_page_urls = process_html_index(&html);
+
+    // Add the synthetic index page
+    wiki_page_urls.push((
+        format!("/{account}/{repository}/wiki_index"),
+        "Wiki Index".to_string(),
+    ));
 
     use quick_xml::events::{BytesEnd, BytesStart, Event};
 
