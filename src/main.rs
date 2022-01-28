@@ -92,7 +92,7 @@ async fn wiki_debug_sitemaps(
         .await
         .map_err(|op| status::Custom(Status::InternalServerError, format!("Error: {:?}", op)))?;
 
-    Ok(content::Xml(content))   
+    Ok(content::Xml(content))
 }
 
 #[derive(Template)]

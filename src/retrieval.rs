@@ -37,7 +37,7 @@ lazy_static! {
     static ref DECOMMISSION_LIST: HashSet<&'static str> = generate_decommission_list();
 }
 
-const FALLBACK_HOST: &'static str = "https://gh-mirror-gucl6ahvva-uc.a.run.app";
+const FALLBACK_HOST: &str = "https://gh-mirror-gucl6ahvva-uc.a.run.app";
 
 pub async fn retrieve_source_file<'a>(
     account: &'a str,
