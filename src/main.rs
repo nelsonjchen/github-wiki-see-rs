@@ -4,10 +4,10 @@ extern crate rocket;
 use std::time::Duration;
 
 use reqwest::Client;
-use retrieval::Content;
+use retrieval::{retrieve_wiki_sitemap_index, Content};
 use rocket::futures::TryFutureExt;
 use rocket::http::{ContentType, Status};
-use rocket::response::status;
+use rocket::response::{content, status};
 use rocket::response::{Redirect, Responder};
 use rocket::State;
 
@@ -80,6 +80,19 @@ fn seed_sitemaps(id: &str) -> Redirect {
         "https://nelsonjchen.github.io/github-wiki-see-rs-sitemaps/seed_sitemaps/{}",
         id
     ))
+}
+
+#[get("/debug_sitemaps/<account>/<repository>/sitemap.xml")]
+async fn wiki_debug_sitemaps(
+    account: &str,
+    repository: &str,
+    client: &State<Client>,
+) -> Result<content::Xml<String>, status::Custom<String>> {
+    let content = retrieve_wiki_sitemap_index(account, repository, client)
+        .await
+        .map_err(|op| status::Custom(Status::InternalServerError, format!("Error: {:?}", op)))?;
+
+    Ok(content::Xml(content))   
 }
 
 #[derive(Template)]
@@ -417,7 +430,8 @@ fn rocket() -> _ {
                 sitemap_xml,
                 base_sitemap_xml,
                 generated_sitemap_xml,
-                seed_sitemaps
+                seed_sitemaps,
+                wiki_debug_sitemaps,
             ],
         )
         .manage(
