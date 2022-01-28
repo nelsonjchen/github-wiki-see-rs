@@ -1,8 +1,8 @@
-use std::collections::HashSet;
+use phf::phf_map;
 
 /*
 SELECT
-  CONCAT("set.insert(\"", REGEXP_EXTRACT(repo_url, r'https://github.com/(.+)/wiki'), "\");")
+  CONCAT("\"", REGEXP_EXTRACT(repo_url, r'https://github.com/(.+)/wiki'), "\" => ()")
 FROM
   `github-wiki-see.show.distinct_wikis_info_lookup_upto_202110`
 WHERE
@@ -11,1219 +11,1216 @@ ORDER BY
   LOWER(repo_url)
 */
 
-pub(crate) fn generate_decommission_list() -> HashSet<&'static str> {
-    let mut set = HashSet::new();
-
-    set.insert("233boy/v2ray");
-    set.insert("acidanthera/AppleALC");
-    set.insert("adam-p/danforth-east");
-    set.insert("adam-p/markdown-here");
-    set.insert("Aircoookie/WLED");
-    set.insert("ajanata/PretendYoureXyzzy");
-    set.insert("AltraMayor/gatekeeper");
-    set.insert("AltraMayor/XIA-for-Linux");
-    set.insert("Alvin9999/new-pac");
-    set.insert("angular/angular-bazel-example");
-    set.insert("angular/angular-cn");
-    set.insert("angular/angular-phonecat");
-    set.insert("angular/angular.js");
-    set.insert("angular/closure-demo");
-    set.insert("angular/components");
-    set.insert("angular/dashboard.angularjs.org");
-    set.insert("angular/dgeni");
-    set.insert("angular/flex-layout");
-    set.insert("angular/ngMigration-Forum");
-    set.insert("angular/ts-minify");
-    set.insert("angular/vscode-ng-language-service");
-    set.insert("beefproject/beef");
-    set.insert("biancangming/wtv");
-    set.insert("BLCM/bl3mods");
-    set.insert("BLCM/ModCabinet");
-    set.insert("bui/taiko-web");
-    set.insert("ccrisan/motioneye");
-    set.insert("ccrisan/motioneyeos");
-    set.insert("ccrisan/thingos");
-    set.insert("ccxt/ccxt");
-    set.insert("Chia-Network/chia-blockchain");
-    set.insert("collab-uniba/SO_reputation");
-    set.insert("DarkPacks/SevTech-Ages");
-    set.insert("dotnet/aspnet-api-versioning");
-    set.insert("dotnet/aspnetcore");
-    set.insert("dotnet/Comet");
-    set.insert("dotnet/efcore");
-    set.insert("dotnet/infer");
-    set.insert("dotnet/llilc");
-    set.insert("dotnet/machinelearning-samples");
-    set.insert("dotnet/machinelearning");
-    set.insert("dotnet/maui");
-    set.insert("dotnet/Microsoft.Maui.Graphics.Controls");
-    set.insert("dotnet/ResXResourceManager");
-    set.insert("dotnet/SqlClient");
-    set.insert("dotnet/templating");
-    set.insert("dotnet/try");
-    set.insert("dotnet/windows-sdk-for-google-analytics");
-    set.insert("dotnet/winforms");
-    set.insert("dresden-elektronik/deconz-rest-plugin-v2");
-    set.insert("edx/edx-platform");
-    set.insert("Electroblob77/Wizardry");
-    set.insert("ergoplatform/ergo-appkit");
-    set.insert("ergoplatform/ergo-contracts");
-    set.insert("ergoplatform/ergo-wallet");
-    set.insert("ergoplatform/ergo");
-    set.insert("ergoplatform/explorer-backend");
-    set.insert("espressif/arduino-esp32");
-    set.insert("espressif/esp-rainmaker");
-    set.insert("espressif/idf-installer");
-    set.insert("espressif/openocd-esp32");
-    set.insert("espressif/pytest-embedded");
-    set.insert("espressif/vscode-esp-idf-extension");
-    set.insert("ethereum/btcrelay");
-    set.insert("ethereum/cbc-casper");
-    set.insert("ethereum/devp2p");
-    set.insert("ethereum/ethash");
-    set.insert("ethereum/ethereum.org");
-    set.insert("ethereum/ethereumj");
-    set.insert("ethereum/evmlab");
-    set.insert("ethereum/go-ethereum");
-    set.insert("ethereum/mist");
-    set.insert("ethereum/pm");
-    set.insert("ethereum/portal-network-specs");
-    set.insert("ethereum/pyethereum");
-    set.insert("ethereum/research");
-    set.insert("ethereum/retesteth");
-    set.insert("ethereum/system-testing");
-    set.insert("ethereum/tests");
-    set.insert("ethereum/wiki");
-    set.insert("ExistentialAudio/BlackHole");
-    set.insert("Ezekial711/MonsterHunterWorldModding");
-    set.insert("f1xpl/openauto");
-    set.insert("FastLED/FastLED");
-    set.insert("FelisCatus/SwitchyOmega");
-    set.insert("filecoin-project/merkletree");
-    set.insert("filecoin-project/specs");
-    set.insert("flutter/devtools");
-    set.insert("flutter/flutter-intellij");
-    set.insert("flutter/flutter");
-    set.insert("flutter/uxr");
-    set.insert("Freeyourgadget/Gadgetbridge");
-    set.insert("Funwayguy/BetterQuesting");
-    set.insert("GeyserMC/Floodgate");
-    set.insert("gitextensions/gitextensions.extensibility");
-    set.insert("gitextensions/gitextensions.pluginmanager");
-    set.insert("gitextensions/gitextensions.plugintemplate");
-    set.insert("gitextensions/gitextensions");
-    set.insert("github/super-linter");
-    set.insert("Gizra/Municipality");
-    set.insert("Gizra/UX-UI");
-    set.insert("golang/dep");
-    set.insert("golang/gddo");
-    set.insert("google/agera");
-    set.insert("google/allocation-instrumenter");
-    set.insert("google/android-fhir");
-    set.insert("google/android-uiconductor");
-    set.insert("google/angular_node_bind.dart");
-    set.insert("google/ansicolor-dart");
-    set.insert("google/anvil-build");
-    set.insert("google/autoparse");
-    set.insert("google/beta-binomial-fitting");
-    set.insert("google/blockly-games");
-    set.insert("google/blockly-samples");
-    set.insert("google/blockly");
-    set.insert("google/breadboard");
-    set.insert("google/brotli");
-    set.insert("google/caliper");
-    set.insert("google/CallBuilder");
-    set.insert("google/cameraraw");
-    set.insert("google/capirca");
-    set.insert("google/capsicum-test");
-    set.insert("google/cctz");
-    set.insert("google/cel-spec");
-    set.insert("google/ChannelPlate");
-    set.insert("google/chicago-brick");
-    set.insert("google/chrome-tabber");
-    set.insert("google/Chrome.Docs");
-    set.insert("google/chromeos-filesystems");
-    set.insert("google/clojure-turtle");
-    set.insert("google/closure-compiler");
-    set.insert("google/closure-library");
-    set.insert("google/closure-stylesheets");
-    set.insert("google/cloud-print-connector");
-    set.insert("google/cloudprober");
-    set.insert("google/codeu_project_2017");
-    set.insert("google/coding-with-chrome");
-    set.insert("google/compile-testing");
-    set.insert("google/concatenate.js");
-    set.insert("google/container-rfc");
-    set.insert("google/corgi");
-    set.insert("google/cornerstone");
-    set.insert("google/cornerstoneMath");
-    set.insert("google/cornerstoneTools");
-    set.insert("google/cornerstoneWADOImageLoader");
-    set.insert("google/cornerstoneWebImageLoader");
-    set.insert("google/course-builder");
-    set.insert("google/coursebuilder-core");
-    set.insert("google/coursebuilder-learning-analytics");
-    set.insert("google/coursebuilder-lti-module");
-    set.insert("google/coursebuilder-releases");
-    set.insert("google/coursebuilder-resources");
-    set.insert("google/cpp-netlib");
-    set.insert("google/crisis-info-hub");
-    set.insert("google/crmint");
-    set.insert("google/cronutils");
-    set.insert("google/CSP-Validator");
-    set.insert("google/cxx-std-draft");
-    set.insert("google/dagger");
-    set.insert("google/dart-emacs-plugin-unsupported");
-    set.insert("google/dart-gif-encoder");
-    set.insert("google/dart-sync-socket");
-    set.insert("google/dart-sync-webdriver");
-    set.insert("google/data-layer-helper");
-    set.insert("google/depan");
-    set.insert("google/devtoolsExtended");
-    set.insert("google/dicomParser");
-    set.insert("google/diff-match-patch");
-    set.insert("google/docsy");
-    set.insert("google/dokka");
-    set.insert("google/dotty");
-    set.insert("google/double-conversion");
-    set.insert("google/dpy");
-    set.insert("google/dynamic-form");
-    set.insert("google/earthenterprise");
-    set.insert("google/embed-dart-vm");
-    set.insert("google/episodes.dart");
-    set.insert("google/error-prone");
-    set.insert("google/eslint-config-google");
-    set.insert("google/FakeMaker");
-    set.insert("google/favcolor-android");
-    set.insert("google/favcolor-findidp");
-    set.insert("google/favcolor-ios");
-    set.insert("google/filesystem-proposal");
-    set.insert("google/firmata.py");
-    set.insert("google/flatbuffers");
-    set.insert("google/flexbox-layout");
-    set.insert("google/fplbase");
-    set.insert("google/fruit");
-    set.insert("google/gae-channel-api.dart");
-    set.insert("google/gdata-objectivec-client");
-    set.insert("google/generator-goro");
-    set.insert("google/gfw-deployments");
-    set.insert("google/GL-Shader-Validator");
-    set.insert("google/glog");
-    set.insert("google/glome");
-    set.insert("google/gmail-oauth2-tools");
-    set.insert("google/gnxi");
-    set.insert("google/go-tspi");
-    set.insert("google/googet");
-    set.insert("google/google-api-cpp-client");
-    set.insert("google/google-api-objectivec-client-for-rest");
-    set.insert("google/google-authenticator-android");
-    set.insert("google/google-authenticator");
-    set.insert("google/google-java-format");
-    set.insert("google/google-visualization-issues");
-    set.insert("google/googletv-android-samples");
-    set.insert("google/goterm");
-    set.insert("google/ground-android");
-    set.insert("google/ground-platform");
-    set.insert("google/grumpy");
-    set.insert("google/gtm-http-fetcher");
-    set.insert("google/guava");
-    set.insert("google/guice");
-    set.insert("google/gulava");
-    set.insert("google/gumbo-parser");
-    set.insert("google/gwteventbinder");
-    set.insert("google/gwtmockito");
-    set.insert("google/gxui");
-    set.insert("google/horenso");
-    set.insert("google/html-quiz");
-    set.insert("google/identity-toolkit-go-client");
-    set.insert("google/identity-toolkit-node-client");
-    set.insert("google/Idris-dev");
-    set.insert("google/instant-hangouts");
-    set.insert("google/j2objc");
-    set.insert("google/jacs");
-    set.insert("google/jarjar");
-    set.insert("google/jsonapi");
-    set.insert("google/keyczar");
-    set.insert("google/kmsan");
-    set.insert("google/ksp");
-    set.insert("google/ktsan");
-    set.insert("google/language-jsonnet");
-    set.insert("google/libcxx");
-    set.insert("google/libkml");
-    set.insert("google/libnss-cache");
-    set.insert("google/libpam-policycache");
-    set.insert("google/lisp-koans");
-    set.insert("google/llvm-premerge-checks");
-    set.insert("google/lmctfy");
-    set.insert("google/mail-importer");
-    set.insert("google/martian");
-    set.insert("google/material-design-icons");
-    set.insert("google/material-design-lite");
-    set.insert("google/mediapipe");
-    set.insert("google/megalista");
-    set.insert("google/ml-compiler-opt");
-    set.insert("google/mockable_filesystem.dart");
-    set.insert("google/module-server");
-    set.insert("google/MOE");
-    set.insert("google/mug");
-    set.insert("google/mysql-protobuf");
-    set.insert("google/mysql-tools");
-    set.insert("google/namebench");
-    set.insert("google/network-mapper");
-    set.insert("google/nixysa");
-    set.insert("google/nsscache");
-    set.insert("google/oboe");
-    set.insert("google/open-gantry");
-    set.insert("google/open-location-code");
-    set.insert("google/open-vcdiff");
-    set.insert("google/opentest4j");
-    set.insert("google/paco");
-    set.insert("google/pandas");
-    set.insert("google/patchfield");
-    set.insert("google/pcbdl");
-    set.insert("google/pepper.js");
-    set.insert("google/perf_api.dart");
-    set.insert("google/personfinder");
-    set.insert("google/physical-web");
-    set.insert("google/pixelcycle-sample-app");
-    set.insert("google/pods-helper");
-    set.insert("google/polymer-dart-log-controller");
-    set.insert("google/prefab");
-    set.insert("google/prerender-test");
-    set.insert("google/proto-lens");
-    set.insert("google/protorpc");
-    set.insert("google/prudaq");
-    set.insert("google/qpp");
-    set.insert("google/re2");
-    set.insert("google/realtime-help");
-    set.insert("google/rekall-profiles");
-    set.insert("google/ringdroid");
-    set.insert("google/ruby-openid-apps-discovery");
-    set.insert("google/s2geometry");
-    set.insert("google/safevarargs");
-    set.insert("google/sagetv");
-    set.insert("google/sanitizers");
-    set.insert("google/scene_lab");
-    set.insert("google/search-samples");
-    set.insert("google/shaka-packager");
-    set.insert("google/shipshape-demo");
-    set.insert("google/sirius");
-    set.insert("google/site-kit-wp");
-    set.insert("google/splot-java");
-    set.insert("google/sprockets");
-    set.insert("google/systemjs");
-    set.insert("google/syzygy");
-    set.insert("google/tcli");
-    set.insert("google/testRunner");
-    set.insert("google/textfsm");
-    set.insert("google/thread-weaver");
-    set.insert("google/tie");
-    set.insert("google/tiff");
-    set.insert("google/trace-viewer");
-    set.insert("google/traceur-compiler");
-    set.insert("google/transitfeed");
-    set.insert("google/truth");
-    set.insert("google/turbinia");
-    set.insert("google/uri.dart");
-    set.insert("google/usbinfo");
-    set.insert("google/vim-codefmt");
-    set.insert("google/vim-jsonnet");
-    set.insert("google/vim-maktaba");
-    set.insert("google/vimdoc");
-    set.insert("google/vogon");
-    set.insert("google/volley");
-    set.insert("google/vpn-reverse-tether");
-    set.insert("google/vroom");
-    set.insert("google/web-starter-kit");
-    set.insert("google/webdriver.dart");
-    set.insert("google/webpackager");
-    set.insert("google/wiberg-minimization");
-    set.insert("gpac/gpac");
-    set.insert("HearthSim/Firestarter");
-    set.insert("HearthSim/hsreplaynet-localstack");
-    set.insert("HearthSim/kettle-design");
-    set.insert("HearthSim/SabberStone");
-    set.insert("HearthSim/twitch-hdt-frontend");
-    set.insert("imchillin/Anamnesis");
-    set.insert("imchillin/CMTool");
-    set.insert("intel/acat");
-    set.insert("intel/ad-rss-lib");
-    set.insert("intel/android-audio-hal");
-    set.insert("intel/auto-pts");
-    set.insert("intel/buxton");
-    set.insert("intel/caffe");
-    set.insert("intel/chainer");
-    set.insert("intel/cloud-dleyna");
-    set.insert("intel/cmrt");
-    set.insert("intel/cordova-plugin-intel-xdk-accelerometer");
-    set.insert("intel/cordova-plugin-intel-xdk-base");
-    set.insert("intel/cordova-plugin-intel-xdk-camera");
-    set.insert("intel/cordova-plugin-intel-xdk-contacts");
-    set.insert("intel/cordova-plugin-intel-xdk-device");
-    set.insert("intel/cordova-plugin-intel-xdk-display");
-    set.insert("intel/cordova-plugin-intel-xdk-facebook");
-    set.insert("intel/cordova-plugin-intel-xdk-file");
-    set.insert("intel/cordova-plugin-intel-xdk-geolocation");
-    set.insert("intel/cordova-plugin-intel-xdk-multitouch");
-    set.insert("intel/cordova-plugin-intel-xdk-notification");
-    set.insert("intel/cordova-plugin-intel-xdk-player");
-    set.insert("intel/cppnnml");
-    set.insert("intel/cve-bin-tool");
-    set.insert("intel/Dependency-Reduction-Unit-Framework");
-    set.insert("intel/dffml");
-    set.insert("intel/dleyna-collabora-android");
-    set.insert("intel/dleyna-connector-dbus");
-    set.insert("intel/dleyna-control");
-    set.insert("intel/dleyna-core");
-    set.insert("intel/dleyna-linux");
-    set.insert("intel/dleyna-renderer");
-    set.insert("intel/dleyna-server");
-    set.insert("intel/dptf");
-    set.insert("intel/edison-linux");
-    set.insert("intel/edison-u-boot");
-    set.insert("intel/fiovisualizer");
-    set.insert("intel/fMBT");
-    set.insert("intel/gvt-linux");
-    set.insert("intel/haxm");
-    set.insert("intel/IA-Hardware-Composer");
-    set.insert("intel/icamerasrc");
-    set.insert("intel/idxd-config");
-    set.insert("intel/Igvtg-kernel");
-    set.insert("intel/Igvtg-qemu");
-    set.insert("intel/Igvtg-xen");
-    set.insert("intel/ikgt-api");
-    set.insert("intel/ikgt-core");
-    set.insert("intel/ikgt-loader");
-    set.insert("intel/ikgt-manifest");
-    set.insert("intel/ikgt-plugin");
-    set.insert("intel/ikgt-usage");
-    set.insert("intel/intel-cmt-cat");
-    set.insert("intel/intel-iot-services-orchestration-layer");
-    set.insert("intel/intel-ipsec-mb");
-    set.insert("intel/IntelSEAPI");
-    set.insert("intel/ioprof");
-    set.insert("intel/iotg-lin-gfx-gstreamer-vaapi");
-    set.insert("intel/iotg-lin-gfx-libdrm");
-    set.insert("intel/iotg-lin-gfx-libva");
-    set.insert("intel/iotg-lin-gfx-mesa");
-    set.insert("intel/iotg-lin-gfx-va-driver");
-    set.insert("intel/isa-l");
-    set.insert("intel/isaac");
-    set.insert("intel/ixpdimm_sw");
-    set.insert("intel/jndn-utils");
-    set.insert("intel/keras");
-    set.insert("intel/kernel-fuzzer-for-xen-project");
-    set.insert("intel/libxcam");
-    set.insert("intel/libyami");
-    set.insert("intel/linux-intel-4.9");
-    set.insert("intel/linux-intel-lts");
-    set.insert("intel/linux-stable-xenomai");
-    set.insert("intel/luv-yocto");
-    set.insert("intel/mainline-tracking");
-    set.insert("intel/media-driver");
-    set.insert("intel/meta-intel-aero");
-    set.insert("intel/meta-intel-iot-security");
-    set.insert("intel/mOS");
-    set.insert("intel/mptcpd");
-    set.insert("intel/nemu");
-    set.insert("intel/nn-hal");
-    set.insert("intel/numatop");
-    set.insert("intel/numpy");
-    set.insert("intel/opa-firmware");
-    set.insert("intel/parameter-framework-plugins-alsa");
-    set.insert("intel/parameter-framework-plugins-filesystem");
-    set.insert("intel/parameter-framework");
-    set.insert("intel/pyMIC");
-    set.insert("intel/rapid-design-methods-for-developing-hardware-accelerators");
-    set.insert("intel/safestringlib");
-    set.insert("intel/scipy");
-    set.insert("intel/soft-crc");
-    set.insert("intel/systemc-compiler");
-    set.insert("intel/tbtfwupd");
-    set.insert("intel/Theano");
-    set.insert("intel/thermal_daemon");
-    set.insert("intel/tinycbor");
-    set.insert("intel/torch7");
-    set.insert("intel/wayland-fits");
-    set.insert("intel/wds");
-    set.insert("intel/webml-polyfill");
-    set.insert("intel/XenGT-Preview-kernel");
-    set.insert("intel/XenGT-Preview-qemu");
-    set.insert("intel/XenGT-Preview-xen");
-    set.insert("intel/yoko-tool");
-    set.insert("intel/zephyr.js");
-    set.insert("intel/zephyrjs-ide");
-    set.insert("IntellectualSites/FastAsyncWorldEdit-Documentation");
-    set.insert("IntellectualSites/PlotSquared-Documentation");
-    set.insert("IntellectualSites/PlotSquared-Legacy");
-    set.insert("ISO-TC211/19115-2Revision");
-    set.insert("ISO-TC211/AutomatedDocumentation");
-    set.insert("ISO-TC211/HMMG");
-    set.insert("ISO-TC211/Resources");
-    set.insert("ISO-TC211/UML-Best-Practices");
-    set.insert("ISO-TC211/XML");
-    set.insert("jackocnr/intl-tel-input");
-    set.insert("jackpal/Android-Terminal-Emulator");
-    set.insert("jagrosh/MusicBot");
-    set.insert("jagrosh/Selfbot");
-    set.insert("jagrosh/Spectra");
-    set.insert("jagrosh/Vortex");
-    set.insert("jdf76/plugin.video.youtube");
-    set.insert("jeanropke/RDOMap");
-    set.insert("jeanropke/RDR2CollectorsMap");
-    set.insert("Juniper/contrail-ansible-deployer");
-    set.insert("Juniper/contrail-ansible");
-    set.insert("Juniper/contrail-controller");
-    set.insert("Juniper/contrail-docker");
-    set.insert("Juniper/contrail-fabric-utils");
-    set.insert("Juniper/contrail-helm-deployer");
-    set.insert("Juniper/contrail-infra");
-    set.insert("Juniper/contrail-kolla-ansible");
-    set.insert("Juniper/contrail-kubernetes");
-    set.insert("Juniper/contrail-packages");
-    set.insert("Juniper/contrail-packaging");
-    set.insert("Juniper/contrail-project-config");
-    set.insert("Juniper/contrail-provisioning");
-    set.insert("Juniper/contrail-server-manager");
-    set.insert("Juniper/contrail-test-ci");
-    set.insert("Juniper/contrail-test");
-    set.insert("Juniper/contrail-third-party-packages");
-    set.insert("Juniper/contrail-ui-third-party-cache");
-    set.insert("Juniper/contrail-vnc");
-    set.insert("Juniper/contrail-vrouter");
-    set.insert("Juniper/contrail-web-core");
-    set.insert("Juniper/contrail-windows-ci");
-    set.insert("Juniper/Intro-to-Using-Ansible-with-Junos-OS");
-    set.insert("Juniper/jsnapy");
-    set.insert("Juniper/juise");
-    set.insert("Juniper/junos-terraform");
-    set.insert("Juniper/libslax");
-    set.insert("Juniper/libxo");
-    set.insert("Juniper/open-register-design-tool");
-    set.insert("Juniper/openshift-ansible");
-    set.insert("Juniper/py-space-platform");
-    set.insert("Juniper/simple_reg_model");
-    set.insert("Juniper/warp17");
-    set.insert("junit-team/junit4");
-    set.insert("junit-team/testng-engine");
-    set.insert("KirstieJane/NORA_WhitakerVendetti_DevSci2017");
-    set.insert("KirstieJane/NSPN_MRIProcessing");
-    set.insert("KirstieJane/NSPN_WhitakerVertes_PNAS2016");
-    set.insert("KirstieJane/STEMMRoleModels");
-    set.insert("koush/scrypted.app");
-    set.insert("koush/support-wiki");
-    set.insert("Kunena/Kunena-Forum");
-    set.insert("Landmaster/LandCore");
-    set.insert("Landmaster/LandCraft");
-    set.insert("Landmaster/PlusTiC");
-    set.insert("lgallard/qBittorrent-Controller");
-    set.insert("limboemu/limbo");
-    set.insert("lutris/lutris");
-    set.insert("malware-dev/MDK-SE");
-    set.insert("Mantaro/MantaroBot");
-    set.insert("metafloor/bwip-js");
-    set.insert("micropython/micropython");
-    set.insert("microsoft/0xDeCA10B");
-    set.insert("microsoft/3-in-1-dock");
-    set.insert("microsoft/A-TALE-OF-THREE-CITIES");
-    set.insert("microsoft/AADConnectConfigDocumenter");
-    set.insert("microsoft/AdaptiveCards");
-    set.insert("microsoft/adfsWebCustomization");
-    set.insert("microsoft/aerial_wildlife_detection");
-    set.insert("microsoft/agdiag");
-    set.insert("microsoft/ai-edu");
-    set.insert("microsoft/AirSim");
-    set.insert("microsoft/ajaxmin");
-    set.insert("microsoft/AL");
-    set.insert("microsoft/ALAppExtensions");
-    set.insert("microsoft/ALEX");
-    set.insert("microsoft/angle");
-    set.insert("microsoft/angular-react");
-    set.insert("microsoft/anymatch");
-    set.insert("microsoft/appcenter");
-    set.insert("microsoft/ApplicationInsights-Docker-Dockerfile");
-    set.insert("microsoft/ApplicationInsights-Docker");
-    set.insert("microsoft/ApplicationInsights-dotnet-logging");
-    set.insert("microsoft/ApplicationInsights-Go");
-    set.insert("microsoft/ApplicationInsights-iOS");
-    set.insert("microsoft/ApplicationInsights-Java");
-    set.insert("microsoft/ApplicationInsights-Kubernetes");
-    set.insert("microsoft/ApplicationInsights-node.js");
-    set.insert("microsoft/ApplicationInsights-PHP");
-    set.insert("microsoft/ApplicationInsights-Ruby");
-    set.insert("microsoft/ApplicationInsights-SDK-Labs");
-    set.insert("microsoft/ApplicationInsights-WordPress");
-    set.insert("microsoft/ApplicationInsights-Xamarin");
-    set.insert("microsoft/ApplicationInspector");
-    set.insert("microsoft/AppSource");
-    set.insert("microsoft/Atlas");
-    set.insert("microsoft/AttackSurfaceAnalyzer");
-    set.insert("microsoft/audio-recorder");
-    set.insert("microsoft/AuthJanitor");
-    set.insert("microsoft/AutoBrewML");
-    set.insert("microsoft/automatic-graph-layout");
-    set.insert("microsoft/azcode");
-    set.insert("microsoft/azure-activedirectory-interactive-auth-library-for-java");
-    set.insert("microsoft/azure-activedirectory-jwt-token-handler-for-dotnet");
-    set.insert("microsoft/azure-chat-for-java");
-    set.insert("microsoft/azure-devops-intellij");
-    set.insert("microsoft/azure-devops-node-api");
-    set.insert("microsoft/azure-gradle-plugins");
-    set.insert("microsoft/azure-maven-archetypes");
-    set.insert("microsoft/azure-maven-plugins");
-    set.insert("microsoft/Azure-PaaS-ChefClient");
-    set.insert("microsoft/azure-pipelines-task-lib");
-    set.insert("microsoft/azure-pipelines-tasks");
-    set.insert("microsoft/azure-puppet");
-    set.insert("microsoft/Azure-Services-Explorer");
-    set.insert("microsoft/azure-shortcuts-for-java");
-    set.insert("microsoft/azure-spring-boot");
-    set.insert("microsoft/azure-sql-tips");
-    set.insert("microsoft/Azure-Toolkit-for-IntelliJ");
-    set.insert("microsoft/azure-tools-for-java");
-    set.insert("microsoft/azure_spatial_anchors_ros");
-    set.insert("microsoft/azuredatastudio");
-    set.insert("microsoft/AzureML-BERT");
-    set.insert("microsoft/AzureMonitorAddonForSplunk");
-    set.insert("microsoft/AzureMonitorCommunity");
-    set.insert("microsoft/BCTech");
-    set.insert("microsoft/BeanSpy");
-    set.insert("microsoft/bedrock");
-    set.insert("microsoft/BertrandNashEquilibriumComputation");
-    set.insert("microsoft/bion");
-    set.insert("microsoft/bookings-samples");
-    set.insert("microsoft/botframework-components");
-    set.insert("microsoft/BotFramework-Composer");
-    set.insert("microsoft/BotFramework-DirectLineJS");
-    set.insert("microsoft/BotFramework-Emulator");
-    set.insert("microsoft/botframework-sdk");
-    set.insert("microsoft/botframework-solutions");
-    set.insert("microsoft/botframework");
-    set.insert("microsoft/browsecloud");
-    set.insert("microsoft/bubble-level-wp");
-    set.insert("microsoft/Build-SCXcore");
-    set.insert("microsoft/caffe");
-    set.insert("microsoft/car-trumps");
-    set.insert("microsoft/cascadia-code");
-    set.insert("microsoft/Chakra-Samples");
-    set.insert("microsoft/checkedc-clang");
-    set.insert("microsoft/checkedc");
-    set.insert("microsoft/clarity");
-    set.insert("microsoft/Cloud-PAW-Management");
-    set.insert("microsoft/CMake");
-    set.insert("microsoft/CNTK");
-    set.insert("microsoft/cobalt");
-    set.insert("microsoft/cocos2d-x-3rd-party-libs-src");
-    set.insert("microsoft/Code-Hunt");
-    set.insert("microsoft/code-push-vsts-extension");
-    set.insert("microsoft/code-push");
-    set.insert("microsoft/CodeAnalysis");
-    set.insert("microsoft/CodeContracts");
-    set.insert("microsoft/CodeTalk");
-    set.insert("microsoft/Coding4Fun");
-    set.insert("microsoft/colinmarc-hdfs");
-    set.insert("microsoft/compiler-tests");
-    set.insert("microsoft/compoundfilereader");
-    set.insert("microsoft/ConcordExtensibilitySamples");
-    set.insert("microsoft/Convert-LBFO2SET");
-    set.insert("microsoft/cordova-plugin-code-push");
-    set.insert("microsoft/cordova-plugin-hockeyapp");
-    set.insert("microsoft/cordova-plugin-indexedDB");
-    set.insert("microsoft/cordova-plugin-livereload");
-    set.insert("microsoft/cordova-plugin-ms-appinsights");
-    set.insert("microsoft/cordova-plugin-vs-taco-support");
-    set.insert("microsoft/cordova-plugin-websql");
-    set.insert("microsoft/cordova-samples");
-    set.insert("microsoft/cordova-simulate");
-    set.insert("microsoft/CoreTemplateStudio");
-    set.insert("microsoft/cortana-samples");
-    set.insert("microsoft/cpprestsdk");
-    set.insert("microsoft/CRA");
-    set.insert("microsoft/CRM-Performance-Toolkit");
-    set.insert("microsoft/cross-tenant");
-    set.insert("microsoft/CryptoNets");
-    set.insert("microsoft/cs_comments_service");
-    set.insert("microsoft/CSS_SQL_Networking_Tools");
-    set.insert("microsoft/CSSSQLSupportToolBox");
-    set.insert("microsoft/data-accelerator");
-    set.insert("microsoft/data-protection-mapping-project");
-    set.insert("microsoft/debugpy");
-    set.insert("microsoft/deep-space");
-    set.insert("microsoft/deployr-cli");
-    set.insert("microsoft/deployr-rserve");
-    set.insert("microsoft/deployrUtils");
-    set.insert("microsoft/Detours");
-    set.insert("microsoft/devops-project-samples");
-    set.insert("microsoft/DevSkim");
-    set.insert("microsoft/DiagManager");
-    set.insert("microsoft/diner-wp");
-    set.insert("microsoft/DirectXMath");
-    set.insert("microsoft/DirectXMesh");
-    set.insert("microsoft/DirectXShaderCompiler");
-    set.insert("microsoft/DirectXTex");
-    set.insert("microsoft/DirectXTK");
-    set.insert("microsoft/DirectXTK12");
-    set.insert("microsoft/diskspd");
-    set.insert("microsoft/DMTK");
-    set.insert("microsoft/dockertools-sampleprojects");
-    set.insert("microsoft/DockerTools");
-    set.insert("microsoft/DockerToolsDocs");
-    set.insert("microsoft/dotnet-apiweb");
-    set.insert("microsoft/dotnet-client-library");
-    set.insert("microsoft/dotnet-rbroker-framework");
-    set.insert("microsoft/dotnet");
-    set.insert("microsoft/dowhy");
-    set.insert("microsoft/driver-utilities");
-    set.insert("microsoft/drumkit-wp");
-    set.insert("microsoft/DXUT");
-    set.insert("microsoft/Dynamics-AX-Integration");
-    set.insert("microsoft/EasyRepro");
-    set.insert("microsoft/edge-diagnostics-adapter");
-    set.insert("microsoft/EdgeML");
-    set.insert("microsoft/edx-configuration");
-    set.insert("microsoft/elfie-arriba");
-    set.insert("microsoft/ELL");
-    set.insert("microsoft/emat");
-    set.insert("microsoft/enhanced-monitoring-service");
-    set.insert("microsoft/ETW2JSON");
-    set.insert("microsoft/ExpressivePixels");
-    set.insert("microsoft/fabric8-maven-plugin");
-    set.insert("microsoft/fabrikate");
-    set.insert("microsoft/FASTER");
-    set.insert("microsoft/Federal-Business-Applications");
-    set.insert("microsoft/federalist");
-    set.insert("microsoft/FFmpegInterop");
-    set.insert("microsoft/fhir-server");
-    set.insert("microsoft/fiat");
-    set.insert("microsoft/FigmaSharp");
-    set.insert("microsoft/filter-effects");
-    set.insert("microsoft/filter-explorer");
-    set.insert("microsoft/FLAML");
-    set.insert("microsoft/fluentui-react-native");
-    set.insert("microsoft/fluentui");
-    set.insert("microsoft/FluentUIEditableDetailsList");
-    set.insert("microsoft/FluidFramework");
-    set.insert("microsoft/fog");
-    set.insert("microsoft/Font-Validator");
-    set.insert("microsoft/fonts");
-    set.insert("microsoft/Forge");
-    set.insert("microsoft/fsevents");
-    set.insert("microsoft/fsharplu");
-    set.insert("microsoft/FX11");
-    set.insert("microsoft/GaitAndBalanceApp");
-    set.insert("microsoft/generator-docker");
-    set.insert("microsoft/ghcrawler");
-    set.insert("microsoft/Git-Credential-Manager-for-Mac-and-Linux");
-    set.insert("microsoft/Git-Credential-Manager-for-Windows");
-    set.insert("microsoft/GraphEngine");
-    set.insert("microsoft/graphics-driver-samples");
-    set.insert("microsoft/GraphView");
-    set.insert("microsoft/graspologic");
-    set.insert("microsoft/GSL");
-    set.insert("microsoft/hackathon-team-builder");
-    set.insert("microsoft/hcsshim");
-    set.insert("microsoft/HealthClinic.biz");
-    set.insert("microsoft/healthvault-dotnetstandard-sdk");
-    set.insert("microsoft/healthvault-fhir-library");
-    set.insert("microsoft/healthvault-ios-sdk");
-    set.insert("microsoft/HealthVault-Mobile-iOS-Library");
-    set.insert("microsoft/here-launchers");
-    set.insert("microsoft/hiredis");
-    set.insert("microsoft/HoloJS");
-    set.insert("microsoft/HoloLensForCV");
-    set.insert("microsoft/hummingbird");
-    set.insert("microsoft/icu");
-    set.insert("microsoft/IEDiagnosticsAdapter");
-    set.insert("microsoft/Imagine_binary-break-in");
-    set.insert("microsoft/Imagine_block-knock");
-    set.insert("microsoft/Imagine_diamond-miner");
-    set.insert("microsoft/Imagine_fudge-roll");
-    set.insert("microsoft/initializr");
-    set.insert("microsoft/inmt");
-    set.insert("microsoft/InnerEye-DeepLearning");
-    set.insert("microsoft/Instance-Adapter-for-Microsoft-Dynamics-CRM");
-    set.insert("microsoft/Integration");
-    set.insert("microsoft/Ironclad");
-    set.insert("microsoft/ivy");
-    set.insert("microsoft/java-client-library");
-    set.insert("microsoft/java-example-client-basics");
-    set.insert("microsoft/java-example-client-data-io");
-    set.insert("microsoft/java-example-rbroker-basics");
-    set.insert("microsoft/java-example-rbroker-data-io");
-    set.insert("microsoft/java-jasperreports-client-library");
-    set.insert("microsoft/js-client-library");
-    set.insert("microsoft/js-example-fraud-score-basics");
-    set.insert("microsoft/js-example-fraud-score");
-    set.insert("microsoft/js-rbroker-framework");
-    set.insert("microsoft/JSanity");
-    set.insert("microsoft/kGrid");
-    set.insert("microsoft/kinect-ripple");
-    set.insert("microsoft/knife-azure");
-    set.insert("microsoft/L4");
-    set.insert("microsoft/lain");
-    set.insert("microsoft/language-server-protocol");
-    set.insert("microsoft/launchapp-tag-maker");
-    set.insert("microsoft/LightGBM");
-    set.insert("microsoft/linguisticreview");
-    set.insert("microsoft/linux-vm-tools");
-    set.insert("microsoft/LongitudinalDifferenceInDifferencesPy");
-    set.insert("microsoft/lumia-imaging-quickstart");
-    set.insert("microsoft/Lumia-imaging-sdk");
-    set.insert("microsoft/mail2bug");
-    set.insert("microsoft/maker.js");
-    set.insert("microsoft/malmo");
-    set.insert("microsoft/ManagedEsent");
-    set.insert("microsoft/MapsSDK-Native");
-    set.insert("microsoft/MapsSDK-Unity");
-    set.insert("microsoft/maro");
-    set.insert("microsoft/masc");
-    set.insert("microsoft/matchem-poker-wp");
-    set.insert("microsoft/mattercenter");
-    set.insert("microsoft/MCAS");
-    set.insert("microsoft/MCW");
-    set.insert("microsoft/media-viewer");
-    set.insert("microsoft/MetricSystem");
-    set.insert("microsoft/microbit-chrome");
-    set.insert("microsoft/microbit-touchdevelop");
-    set.insert("microsoft/Microsoft-Cloud-Services-for-Android");
-    set.insert("microsoft/microsoft-deployment-accelerator-for-hybris-on-azure");
-    set.insert("microsoft/Microsoft-Message-Bridge");
-    set.insert("microsoft/microsoft-pdb");
-    set.insert("microsoft/Microsoft.Diagnostics.Tracing.Logging");
-    set.insert("microsoft/Microsoft.IO.RecyclableMemoryStream");
-    set.insert("microsoft/Microsoft365DSC");
-    set.insert("microsoft/MIEngine");
-    set.insert("microsoft/MIMDSC");
-    set.insert("microsoft/MIMPowerShellConnectors");
-    set.insert("microsoft/MIMWAL");
-    set.insert("microsoft/mixed-reality-robot-interaction-demo");
-    set.insert("microsoft/MixedRealityToolkit-Unity");
-    set.insert("microsoft/MixedRealityToolkit");
-    set.insert("microsoft/MMdnn");
-    set.insert("microsoft/moabian");
-    set.insert("microsoft/Mobius");
-    set.insert("microsoft/ModSecurity");
-    set.insert("microsoft/monaco-editor");
-    set.insert("microsoft/moto-trial-racer-wp");
-    set.insert("microsoft/MPI.NET");
-    set.insert("microsoft/MSGraphNotifications");
-    set.insert("microsoft/msopentech-tools-for-intellij");
-    set.insert("microsoft/msphpsql");
-    set.insert("microsoft/mssql-django");
-    set.insert("microsoft/mssql-jdbc");
-    set.insert("microsoft/msticpy");
-    set.insert("microsoft/Multiverso");
-    set.insert("microsoft/music-explorer");
-    set.insert("microsoft/mwt-ds-explore-cpp");
-    set.insert("microsoft/mwt-ds-explore-csharp");
-    set.insert("microsoft/mwt-ds-explore-java");
-    set.insert("microsoft/mwt-ds-explore-test");
-    set.insert("microsoft/mwt-ds-explore");
-    set.insert("microsoft/mwt-ds-louiemart");
-    set.insert("microsoft/mwt-ds");
-    set.insert("microsoft/mwx-teams-vaccine-attestation");
-    set.insert("microsoft/napajs");
-    set.insert("microsoft/NFC-Class-Extension-Driver");
-    set.insert("microsoft/nfc-ndef-tag-reader");
-    set.insert("microsoft/nfc-talk");
-    set.insert("microsoft/ngconf2015demo");
-    set.insert("microsoft/NimbusML");
-    set.insert("microsoft/nnfusion");
-    set.insert("microsoft/nni");
-    set.insert("microsoft/node-pty");
-    set.insert("microsoft/node-uwp");
-    set.insert("microsoft/node-v0.12");
-    set.insert("microsoft/node-windows-mutex");
-    set.insert("microsoft/nodejstools");
-    set.insert("microsoft/nokia-x-in-app-payment-samples");
-    set.insert("microsoft/nokia-x-notifications-samples");
-    set.insert("microsoft/notification-provider");
-    set.insert("microsoft/NSPlist");
-    set.insert("microsoft/ntttcp-for-linux");
-    set.insert("microsoft/o365rwsclient");
-    set.insert("microsoft/o365tosplunkdataimportapp");
-    set.insert("microsoft/OAT");
-    set.insert("microsoft/oauth2-useragent");
-    set.insert("microsoft/OCP-ISV-Innovation-Day");
-    set.insert("microsoft/OCR-Form-Tools");
-    set.insert("microsoft/Office-Online-Test-Tools-and-Documentation");
-    set.insert("microsoft/omi");
-    set.insert("microsoft/onnxruntime");
-    set.insert("microsoft/Open-Maps");
-    set.insert("microsoft/OpenAPI.NET.CSharpAnnotations");
-    set.insert("microsoft/OpenAPI.NET");
-    set.insert("microsoft/OpenEduAnalytics");
-    set.insert("microsoft/openshift-origin");
-    set.insert("microsoft/optee_os");
-    set.insert("microsoft/OpticSim.jl");
-    set.insert("microsoft/Oryx");
-    set.insert("microsoft/OSSGadget");
-    set.insert("microsoft/packer-hyperv");
-    set.insert("microsoft/PageTour-SDK");
-    set.insert("microsoft/pai");
-    set.insert("microsoft/pal");
-    set.insert("microsoft/Partner-Smart-Office");
-    set.insert("microsoft/PartsUnlimited");
-    set.insert("microsoft/PartsUnlimitedMRP");
-    set.insert("microsoft/pgtoolsservice");
-    set.insert("microsoft/Phoenix");
-    set.insert("microsoft/phone-info");
-    set.insert("microsoft/php-sdk-binary-tools");
-    set.insert("microsoft/pict");
-    set.insert("microsoft/PlistCpp");
-    set.insert("microsoft/PowerAppsTestAutomation");
-    set.insert("microsoft/PowerBI-CSharp");
-    set.insert("microsoft/PowerBI-JavaScript");
-    set.insert("microsoft/powerbi-report-authoring");
-    set.insert("microsoft/PowerBI-visuals-AttributeSlicer");
-    set.insert("microsoft/powerplatform-actionstemplate");
-    set.insert("microsoft/PowerPlatformConnectors");
-    set.insert("microsoft/PowerShellForGitHub");
-    set.insert("microsoft/PowerStig");
-    set.insert("microsoft/PowerToys");
-    set.insert("microsoft/prepose");
-    set.insert("microsoft/ProjectOxford-ClientSDK");
-    set.insert("microsoft/psi");
-    set.insert("microsoft/PTVS");
-    set.insert("microsoft/ptvsd");
-    set.insert("microsoft/Pyjion");
-    set.insert("microsoft/python-language-server");
-    set.insert("microsoft/PythonProgrammingPuzzles");
-    set.insert("microsoft/qmt");
-    set.insert("microsoft/Quantum-NC");
-    set.insert("microsoft/QuantumKatas");
-    set.insert("microsoft/QuantumLibraries");
-    set.insert("microsoft/QuickInject");
-    set.insert("microsoft/R-Host");
-    set.insert("microsoft/rDSN");
-    set.insert("microsoft/react-native-code-push");
-    set.insert("microsoft/react-native-gallery");
-    set.insert("microsoft/react-native-macos");
-    set.insert("microsoft/react-native-test-app");
-    set.insert("microsoft/react-native-windows");
-    set.insert("microsoft/Reactors");
-    set.insert("microsoft/recommenders");
-    set.insert("microsoft/redux-micro-frontend");
-    set.insert("microsoft/Resource-Static-Analysis");
-    set.insert("microsoft/RoomAliveToolkit");
-    set.insert("microsoft/roosterjs");
-    set.insert("microsoft/rosco");
-    set.insert("microsoft/RoslynClrHeapAllocationAnalyzer");
-    set.insert("microsoft/rss-reader-wp");
-    set.insert("microsoft/RTVS");
-    set.insert("microsoft/RulesEngine");
-    set.insert("microsoft/run-in-terminal");
-    set.insert("microsoft/sails-hook-federalist-ms");
-    set.insert("microsoft/sample-code");
-    set.insert("microsoft/SCAR");
-    set.insert("microsoft/SChannelDsc");
-    set.insert("microsoft/SCMScaleUnitDevTools");
-    set.insert("microsoft/SCVMMLinuxGuestAgent");
-    set.insert("microsoft/SCXcore");
-    set.insert("microsoft/SDN");
-    set.insert("microsoft/secmgmt-insights-connector");
-    set.insert("microsoft/secmgmt-open-powershell");
-    set.insert("microsoft/service-fabric-cli");
-    set.insert("microsoft/ShaderConductor");
-    set.insert("microsoft/SharePointDSC.Reverse");
-    set.insert("microsoft/shelljs");
-    set.insert("microsoft/SimpleActivity");
-    set.insert("microsoft/SimplePlaces");
-    set.insert("microsoft/SimpleSteps");
-    set.insert("microsoft/SimpleTracks");
-    set.insert("microsoft/solitaire-wp");
-    set.insert("microsoft/Sora");
-    set.insert("microsoft/space-blok-wp");
-    set.insert("microsoft/SparseSC");
-    set.insert("microsoft/spring-cloud-azure");
-    set.insert("microsoft/spring-data-cosmosdb");
-    set.insert("microsoft/spring-security");
-    set.insert("microsoft/sqlmanagementobjects");
-    set.insert("microsoft/SqlNexus");
-    set.insert("microsoft/sqlops-dataprotocolclient");
-    set.insert("microsoft/SQLServerDSC.Reverse");
-    set.insert("microsoft/statsd");
-    set.insert("microsoft/steps");
-    set.insert("microsoft/StigRepo");
-    set.insert("microsoft/STL");
-    set.insert("microsoft/StopGuessing");
-    set.insert("microsoft/StorScore");
-    set.insert("microsoft/sudokumaster-wp");
-    set.insert("microsoft/surveillance-camera");
-    set.insert("microsoft/taco-simulate");
-    set.insert("microsoft/taco-team-build");
-    set.insert("microsoft/TACO");
-    set.insert("microsoft/TeamMate");
-    set.insert("microsoft/Telemetry-Client-for-Android");
-    set.insert("microsoft/tensorflow-directml");
-    set.insert("microsoft/terminal");
-    set.insert("microsoft/TestAdapterForGoogleTest");
-    set.insert("microsoft/TestEasy");
-    set.insert("microsoft/tfs-cli");
-    set.insert("microsoft/Tocino");
-    set.insert("microsoft/ts-api-checker");
-    set.insert("microsoft/tslint-microsoft-contrib");
-    set.insert("microsoft/TVHelpers");
-    set.insert("microsoft/TypeScript-Handbook");
-    set.insert("microsoft/TypeScript-Sublime-Plugin");
-    set.insert("microsoft/TypeScript-TmLanguage");
-    set.insert("microsoft/TypeScript");
-    set.insert("microsoft/TypeScriptSamples");
-    set.insert("microsoft/UnifiedRedisPlatform.Core");
-    set.insert("microsoft/unittest-cpp");
-    set.insert("microsoft/UnitTestBoilerplateGenerator");
-    set.insert("microsoft/unityplugins");
-    set.insert("microsoft/update-server-server-sync");
-    set.insert("microsoft/UVAtlas");
-    set.insert("microsoft/uwp-shop-analytics-sample");
-    set.insert("microsoft/Validate-DCB");
-    set.insert("microsoft/vcpkg");
-    set.insert("microsoft/verisol");
-    set.insert("microsoft/VFSForGit");
-    set.insert("microsoft/Vipr");
-    set.insert("microsoft/VisualStudio-TestHost");
-    set.insert("microsoft/Viva-Connections-Extensibility-Beta");
-    set.insert("microsoft/vs-editor-api");
-    set.insert("microsoft/vs-mef");
-    set.insert("microsoft/VS-PPT");
-    set.insert("microsoft/vscode-arduino");
-    set.insert("microsoft/vscode-azure-blockchain-ethereum");
-    set.insert("microsoft/vscode-azure-iot-edge");
-    set.insert("microsoft/vscode-azure-iot-toolkit");
-    set.insert("microsoft/vscode-azureappservice");
-    set.insert("microsoft/vscode-azurearmtools");
-    set.insert("microsoft/vscode-azurecache");
-    set.insert("microsoft/vscode-azureresourcegroups");
-    set.insert("microsoft/vscode-azurestaticwebapps");
-    set.insert("microsoft/vscode-azurestorage");
-    set.insert("microsoft/vscode-azuretools");
-    set.insert("microsoft/vscode-azurevirtualmachines");
-    set.insert("microsoft/vscode-backspace");
-    set.insert("microsoft/vscode-chrome-debug");
-    set.insert("microsoft/vscode-comment");
-    set.insert("microsoft/vscode-cosmosdb");
-    set.insert("microsoft/vscode-cpptools");
-    set.insert("microsoft/vscode-debugadapter-node");
-    set.insert("microsoft/vscode-docker");
-    set.insert("microsoft/vscode-docs");
-    set.insert("microsoft/vscode-eslint");
-    set.insert("microsoft/vscode-extension-samples");
-    set.insert("microsoft/vscode-extension-vscode");
-    set.insert("microsoft/vscode-generator-code");
-    set.insert("microsoft/vscode-go");
-    set.insert("microsoft/vscode-htmlhint");
-    set.insert("microsoft/vscode-htmltagwrap");
-    set.insert("microsoft/vscode-iot-workbench");
-    set.insert("microsoft/vscode-java-debug");
-    set.insert("microsoft/vscode-java-dependency");
-    set.insert("microsoft/vscode-java-pack");
-    set.insert("microsoft/vscode-java-test");
-    set.insert("microsoft/vscode-jscs");
-    set.insert("microsoft/vscode-jshint");
-    set.insert("microsoft/vscode-jupyter");
-    set.insert("microsoft/vscode-languageserver-node");
-    set.insert("microsoft/vscode-livepreview");
-    set.insert("microsoft/vscode-loader");
-    set.insert("microsoft/vscode-loc");
-    set.insert("microsoft/vscode-MDTools");
-    set.insert("microsoft/vscode-mock-debug");
-    set.insert("microsoft/vscode-mssql");
-    set.insert("microsoft/vscode-node-debug");
-    set.insert("microsoft/vscode-node-sqlite3");
-    set.insert("microsoft/vscode-npm-scripts");
-    set.insert("microsoft/vscode-nsfw");
-    set.insert("microsoft/vscode-pull-request-github");
-    set.insert("microsoft/vscode-python-devicesimulator");
-    set.insert("microsoft/vscode-python");
-    set.insert("microsoft/vscode-remote-release");
-    set.insert("microsoft/vscode-samples");
-    set.insert("microsoft/vscode-SCMBuilders");
-    set.insert("microsoft/vscode-spring-initializr");
-    set.insert("microsoft/vscode-textmate");
-    set.insert("microsoft/vscode-themes");
-    set.insert("microsoft/vscode-tslint");
-    set.insert("microsoft/vscode-vsce");
-    set.insert("microsoft/vscode-wordcount");
-    set.insert("microsoft/vscode");
-    set.insert("microsoft/VSDebugAdapterHost");
-    set.insert("microsoft/vsixbootstrapper");
-    set.insert("microsoft/VSLua");
-    set.insert("microsoft/vsminecraft");
-    set.insert("microsoft/vso-agent");
-    set.insert("microsoft/vso-extension-tools");
-    set.insert("microsoft/vso-httpclient-java");
-    set.insert("microsoft/vss-web-extension-sdk");
-    set.insert("microsoft/vssetup.powershell");
-    set.insert("microsoft/vsts-branch-delete");
-    set.insert("microsoft/vsts-build-test-samples");
-    set.insert("microsoft/vsts-cordova-tasks");
-    set.insert("microsoft/vsts-extension-samples");
-    set.insert("microsoft/vsts-nuget-bootstrapper");
-    set.insert("microsoft/vsts-vmware");
-    set.insert("microsoft/vsts-zendesk-app");
-    set.insert("microsoft/vswhere");
-    set.insert("microsoft/WebTemplateStudio");
-    set.insert("microsoft/weekly-planner-wp");
-    set.insert("microsoft/Win2D");
-    set.insert("microsoft/WinAppDriver");
-    set.insert("microsoft/Windows-appsample-marble-maze");
-    set.insert("microsoft/Windows-appsample-networkhelper");
-    set.insert("microsoft/Windows-appsample-rssreader");
-    set.insert("microsoft/Windows-appsample-trafficapp");
-    set.insert("microsoft/Windows-Camera");
-    set.insert("microsoft/Windows-classic-samples");
-    set.insert("microsoft/Windows-Driver-Frameworks");
-    set.insert("microsoft/Windows-driver-samples");
-    set.insert("microsoft/windows-phone-callout-project");
-    set.insert("microsoft/Windows-Time-Calibration-Tools");
-    set.insert("microsoft/Windows-universal-samples");
-    set.insert("microsoft/WindowsCompositionSamples");
-    set.insert("microsoft/WindowsProtocolTestSuites");
-    set.insert("microsoft/WindowsTemplateStudio");
-    set.insert("microsoft/WingTipTickets");
-    set.insert("microsoft/WinObjC");
-    set.insert("microsoft/workbooks");
-    set.insert("microsoft/WSL");
-    set.insert("microsoft/wslg");
-    set.insert("microsoft/XamarinAzure_ShoppingDemoApp");
-    set.insert("microsoft/XamlBehaviors");
-    set.insert("microsoft/XamlBehaviorsWpf");
-    set.insert("microsoft/xlang");
-    set.insert("microsoft/XmlNotepad");
-    set.insert("microsoft/Yams");
-    set.insert("microsoft/Zen");
-    set.insert("moonlight-stream/moonlight-android");
-    set.insert("moonlight-stream/moonlight-docs");
-    set.insert("MTfloder/DimensionNoQuit");
-    set.insert("MultiMC/Launcher");
-    set.insert("NUKnightLab/cityhallmonitor");
-    set.insert("nunit/docs");
-    set.insert("ohmyzsh/ohmyzsh");
-    set.insert("olikraus/lpc11u3x-gps-logger");
-    set.insert("olikraus/lpc804_plu");
-    set.insert("onplus/shadowsocks-heroku");
-    set.insert("oznu/dns-zone-blacklist");
-    set.insert("oznu/docker-dns-ad-blocker");
-    set.insert("oznu/docker-unms");
-    set.insert("oznu/homebridge-gsh");
-    set.insert("PathOfBuildingCommunity/PathOfBuilding");
-    set.insert("PEXPlugins/PermissionsEx");
-    set.insert("PHPMailer/PHPMailer");
-    set.insert("PlaceholderAPI/Javascript-Expansion");
-    set.insert("PlaceholderAPI/PlaceholderAPI");
-    set.insert("processing/p5.js-web-editor");
-    set.insert("processing/p5.js");
-    set.insert("processing/processing4");
-    set.insert("pymedusa/Medusa");
-    set.insert("qbittorrent/qBittorrent");
-    set.insert("rapid7/armor");
-    set.insert("rapid7/autocompose");
-    set.insert("rapid7/metasploit-framework");
-    set.insert("rapid7/metasploit-payloads");
-    set.insert("rapid7/metasploitable3");
-    set.insert("rapid7/r7insight_js");
-    set.insert("rapid7/r7insight_node");
-    set.insert("rapid7/rex-text");
-    set.insert("reactiflux/discord-irc");
-    set.insert("ReactiveX/RxJava");
-    set.insert("RicoSuter/NSwag");
-    set.insert("Ryujinx/Ryujinx");
-    set.insert("SeleniumHQ/docker-selenium");
-    set.insert("SeleniumHQ/htmlunit-driver");
-    set.insert("SeleniumHQ/selenium-ide");
-    set.insert("SeleniumHQ/selenium");
-    set.insert("SeleniumHQ/www.seleniumhq.org");
-    set.insert("serilog/serilog");
-    set.insert("shadowrocketHelp/help");
-    set.insert("shadowrocketHelp/v2rayHelp");
-    set.insert("SleepyTrousers/EnderIO");
-    set.insert("spring-projects/spring-authorization-server");
-    set.insert("spring-projects/spring-boot-data-geode");
-    set.insert("spring-projects/spring-boot");
-    set.insert("spring-projects/spring-cloud");
-    set.insert("spring-projects/spring-data-gemfire");
-    set.insert("spring-projects/spring-data-geode");
-    set.insert("spring-projects/spring-framework");
-    set.insert("spring-projects/spring-integration-java-dsl");
-    set.insert("spring-projects/spring-integration");
-    set.insert("spring-projects/spring-kafka");
-    set.insert("spring-projects/spring-restdocs");
-    set.insert("spring-projects/spring-security-oauth2-boot");
-    set.insert("spring-projects/spring-security-samples");
-    set.insert("spring-projects/spring-security");
-    set.insert("spring-projects/spring-session-bom");
-    set.insert("spring-projects/sts4");
-    set.insert("sqlmapproject/sqlmap");
-    set.insert("ssenmosip/mosip-temp-documentation");
-    set.insert("stan-dev/bayesplot");
-    set.insert("stan-dev/cmdstanpy");
-    set.insert("stan-dev/rstanarm");
-    set.insert("stan-dev/stanc3");
-    set.insert("Stickymaddness/Sextant");
-    set.insert("StrikerRockers-Mods/VanillaTweaks");
-    set.insert("swagger-api/swagger-codegen-generators");
-    set.insert("swagger-api/swagger-codegen");
-    set.insert("swagger-api/swagger-core");
-    set.insert("swagger-api/swagger-editor");
-    set.insert("swagger-api/swagger-ui");
-    set.insert("SynthSy/PSO2-Dictionary");
-    set.insert("Tautulli/Tautulli");
-    set.insert("tesseract-ocr/tesseract");
-    set.insert("TheBusyBiscuit/CS-CoreLib2");
-    set.insert("TheIllusiveC4/Champions");
-    set.insert("TheIllusiveC4/Comforts");
-    set.insert("TheIllusiveC4/ConstructsArmory");
-    set.insert("TheIllusiveC4/CorpseComplex");
-    set.insert("TheIllusiveC4/Curios");
-    set.insert("TheIllusiveC4/Diet");
-    set.insert("TheIllusiveC4/VeinMining");
-    set.insert("TilesOrganization/support");
-    set.insert("TownyAdvanced/FlagWar");
-    set.insert("TownyAdvanced/Pl3xMap-Towny");
-    set.insert("TownyAdvanced/SiegeWar");
-    set.insert("TownyAdvanced/WorldGuard-Towny");
-    set.insert("Tyrrrz/CliWrap");
-    set.insert("Tyrrrz/Gress");
-    set.insert("Tyrrrz/LightBulb");
-    set.insert("Tyrrrz/Onova");
-    set.insert("Tyrrrz/YoutubeDownloader");
-    set.insert("Tyrrrz/YoutubeExplode.Converter");
-    set.insert("Tyrrrz/YoutubeExplode");
-    set.insert("upalr/Python-camp");
-    set.insert("vFense/vFense");
-    set.insert("volatilityfoundation/volatility");
-    set.insert("webyog/sqlyog-community");
-    set.insert("wicknix/Arctic-Fox");
-    set.insert("wicknix/SpiderWeb");
-    set.insert("wiremod/advdupe2");
-    set.insert("wiremod/Miscellaneous");
-    set.insert("woocommerce/facebook-for-woocommerce");
-    set.insert("woocommerce/google-listings-and-ads");
-    set.insert("woocommerce/pinterest-for-woocommerce");
-    set.insert("woocommerce/woocommerce-admin-test-helper");
-    set.insert("woocommerce/woocommerce-admin");
-    set.insert("woocommerce/woocommerce-android");
-    set.insert("woocommerce/woocommerce-gateway-amazon-pay");
-    set.insert("woocommerce/woocommerce-paypal-payments");
-    set.insert("woocommerce/woocommerce");
-    set.insert("xenia-project/xenia");
-    set.insert("xMistt/fortnitepy-bot");
-    set.insert("xMistt/FortniteRuby");
-    set.insert("xMistt/snailapi");
-    set.insert("xmrig/xmrig-amd");
-    set.insert("xmrig/xmrig-nvidia");
-    set.insert("xmrig/xmrig-proxy");
-    set.insert("xmrig/xmrig");
-    set.insert("zaclimon/xipl");
-    set
-}
+pub static DECOMMISSION_LIST: phf::Map<&'static str, ()> = phf_map! {
+    "233boy/v2ray" => (),
+    "acidanthera/AppleALC" => (),
+    "adam-p/danforth-east" => (),
+    "adam-p/markdown-here" => (),
+    "Aircoookie/WLED" => (),
+    "ajanata/PretendYoureXyzzy" => (),
+    "AltraMayor/gatekeeper" => (),
+    "AltraMayor/XIA-for-Linux" => (),
+    "Alvin9999/new-pac" => (),
+    "angular/angular-bazel-example" => (),
+    "angular/angular-cn" => (),
+    "angular/angular-phonecat" => (),
+    "angular/angular.js" => (),
+    "angular/closure-demo" => (),
+    "angular/components" => (),
+    "angular/dashboard.angularjs.org" => (),
+    "angular/dgeni" => (),
+    "angular/flex-layout" => (),
+    "angular/ngMigration-Forum" => (),
+    "angular/ts-minify" => (),
+    "angular/vscode-ng-language-service" => (),
+    "beefproject/beef" => (),
+    "biancangming/wtv" => (),
+    "BLCM/bl3mods" => (),
+    "BLCM/ModCabinet" => (),
+    "bui/taiko-web" => (),
+    "ccrisan/motioneye" => (),
+    "ccrisan/motioneyeos" => (),
+    "ccrisan/thingos" => (),
+    "ccxt/ccxt" => (),
+    "Chia-Network/chia-blockchain" => (),
+    "collab-uniba/SO_reputation" => (),
+    "DarkPacks/SevTech-Ages" => (),
+    "dotnet/aspnet-api-versioning" => (),
+    "dotnet/aspnetcore" => (),
+    "dotnet/Comet" => (),
+    "dotnet/efcore" => (),
+    "dotnet/infer" => (),
+    "dotnet/llilc" => (),
+    "dotnet/machinelearning-samples" => (),
+    "dotnet/machinelearning" => (),
+    "dotnet/maui" => (),
+    "dotnet/Microsoft.Maui.Graphics.Controls" => (),
+    "dotnet/ResXResourceManager" => (),
+    "dotnet/SqlClient" => (),
+    "dotnet/templating" => (),
+    "dotnet/try" => (),
+    "dotnet/windows-sdk-for-google-analytics" => (),
+    "dotnet/winforms" => (),
+    "dresden-elektronik/deconz-rest-plugin-v2" => (),
+    "edx/edx-platform" => (),
+    "Electroblob77/Wizardry" => (),
+    "ergoplatform/ergo-appkit" => (),
+    "ergoplatform/ergo-contracts" => (),
+    "ergoplatform/ergo-wallet" => (),
+    "ergoplatform/ergo" => (),
+    "ergoplatform/explorer-backend" => (),
+    "espressif/arduino-esp32" => (),
+    "espressif/esp-rainmaker" => (),
+    "espressif/idf-installer" => (),
+    "espressif/openocd-esp32" => (),
+    "espressif/pytest-embedded" => (),
+    "espressif/vscode-esp-idf-extension" => (),
+    "ethereum/btcrelay" => (),
+    "ethereum/cbc-casper" => (),
+    "ethereum/devp2p" => (),
+    "ethereum/ethash" => (),
+    "ethereum/ethereum.org" => (),
+    "ethereum/ethereumj" => (),
+    "ethereum/evmlab" => (),
+    "ethereum/go-ethereum" => (),
+    "ethereum/mist" => (),
+    "ethereum/pm" => (),
+    "ethereum/portal-network-specs" => (),
+    "ethereum/pyethereum" => (),
+    "ethereum/research" => (),
+    "ethereum/retesteth" => (),
+    "ethereum/system-testing" => (),
+    "ethereum/tests" => (),
+    "ethereum/wiki" => (),
+    "ExistentialAudio/BlackHole" => (),
+    "Ezekial711/MonsterHunterWorldModding" => (),
+    "f1xpl/openauto" => (),
+    "FastLED/FastLED" => (),
+    "FelisCatus/SwitchyOmega" => (),
+    "filecoin-project/merkletree" => (),
+    "filecoin-project/specs" => (),
+    "flutter/devtools" => (),
+    "flutter/flutter-intellij" => (),
+    "flutter/flutter" => (),
+    "flutter/uxr" => (),
+    "Freeyourgadget/Gadgetbridge" => (),
+    "Funwayguy/BetterQuesting" => (),
+    "GeyserMC/Floodgate" => (),
+    "gitextensions/gitextensions.extensibility" => (),
+    "gitextensions/gitextensions.pluginmanager" => (),
+    "gitextensions/gitextensions.plugintemplate" => (),
+    "gitextensions/gitextensions" => (),
+    "github/super-linter" => (),
+    "Gizra/Municipality" => (),
+    "Gizra/UX-UI" => (),
+    "golang/dep" => (),
+    "golang/gddo" => (),
+    "google/agera" => (),
+    "google/allocation-instrumenter" => (),
+    "google/android-fhir" => (),
+    "google/android-uiconductor" => (),
+    "google/angular_node_bind.dart" => (),
+    "google/ansicolor-dart" => (),
+    "google/anvil-build" => (),
+    "google/autoparse" => (),
+    "google/beta-binomial-fitting" => (),
+    "google/blockly-games" => (),
+    "google/blockly-samples" => (),
+    "google/blockly" => (),
+    "google/breadboard" => (),
+    "google/brotli" => (),
+    "google/caliper" => (),
+    "google/CallBuilder" => (),
+    "google/cameraraw" => (),
+    "google/capirca" => (),
+    "google/capsicum-test" => (),
+    "google/cctz" => (),
+    "google/cel-spec" => (),
+    "google/ChannelPlate" => (),
+    "google/chicago-brick" => (),
+    "google/chrome-tabber" => (),
+    "google/Chrome.Docs" => (),
+    "google/chromeos-filesystems" => (),
+    "google/clojure-turtle" => (),
+    "google/closure-compiler" => (),
+    "google/closure-library" => (),
+    "google/closure-stylesheets" => (),
+    "google/cloud-print-connector" => (),
+    "google/cloudprober" => (),
+    "google/codeu_project_2017" => (),
+    "google/coding-with-chrome" => (),
+    "google/compile-testing" => (),
+    "google/concatenate.js" => (),
+    "google/container-rfc" => (),
+    "google/corgi" => (),
+    "google/cornerstone" => (),
+    "google/cornerstoneMath" => (),
+    "google/cornerstoneTools" => (),
+    "google/cornerstoneWADOImageLoader" => (),
+    "google/cornerstoneWebImageLoader" => (),
+    "google/course-builder" => (),
+    "google/coursebuilder-core" => (),
+    "google/coursebuilder-learning-analytics" => (),
+    "google/coursebuilder-lti-module" => (),
+    "google/coursebuilder-releases" => (),
+    "google/coursebuilder-resources" => (),
+    "google/cpp-netlib" => (),
+    "google/crisis-info-hub" => (),
+    "google/crmint" => (),
+    "google/cronutils" => (),
+    "google/CSP-Validator" => (),
+    "google/cxx-std-draft" => (),
+    "google/dagger" => (),
+    "google/dart-emacs-plugin-unsupported" => (),
+    "google/dart-gif-encoder" => (),
+    "google/dart-sync-socket" => (),
+    "google/dart-sync-webdriver" => (),
+    "google/data-layer-helper" => (),
+    "google/depan" => (),
+    "google/devtoolsExtended" => (),
+    "google/dicomParser" => (),
+    "google/diff-match-patch" => (),
+    "google/docsy" => (),
+    "google/dokka" => (),
+    "google/dotty" => (),
+    "google/double-conversion" => (),
+    "google/dpy" => (),
+    "google/dynamic-form" => (),
+    "google/earthenterprise" => (),
+    "google/embed-dart-vm" => (),
+    "google/episodes.dart" => (),
+    "google/error-prone" => (),
+    "google/eslint-config-google" => (),
+    "google/FakeMaker" => (),
+    "google/favcolor-android" => (),
+    "google/favcolor-findidp" => (),
+    "google/favcolor-ios" => (),
+    "google/filesystem-proposal" => (),
+    "google/firmata.py" => (),
+    "google/flatbuffers" => (),
+    "google/flexbox-layout" => (),
+    "google/fplbase" => (),
+    "google/fruit" => (),
+    "google/gae-channel-api.dart" => (),
+    "google/gdata-objectivec-client" => (),
+    "google/generator-goro" => (),
+    "google/gfw-deployments" => (),
+    "google/GL-Shader-Validator" => (),
+    "google/glog" => (),
+    "google/glome" => (),
+    "google/gmail-oauth2-tools" => (),
+    "google/gnxi" => (),
+    "google/go-tspi" => (),
+    "google/googet" => (),
+    "google/google-api-cpp-client" => (),
+    "google/google-api-objectivec-client-for-rest" => (),
+    "google/google-authenticator-android" => (),
+    "google/google-authenticator" => (),
+    "google/google-java-format" => (),
+    "google/google-visualization-issues" => (),
+    "google/googletv-android-samples" => (),
+    "google/goterm" => (),
+    "google/ground-android" => (),
+    "google/ground-platform" => (),
+    "google/grumpy" => (),
+    "google/gtm-http-fetcher" => (),
+    "google/guava" => (),
+    "google/guice" => (),
+    "google/gulava" => (),
+    "google/gumbo-parser" => (),
+    "google/gwteventbinder" => (),
+    "google/gwtmockito" => (),
+    "google/gxui" => (),
+    "google/horenso" => (),
+    "google/html-quiz" => (),
+    "google/identity-toolkit-go-client" => (),
+    "google/identity-toolkit-node-client" => (),
+    "google/Idris-dev" => (),
+    "google/instant-hangouts" => (),
+    "google/j2objc" => (),
+    "google/jacs" => (),
+    "google/jarjar" => (),
+    "google/jsonapi" => (),
+    "google/keyczar" => (),
+    "google/kmsan" => (),
+    "google/ksp" => (),
+    "google/ktsan" => (),
+    "google/language-jsonnet" => (),
+    "google/libcxx" => (),
+    "google/libkml" => (),
+    "google/libnss-cache" => (),
+    "google/libpam-policycache" => (),
+    "google/lisp-koans" => (),
+    "google/llvm-premerge-checks" => (),
+    "google/lmctfy" => (),
+    "google/mail-importer" => (),
+    "google/martian" => (),
+    "google/material-design-icons" => (),
+    "google/material-design-lite" => (),
+    "google/mediapipe" => (),
+    "google/megalista" => (),
+    "google/ml-compiler-opt" => (),
+    "google/mockable_filesystem.dart" => (),
+    "google/module-server" => (),
+    "google/MOE" => (),
+    "google/mug" => (),
+    "google/mysql-protobuf" => (),
+    "google/mysql-tools" => (),
+    "google/namebench" => (),
+    "google/network-mapper" => (),
+    "google/nixysa" => (),
+    "google/nsscache" => (),
+    "google/oboe" => (),
+    "google/open-gantry" => (),
+    "google/open-location-code" => (),
+    "google/open-vcdiff" => (),
+    "google/opentest4j" => (),
+    "google/paco" => (),
+    "google/pandas" => (),
+    "google/patchfield" => (),
+    "google/pcbdl" => (),
+    "google/pepper.js" => (),
+    "google/perf_api.dart" => (),
+    "google/personfinder" => (),
+    "google/physical-web" => (),
+    "google/pixelcycle-sample-app" => (),
+    "google/pods-helper" => (),
+    "google/polymer-dart-log-controller" => (),
+    "google/prefab" => (),
+    "google/prerender-test" => (),
+    "google/proto-lens" => (),
+    "google/protorpc" => (),
+    "google/prudaq" => (),
+    "google/qpp" => (),
+    "google/re2" => (),
+    "google/realtime-help" => (),
+    "google/rekall-profiles" => (),
+    "google/ringdroid" => (),
+    "google/ruby-openid-apps-discovery" => (),
+    "google/s2geometry" => (),
+    "google/safevarargs" => (),
+    "google/sagetv" => (),
+    "google/sanitizers" => (),
+    "google/scene_lab" => (),
+    "google/search-samples" => (),
+    "google/shaka-packager" => (),
+    "google/shipshape-demo" => (),
+    "google/sirius" => (),
+    "google/site-kit-wp" => (),
+    "google/splot-java" => (),
+    "google/sprockets" => (),
+    "google/systemjs" => (),
+    "google/syzygy" => (),
+    "google/tcli" => (),
+    "google/testRunner" => (),
+    "google/textfsm" => (),
+    "google/thread-weaver" => (),
+    "google/tie" => (),
+    "google/tiff" => (),
+    "google/trace-viewer" => (),
+    "google/traceur-compiler" => (),
+    "google/transitfeed" => (),
+    "google/truth" => (),
+    "google/turbinia" => (),
+    "google/uri.dart" => (),
+    "google/usbinfo" => (),
+    "google/vim-codefmt" => (),
+    "google/vim-jsonnet" => (),
+    "google/vim-maktaba" => (),
+    "google/vimdoc" => (),
+    "google/vogon" => (),
+    "google/volley" => (),
+    "google/vpn-reverse-tether" => (),
+    "google/vroom" => (),
+    "google/web-starter-kit" => (),
+    "google/webdriver.dart" => (),
+    "google/webpackager" => (),
+    "google/wiberg-minimization" => (),
+    "gpac/gpac" => (),
+    "HearthSim/Firestarter" => (),
+    "HearthSim/hsreplaynet-localstack" => (),
+    "HearthSim/kettle-design" => (),
+    "HearthSim/SabberStone" => (),
+    "HearthSim/twitch-hdt-frontend" => (),
+    "imchillin/Anamnesis" => (),
+    "imchillin/CMTool" => (),
+    "intel/acat" => (),
+    "intel/ad-rss-lib" => (),
+    "intel/android-audio-hal" => (),
+    "intel/auto-pts" => (),
+    "intel/buxton" => (),
+    "intel/caffe" => (),
+    "intel/chainer" => (),
+    "intel/cloud-dleyna" => (),
+    "intel/cmrt" => (),
+    "intel/cordova-plugin-intel-xdk-accelerometer" => (),
+    "intel/cordova-plugin-intel-xdk-base" => (),
+    "intel/cordova-plugin-intel-xdk-camera" => (),
+    "intel/cordova-plugin-intel-xdk-contacts" => (),
+    "intel/cordova-plugin-intel-xdk-device" => (),
+    "intel/cordova-plugin-intel-xdk-display" => (),
+    "intel/cordova-plugin-intel-xdk-facebook" => (),
+    "intel/cordova-plugin-intel-xdk-file" => (),
+    "intel/cordova-plugin-intel-xdk-geolocation" => (),
+    "intel/cordova-plugin-intel-xdk-multitouch" => (),
+    "intel/cordova-plugin-intel-xdk-notification" => (),
+    "intel/cordova-plugin-intel-xdk-player" => (),
+    "intel/cppnnml" => (),
+    "intel/cve-bin-tool" => (),
+    "intel/Dependency-Reduction-Unit-Framework" => (),
+    "intel/dffml" => (),
+    "intel/dleyna-collabora-android" => (),
+    "intel/dleyna-connector-dbus" => (),
+    "intel/dleyna-control" => (),
+    "intel/dleyna-core" => (),
+    "intel/dleyna-linux" => (),
+    "intel/dleyna-renderer" => (),
+    "intel/dleyna-server" => (),
+    "intel/dptf" => (),
+    "intel/edison-linux" => (),
+    "intel/edison-u-boot" => (),
+    "intel/fiovisualizer" => (),
+    "intel/fMBT" => (),
+    "intel/gvt-linux" => (),
+    "intel/haxm" => (),
+    "intel/IA-Hardware-Composer" => (),
+    "intel/icamerasrc" => (),
+    "intel/idxd-config" => (),
+    "intel/Igvtg-kernel" => (),
+    "intel/Igvtg-qemu" => (),
+    "intel/Igvtg-xen" => (),
+    "intel/ikgt-api" => (),
+    "intel/ikgt-core" => (),
+    "intel/ikgt-loader" => (),
+    "intel/ikgt-manifest" => (),
+    "intel/ikgt-plugin" => (),
+    "intel/ikgt-usage" => (),
+    "intel/intel-cmt-cat" => (),
+    "intel/intel-iot-services-orchestration-layer" => (),
+    "intel/intel-ipsec-mb" => (),
+    "intel/IntelSEAPI" => (),
+    "intel/ioprof" => (),
+    "intel/iotg-lin-gfx-gstreamer-vaapi" => (),
+    "intel/iotg-lin-gfx-libdrm" => (),
+    "intel/iotg-lin-gfx-libva" => (),
+    "intel/iotg-lin-gfx-mesa" => (),
+    "intel/iotg-lin-gfx-va-driver" => (),
+    "intel/isa-l" => (),
+    "intel/isaac" => (),
+    "intel/ixpdimm_sw" => (),
+    "intel/jndn-utils" => (),
+    "intel/keras" => (),
+    "intel/kernel-fuzzer-for-xen-project" => (),
+    "intel/libxcam" => (),
+    "intel/libyami" => (),
+    "intel/linux-intel-4.9" => (),
+    "intel/linux-intel-lts" => (),
+    "intel/linux-stable-xenomai" => (),
+    "intel/luv-yocto" => (),
+    "intel/mainline-tracking" => (),
+    "intel/media-driver" => (),
+    "intel/meta-intel-aero" => (),
+    "intel/meta-intel-iot-security" => (),
+    "intel/mOS" => (),
+    "intel/mptcpd" => (),
+    "intel/nemu" => (),
+    "intel/nn-hal" => (),
+    "intel/numatop" => (),
+    "intel/numpy" => (),
+    "intel/opa-firmware" => (),
+    "intel/parameter-framework-plugins-alsa" => (),
+    "intel/parameter-framework-plugins-filesystem" => (),
+    "intel/parameter-framework" => (),
+    "intel/pyMIC" => (),
+    "intel/rapid-design-methods-for-developing-hardware-accelerators" => (),
+    "intel/safestringlib" => (),
+    "intel/scipy" => (),
+    "intel/soft-crc" => (),
+    "intel/systemc-compiler" => (),
+    "intel/tbtfwupd" => (),
+    "intel/Theano" => (),
+    "intel/thermal_daemon" => (),
+    "intel/tinycbor" => (),
+    "intel/torch7" => (),
+    "intel/wayland-fits" => (),
+    "intel/wds" => (),
+    "intel/webml-polyfill" => (),
+    "intel/XenGT-Preview-kernel" => (),
+    "intel/XenGT-Preview-qemu" => (),
+    "intel/XenGT-Preview-xen" => (),
+    "intel/yoko-tool" => (),
+    "intel/zephyr.js" => (),
+    "intel/zephyrjs-ide" => (),
+    "IntellectualSites/FastAsyncWorldEdit-Documentation" => (),
+    "IntellectualSites/PlotSquared-Documentation" => (),
+    "IntellectualSites/PlotSquared-Legacy" => (),
+    "ISO-TC211/19115-2Revision" => (),
+    "ISO-TC211/AutomatedDocumentation" => (),
+    "ISO-TC211/HMMG" => (),
+    "ISO-TC211/Resources" => (),
+    "ISO-TC211/UML-Best-Practices" => (),
+    "ISO-TC211/XML" => (),
+    "jackocnr/intl-tel-input" => (),
+    "jackpal/Android-Terminal-Emulator" => (),
+    "jagrosh/MusicBot" => (),
+    "jagrosh/Selfbot" => (),
+    "jagrosh/Spectra" => (),
+    "jagrosh/Vortex" => (),
+    "jdf76/plugin.video.youtube" => (),
+    "jeanropke/RDOMap" => (),
+    "jeanropke/RDR2CollectorsMap" => (),
+    "Juniper/contrail-ansible-deployer" => (),
+    "Juniper/contrail-ansible" => (),
+    "Juniper/contrail-controller" => (),
+    "Juniper/contrail-docker" => (),
+    "Juniper/contrail-fabric-utils" => (),
+    "Juniper/contrail-helm-deployer" => (),
+    "Juniper/contrail-infra" => (),
+    "Juniper/contrail-kolla-ansible" => (),
+    "Juniper/contrail-kubernetes" => (),
+    "Juniper/contrail-packages" => (),
+    "Juniper/contrail-packaging" => (),
+    "Juniper/contrail-project-config" => (),
+    "Juniper/contrail-provisioning" => (),
+    "Juniper/contrail-server-manager" => (),
+    "Juniper/contrail-test-ci" => (),
+    "Juniper/contrail-test" => (),
+    "Juniper/contrail-third-party-packages" => (),
+    "Juniper/contrail-ui-third-party-cache" => (),
+    "Juniper/contrail-vnc" => (),
+    "Juniper/contrail-vrouter" => (),
+    "Juniper/contrail-web-core" => (),
+    "Juniper/contrail-windows-ci" => (),
+    "Juniper/Intro-to-Using-Ansible-with-Junos-OS" => (),
+    "Juniper/jsnapy" => (),
+    "Juniper/juise" => (),
+    "Juniper/junos-terraform" => (),
+    "Juniper/libslax" => (),
+    "Juniper/libxo" => (),
+    "Juniper/open-register-design-tool" => (),
+    "Juniper/openshift-ansible" => (),
+    "Juniper/py-space-platform" => (),
+    "Juniper/simple_reg_model" => (),
+    "Juniper/warp17" => (),
+    "junit-team/junit4" => (),
+    "junit-team/testng-engine" => (),
+    "KirstieJane/NORA_WhitakerVendetti_DevSci2017" => (),
+    "KirstieJane/NSPN_MRIProcessing" => (),
+    "KirstieJane/NSPN_WhitakerVertes_PNAS2016" => (),
+    "KirstieJane/STEMMRoleModels" => (),
+    "koush/scrypted.app" => (),
+    "koush/support-wiki" => (),
+    "Kunena/Kunena-Forum" => (),
+    "Landmaster/LandCore" => (),
+    "Landmaster/LandCraft" => (),
+    "Landmaster/PlusTiC" => (),
+    "lgallard/qBittorrent-Controller" => (),
+    "limboemu/limbo" => (),
+    "lutris/lutris" => (),
+    "malware-dev/MDK-SE" => (),
+    "Mantaro/MantaroBot" => (),
+    "metafloor/bwip-js" => (),
+    "micropython/micropython" => (),
+    "microsoft/0xDeCA10B" => (),
+    "microsoft/3-in-1-dock" => (),
+    "microsoft/A-TALE-OF-THREE-CITIES" => (),
+    "microsoft/AADConnectConfigDocumenter" => (),
+    "microsoft/AdaptiveCards" => (),
+    "microsoft/adfsWebCustomization" => (),
+    "microsoft/aerial_wildlife_detection" => (),
+    "microsoft/agdiag" => (),
+    "microsoft/ai-edu" => (),
+    "microsoft/AirSim" => (),
+    "microsoft/ajaxmin" => (),
+    "microsoft/AL" => (),
+    "microsoft/ALAppExtensions" => (),
+    "microsoft/ALEX" => (),
+    "microsoft/angle" => (),
+    "microsoft/angular-react" => (),
+    "microsoft/anymatch" => (),
+    "microsoft/appcenter" => (),
+    "microsoft/ApplicationInsights-Docker-Dockerfile" => (),
+    "microsoft/ApplicationInsights-Docker" => (),
+    "microsoft/ApplicationInsights-dotnet-logging" => (),
+    "microsoft/ApplicationInsights-Go" => (),
+    "microsoft/ApplicationInsights-iOS" => (),
+    "microsoft/ApplicationInsights-Java" => (),
+    "microsoft/ApplicationInsights-Kubernetes" => (),
+    "microsoft/ApplicationInsights-node.js" => (),
+    "microsoft/ApplicationInsights-PHP" => (),
+    "microsoft/ApplicationInsights-Ruby" => (),
+    "microsoft/ApplicationInsights-SDK-Labs" => (),
+    "microsoft/ApplicationInsights-WordPress" => (),
+    "microsoft/ApplicationInsights-Xamarin" => (),
+    "microsoft/ApplicationInspector" => (),
+    "microsoft/AppSource" => (),
+    "microsoft/Atlas" => (),
+    "microsoft/AttackSurfaceAnalyzer" => (),
+    "microsoft/audio-recorder" => (),
+    "microsoft/AuthJanitor" => (),
+    "microsoft/AutoBrewML" => (),
+    "microsoft/automatic-graph-layout" => (),
+    "microsoft/azcode" => (),
+    "microsoft/azure-activedirectory-interactive-auth-library-for-java" => (),
+    "microsoft/azure-activedirectory-jwt-token-handler-for-dotnet" => (),
+    "microsoft/azure-chat-for-java" => (),
+    "microsoft/azure-devops-intellij" => (),
+    "microsoft/azure-devops-node-api" => (),
+    "microsoft/azure-gradle-plugins" => (),
+    "microsoft/azure-maven-archetypes" => (),
+    "microsoft/azure-maven-plugins" => (),
+    "microsoft/Azure-PaaS-ChefClient" => (),
+    "microsoft/azure-pipelines-task-lib" => (),
+    "microsoft/azure-pipelines-tasks" => (),
+    "microsoft/azure-puppet" => (),
+    "microsoft/Azure-Services-Explorer" => (),
+    "microsoft/azure-shortcuts-for-java" => (),
+    "microsoft/azure-spring-boot" => (),
+    "microsoft/azure-sql-tips" => (),
+    "microsoft/Azure-Toolkit-for-IntelliJ" => (),
+    "microsoft/azure-tools-for-java" => (),
+    "microsoft/azure_spatial_anchors_ros" => (),
+    "microsoft/azuredatastudio" => (),
+    "microsoft/AzureML-BERT" => (),
+    "microsoft/AzureMonitorAddonForSplunk" => (),
+    "microsoft/AzureMonitorCommunity" => (),
+    "microsoft/BCTech" => (),
+    "microsoft/BeanSpy" => (),
+    "microsoft/bedrock" => (),
+    "microsoft/BertrandNashEquilibriumComputation" => (),
+    "microsoft/bion" => (),
+    "microsoft/bookings-samples" => (),
+    "microsoft/botframework-components" => (),
+    "microsoft/BotFramework-Composer" => (),
+    "microsoft/BotFramework-DirectLineJS" => (),
+    "microsoft/BotFramework-Emulator" => (),
+    "microsoft/botframework-sdk" => (),
+    "microsoft/botframework-solutions" => (),
+    "microsoft/botframework" => (),
+    "microsoft/browsecloud" => (),
+    "microsoft/bubble-level-wp" => (),
+    "microsoft/Build-SCXcore" => (),
+    "microsoft/caffe" => (),
+    "microsoft/car-trumps" => (),
+    "microsoft/cascadia-code" => (),
+    "microsoft/Chakra-Samples" => (),
+    "microsoft/checkedc-clang" => (),
+    "microsoft/checkedc" => (),
+    "microsoft/clarity" => (),
+    "microsoft/Cloud-PAW-Management" => (),
+    "microsoft/CMake" => (),
+    "microsoft/CNTK" => (),
+    "microsoft/cobalt" => (),
+    "microsoft/cocos2d-x-3rd-party-libs-src" => (),
+    "microsoft/Code-Hunt" => (),
+    "microsoft/code-push-vsts-extension" => (),
+    "microsoft/code-push" => (),
+    "microsoft/CodeAnalysis" => (),
+    "microsoft/CodeContracts" => (),
+    "microsoft/CodeTalk" => (),
+    "microsoft/Coding4Fun" => (),
+    "microsoft/colinmarc-hdfs" => (),
+    "microsoft/compiler-tests" => (),
+    "microsoft/compoundfilereader" => (),
+    "microsoft/ConcordExtensibilitySamples" => (),
+    "microsoft/Convert-LBFO2SET" => (),
+    "microsoft/cordova-plugin-code-push" => (),
+    "microsoft/cordova-plugin-hockeyapp" => (),
+    "microsoft/cordova-plugin-indexedDB" => (),
+    "microsoft/cordova-plugin-livereload" => (),
+    "microsoft/cordova-plugin-ms-appinsights" => (),
+    "microsoft/cordova-plugin-vs-taco-support" => (),
+    "microsoft/cordova-plugin-websql" => (),
+    "microsoft/cordova-samples" => (),
+    "microsoft/cordova-simulate" => (),
+    "microsoft/CoreTemplateStudio" => (),
+    "microsoft/cortana-samples" => (),
+    "microsoft/cpprestsdk" => (),
+    "microsoft/CRA" => (),
+    "microsoft/CRM-Performance-Toolkit" => (),
+    "microsoft/cross-tenant" => (),
+    "microsoft/CryptoNets" => (),
+    "microsoft/cs_comments_service" => (),
+    "microsoft/CSS_SQL_Networking_Tools" => (),
+    "microsoft/CSSSQLSupportToolBox" => (),
+    "microsoft/data-accelerator" => (),
+    "microsoft/data-protection-mapping-project" => (),
+    "microsoft/debugpy" => (),
+    "microsoft/deep-space" => (),
+    "microsoft/deployr-cli" => (),
+    "microsoft/deployr-rserve" => (),
+    "microsoft/deployrUtils" => (),
+    "microsoft/Detours" => (),
+    "microsoft/devops-project-samples" => (),
+    "microsoft/DevSkim" => (),
+    "microsoft/DiagManager" => (),
+    "microsoft/diner-wp" => (),
+    "microsoft/DirectXMath" => (),
+    "microsoft/DirectXMesh" => (),
+    "microsoft/DirectXShaderCompiler" => (),
+    "microsoft/DirectXTex" => (),
+    "microsoft/DirectXTK" => (),
+    "microsoft/DirectXTK12" => (),
+    "microsoft/diskspd" => (),
+    "microsoft/DMTK" => (),
+    "microsoft/dockertools-sampleprojects" => (),
+    "microsoft/DockerTools" => (),
+    "microsoft/DockerToolsDocs" => (),
+    "microsoft/dotnet-apiweb" => (),
+    "microsoft/dotnet-client-library" => (),
+    "microsoft/dotnet-rbroker-framework" => (),
+    "microsoft/dotnet" => (),
+    "microsoft/dowhy" => (),
+    "microsoft/driver-utilities" => (),
+    "microsoft/drumkit-wp" => (),
+    "microsoft/DXUT" => (),
+    "microsoft/Dynamics-AX-Integration" => (),
+    "microsoft/EasyRepro" => (),
+    "microsoft/edge-diagnostics-adapter" => (),
+    "microsoft/EdgeML" => (),
+    "microsoft/edx-configuration" => (),
+    "microsoft/elfie-arriba" => (),
+    "microsoft/ELL" => (),
+    "microsoft/emat" => (),
+    "microsoft/enhanced-monitoring-service" => (),
+    "microsoft/ETW2JSON" => (),
+    "microsoft/ExpressivePixels" => (),
+    "microsoft/fabric8-maven-plugin" => (),
+    "microsoft/fabrikate" => (),
+    "microsoft/FASTER" => (),
+    "microsoft/Federal-Business-Applications" => (),
+    "microsoft/federalist" => (),
+    "microsoft/FFmpegInterop" => (),
+    "microsoft/fhir-server" => (),
+    "microsoft/fiat" => (),
+    "microsoft/FigmaSharp" => (),
+    "microsoft/filter-effects" => (),
+    "microsoft/filter-explorer" => (),
+    "microsoft/FLAML" => (),
+    "microsoft/fluentui-react-native" => (),
+    "microsoft/fluentui" => (),
+    "microsoft/FluentUIEditableDetailsList" => (),
+    "microsoft/FluidFramework" => (),
+    "microsoft/fog" => (),
+    "microsoft/Font-Validator" => (),
+    "microsoft/fonts" => (),
+    "microsoft/Forge" => (),
+    "microsoft/fsevents" => (),
+    "microsoft/fsharplu" => (),
+    "microsoft/FX11" => (),
+    "microsoft/GaitAndBalanceApp" => (),
+    "microsoft/generator-docker" => (),
+    "microsoft/ghcrawler" => (),
+    "microsoft/Git-Credential-Manager-for-Mac-and-Linux" => (),
+    "microsoft/Git-Credential-Manager-for-Windows" => (),
+    "microsoft/GraphEngine" => (),
+    "microsoft/graphics-driver-samples" => (),
+    "microsoft/GraphView" => (),
+    "microsoft/graspologic" => (),
+    "microsoft/GSL" => (),
+    "microsoft/hackathon-team-builder" => (),
+    "microsoft/hcsshim" => (),
+    "microsoft/HealthClinic.biz" => (),
+    "microsoft/healthvault-dotnetstandard-sdk" => (),
+    "microsoft/healthvault-fhir-library" => (),
+    "microsoft/healthvault-ios-sdk" => (),
+    "microsoft/HealthVault-Mobile-iOS-Library" => (),
+    "microsoft/here-launchers" => (),
+    "microsoft/hiredis" => (),
+    "microsoft/HoloJS" => (),
+    "microsoft/HoloLensForCV" => (),
+    "microsoft/hummingbird" => (),
+    "microsoft/icu" => (),
+    "microsoft/IEDiagnosticsAdapter" => (),
+    "microsoft/Imagine_binary-break-in" => (),
+    "microsoft/Imagine_block-knock" => (),
+    "microsoft/Imagine_diamond-miner" => (),
+    "microsoft/Imagine_fudge-roll" => (),
+    "microsoft/initializr" => (),
+    "microsoft/inmt" => (),
+    "microsoft/InnerEye-DeepLearning" => (),
+    "microsoft/Instance-Adapter-for-Microsoft-Dynamics-CRM" => (),
+    "microsoft/Integration" => (),
+    "microsoft/Ironclad" => (),
+    "microsoft/ivy" => (),
+    "microsoft/java-client-library" => (),
+    "microsoft/java-example-client-basics" => (),
+    "microsoft/java-example-client-data-io" => (),
+    "microsoft/java-example-rbroker-basics" => (),
+    "microsoft/java-example-rbroker-data-io" => (),
+    "microsoft/java-jasperreports-client-library" => (),
+    "microsoft/js-client-library" => (),
+    "microsoft/js-example-fraud-score-basics" => (),
+    "microsoft/js-example-fraud-score" => (),
+    "microsoft/js-rbroker-framework" => (),
+    "microsoft/JSanity" => (),
+    "microsoft/kGrid" => (),
+    "microsoft/kinect-ripple" => (),
+    "microsoft/knife-azure" => (),
+    "microsoft/L4" => (),
+    "microsoft/lain" => (),
+    "microsoft/language-server-protocol" => (),
+    "microsoft/launchapp-tag-maker" => (),
+    "microsoft/LightGBM" => (),
+    "microsoft/linguisticreview" => (),
+    "microsoft/linux-vm-tools" => (),
+    "microsoft/LongitudinalDifferenceInDifferencesPy" => (),
+    "microsoft/lumia-imaging-quickstart" => (),
+    "microsoft/Lumia-imaging-sdk" => (),
+    "microsoft/mail2bug" => (),
+    "microsoft/maker.js" => (),
+    "microsoft/malmo" => (),
+    "microsoft/ManagedEsent" => (),
+    "microsoft/MapsSDK-Native" => (),
+    "microsoft/MapsSDK-Unity" => (),
+    "microsoft/maro" => (),
+    "microsoft/masc" => (),
+    "microsoft/matchem-poker-wp" => (),
+    "microsoft/mattercenter" => (),
+    "microsoft/MCAS" => (),
+    "microsoft/MCW" => (),
+    "microsoft/media-viewer" => (),
+    "microsoft/MetricSystem" => (),
+    "microsoft/microbit-chrome" => (),
+    "microsoft/microbit-touchdevelop" => (),
+    "microsoft/Microsoft-Cloud-Services-for-Android" => (),
+    "microsoft/microsoft-deployment-accelerator-for-hybris-on-azure" => (),
+    "microsoft/Microsoft-Message-Bridge" => (),
+    "microsoft/microsoft-pdb" => (),
+    "microsoft/Microsoft.Diagnostics.Tracing.Logging" => (),
+    "microsoft/Microsoft.IO.RecyclableMemoryStream" => (),
+    "microsoft/Microsoft365DSC" => (),
+    "microsoft/MIEngine" => (),
+    "microsoft/MIMDSC" => (),
+    "microsoft/MIMPowerShellConnectors" => (),
+    "microsoft/MIMWAL" => (),
+    "microsoft/mixed-reality-robot-interaction-demo" => (),
+    "microsoft/MixedRealityToolkit-Unity" => (),
+    "microsoft/MixedRealityToolkit" => (),
+    "microsoft/MMdnn" => (),
+    "microsoft/moabian" => (),
+    "microsoft/Mobius" => (),
+    "microsoft/ModSecurity" => (),
+    "microsoft/monaco-editor" => (),
+    "microsoft/moto-trial-racer-wp" => (),
+    "microsoft/MPI.NET" => (),
+    "microsoft/MSGraphNotifications" => (),
+    "microsoft/msopentech-tools-for-intellij" => (),
+    "microsoft/msphpsql" => (),
+    "microsoft/mssql-django" => (),
+    "microsoft/mssql-jdbc" => (),
+    "microsoft/msticpy" => (),
+    "microsoft/Multiverso" => (),
+    "microsoft/music-explorer" => (),
+    "microsoft/mwt-ds-explore-cpp" => (),
+    "microsoft/mwt-ds-explore-csharp" => (),
+    "microsoft/mwt-ds-explore-java" => (),
+    "microsoft/mwt-ds-explore-test" => (),
+    "microsoft/mwt-ds-explore" => (),
+    "microsoft/mwt-ds-louiemart" => (),
+    "microsoft/mwt-ds" => (),
+    "microsoft/mwx-teams-vaccine-attestation" => (),
+    "microsoft/napajs" => (),
+    "microsoft/NFC-Class-Extension-Driver" => (),
+    "microsoft/nfc-ndef-tag-reader" => (),
+    "microsoft/nfc-talk" => (),
+    "microsoft/ngconf2015demo" => (),
+    "microsoft/NimbusML" => (),
+    "microsoft/nnfusion" => (),
+    "microsoft/nni" => (),
+    "microsoft/node-pty" => (),
+    "microsoft/node-uwp" => (),
+    "microsoft/node-v0.12" => (),
+    "microsoft/node-windows-mutex" => (),
+    "microsoft/nodejstools" => (),
+    "microsoft/nokia-x-in-app-payment-samples" => (),
+    "microsoft/nokia-x-notifications-samples" => (),
+    "microsoft/notification-provider" => (),
+    "microsoft/NSPlist" => (),
+    "microsoft/ntttcp-for-linux" => (),
+    "microsoft/o365rwsclient" => (),
+    "microsoft/o365tosplunkdataimportapp" => (),
+    "microsoft/OAT" => (),
+    "microsoft/oauth2-useragent" => (),
+    "microsoft/OCP-ISV-Innovation-Day" => (),
+    "microsoft/OCR-Form-Tools" => (),
+    "microsoft/Office-Online-Test-Tools-and-Documentation" => (),
+    "microsoft/omi" => (),
+    "microsoft/onnxruntime" => (),
+    "microsoft/Open-Maps" => (),
+    "microsoft/OpenAPI.NET.CSharpAnnotations" => (),
+    "microsoft/OpenAPI.NET" => (),
+    "microsoft/OpenEduAnalytics" => (),
+    "microsoft/openshift-origin" => (),
+    "microsoft/optee_os" => (),
+    "microsoft/OpticSim.jl" => (),
+    "microsoft/Oryx" => (),
+    "microsoft/OSSGadget" => (),
+    "microsoft/packer-hyperv" => (),
+    "microsoft/PageTour-SDK" => (),
+    "microsoft/pai" => (),
+    "microsoft/pal" => (),
+    "microsoft/Partner-Smart-Office" => (),
+    "microsoft/PartsUnlimited" => (),
+    "microsoft/PartsUnlimitedMRP" => (),
+    "microsoft/pgtoolsservice" => (),
+    "microsoft/Phoenix" => (),
+    "microsoft/phone-info" => (),
+    "microsoft/php-sdk-binary-tools" => (),
+    "microsoft/pict" => (),
+    "microsoft/PlistCpp" => (),
+    "microsoft/PowerAppsTestAutomation" => (),
+    "microsoft/PowerBI-CSharp" => (),
+    "microsoft/PowerBI-JavaScript" => (),
+    "microsoft/powerbi-report-authoring" => (),
+    "microsoft/PowerBI-visuals-AttributeSlicer" => (),
+    "microsoft/powerplatform-actionstemplate" => (),
+    "microsoft/PowerPlatformConnectors" => (),
+    "microsoft/PowerShellForGitHub" => (),
+    "microsoft/PowerStig" => (),
+    "microsoft/PowerToys" => (),
+    "microsoft/prepose" => (),
+    "microsoft/ProjectOxford-ClientSDK" => (),
+    "microsoft/psi" => (),
+    "microsoft/PTVS" => (),
+    "microsoft/ptvsd" => (),
+    "microsoft/Pyjion" => (),
+    "microsoft/python-language-server" => (),
+    "microsoft/PythonProgrammingPuzzles" => (),
+    "microsoft/qmt" => (),
+    "microsoft/Quantum-NC" => (),
+    "microsoft/QuantumKatas" => (),
+    "microsoft/QuantumLibraries" => (),
+    "microsoft/QuickInject" => (),
+    "microsoft/R-Host" => (),
+    "microsoft/rDSN" => (),
+    "microsoft/react-native-code-push" => (),
+    "microsoft/react-native-gallery" => (),
+    "microsoft/react-native-macos" => (),
+    "microsoft/react-native-test-app" => (),
+    "microsoft/react-native-windows" => (),
+    "microsoft/Reactors" => (),
+    "microsoft/recommenders" => (),
+    "microsoft/redux-micro-frontend" => (),
+    "microsoft/Resource-Static-Analysis" => (),
+    "microsoft/RoomAliveToolkit" => (),
+    "microsoft/roosterjs" => (),
+    "microsoft/rosco" => (),
+    "microsoft/RoslynClrHeapAllocationAnalyzer" => (),
+    "microsoft/rss-reader-wp" => (),
+    "microsoft/RTVS" => (),
+    "microsoft/RulesEngine" => (),
+    "microsoft/run-in-terminal" => (),
+    "microsoft/sails-hook-federalist-ms" => (),
+    "microsoft/sample-code" => (),
+    "microsoft/SCAR" => (),
+    "microsoft/SChannelDsc" => (),
+    "microsoft/SCMScaleUnitDevTools" => (),
+    "microsoft/SCVMMLinuxGuestAgent" => (),
+    "microsoft/SCXcore" => (),
+    "microsoft/SDN" => (),
+    "microsoft/secmgmt-insights-connector" => (),
+    "microsoft/secmgmt-open-powershell" => (),
+    "microsoft/service-fabric-cli" => (),
+    "microsoft/ShaderConductor" => (),
+    "microsoft/SharePointDSC.Reverse" => (),
+    "microsoft/shelljs" => (),
+    "microsoft/SimpleActivity" => (),
+    "microsoft/SimplePlaces" => (),
+    "microsoft/SimpleSteps" => (),
+    "microsoft/SimpleTracks" => (),
+    "microsoft/solitaire-wp" => (),
+    "microsoft/Sora" => (),
+    "microsoft/space-blok-wp" => (),
+    "microsoft/SparseSC" => (),
+    "microsoft/spring-cloud-azure" => (),
+    "microsoft/spring-data-cosmosdb" => (),
+    "microsoft/spring-security" => (),
+    "microsoft/sqlmanagementobjects" => (),
+    "microsoft/SqlNexus" => (),
+    "microsoft/sqlops-dataprotocolclient" => (),
+    "microsoft/SQLServerDSC.Reverse" => (),
+    "microsoft/statsd" => (),
+    "microsoft/steps" => (),
+    "microsoft/StigRepo" => (),
+    "microsoft/STL" => (),
+    "microsoft/StopGuessing" => (),
+    "microsoft/StorScore" => (),
+    "microsoft/sudokumaster-wp" => (),
+    "microsoft/surveillance-camera" => (),
+    "microsoft/taco-simulate" => (),
+    "microsoft/taco-team-build" => (),
+    "microsoft/TACO" => (),
+    "microsoft/TeamMate" => (),
+    "microsoft/Telemetry-Client-for-Android" => (),
+    "microsoft/tensorflow-directml" => (),
+    "microsoft/terminal" => (),
+    "microsoft/TestAdapterForGoogleTest" => (),
+    "microsoft/TestEasy" => (),
+    "microsoft/tfs-cli" => (),
+    "microsoft/Tocino" => (),
+    "microsoft/ts-api-checker" => (),
+    "microsoft/tslint-microsoft-contrib" => (),
+    "microsoft/TVHelpers" => (),
+    "microsoft/TypeScript-Handbook" => (),
+    "microsoft/TypeScript-Sublime-Plugin" => (),
+    "microsoft/TypeScript-TmLanguage" => (),
+    "microsoft/TypeScript" => (),
+    "microsoft/TypeScriptSamples" => (),
+    "microsoft/UnifiedRedisPlatform.Core" => (),
+    "microsoft/unittest-cpp" => (),
+    "microsoft/UnitTestBoilerplateGenerator" => (),
+    "microsoft/unityplugins" => (),
+    "microsoft/update-server-server-sync" => (),
+    "microsoft/UVAtlas" => (),
+    "microsoft/uwp-shop-analytics-sample" => (),
+    "microsoft/Validate-DCB" => (),
+    "microsoft/vcpkg" => (),
+    "microsoft/verisol" => (),
+    "microsoft/VFSForGit" => (),
+    "microsoft/Vipr" => (),
+    "microsoft/VisualStudio-TestHost" => (),
+    "microsoft/Viva-Connections-Extensibility-Beta" => (),
+    "microsoft/vs-editor-api" => (),
+    "microsoft/vs-mef" => (),
+    "microsoft/VS-PPT" => (),
+    "microsoft/vscode-arduino" => (),
+    "microsoft/vscode-azure-blockchain-ethereum" => (),
+    "microsoft/vscode-azure-iot-edge" => (),
+    "microsoft/vscode-azure-iot-toolkit" => (),
+    "microsoft/vscode-azureappservice" => (),
+    "microsoft/vscode-azurearmtools" => (),
+    "microsoft/vscode-azurecache" => (),
+    "microsoft/vscode-azureresourcegroups" => (),
+    "microsoft/vscode-azurestaticwebapps" => (),
+    "microsoft/vscode-azurestorage" => (),
+    "microsoft/vscode-azuretools" => (),
+    "microsoft/vscode-azurevirtualmachines" => (),
+    "microsoft/vscode-backspace" => (),
+    "microsoft/vscode-chrome-debug" => (),
+    "microsoft/vscode-comment" => (),
+    "microsoft/vscode-cosmosdb" => (),
+    "microsoft/vscode-cpptools" => (),
+    "microsoft/vscode-debugadapter-node" => (),
+    "microsoft/vscode-docker" => (),
+    "microsoft/vscode-docs" => (),
+    "microsoft/vscode-eslint" => (),
+    "microsoft/vscode-extension-samples" => (),
+    "microsoft/vscode-extension-vscode" => (),
+    "microsoft/vscode-generator-code" => (),
+    "microsoft/vscode-go" => (),
+    "microsoft/vscode-htmlhint" => (),
+    "microsoft/vscode-htmltagwrap" => (),
+    "microsoft/vscode-iot-workbench" => (),
+    "microsoft/vscode-java-debug" => (),
+    "microsoft/vscode-java-dependency" => (),
+    "microsoft/vscode-java-pack" => (),
+    "microsoft/vscode-java-test" => (),
+    "microsoft/vscode-jscs" => (),
+    "microsoft/vscode-jshint" => (),
+    "microsoft/vscode-jupyter" => (),
+    "microsoft/vscode-languageserver-node" => (),
+    "microsoft/vscode-livepreview" => (),
+    "microsoft/vscode-loader" => (),
+    "microsoft/vscode-loc" => (),
+    "microsoft/vscode-MDTools" => (),
+    "microsoft/vscode-mock-debug" => (),
+    "microsoft/vscode-mssql" => (),
+    "microsoft/vscode-node-debug" => (),
+    "microsoft/vscode-node-sqlite3" => (),
+    "microsoft/vscode-npm-scripts" => (),
+    "microsoft/vscode-nsfw" => (),
+    "microsoft/vscode-pull-request-github" => (),
+    "microsoft/vscode-python-devicesimulator" => (),
+    "microsoft/vscode-python" => (),
+    "microsoft/vscode-remote-release" => (),
+    "microsoft/vscode-samples" => (),
+    "microsoft/vscode-SCMBuilders" => (),
+    "microsoft/vscode-spring-initializr" => (),
+    "microsoft/vscode-textmate" => (),
+    "microsoft/vscode-themes" => (),
+    "microsoft/vscode-tslint" => (),
+    "microsoft/vscode-vsce" => (),
+    "microsoft/vscode-wordcount" => (),
+    "microsoft/vscode" => (),
+    "microsoft/VSDebugAdapterHost" => (),
+    "microsoft/vsixbootstrapper" => (),
+    "microsoft/VSLua" => (),
+    "microsoft/vsminecraft" => (),
+    "microsoft/vso-agent" => (),
+    "microsoft/vso-extension-tools" => (),
+    "microsoft/vso-httpclient-java" => (),
+    "microsoft/vss-web-extension-sdk" => (),
+    "microsoft/vssetup.powershell" => (),
+    "microsoft/vsts-branch-delete" => (),
+    "microsoft/vsts-build-test-samples" => (),
+    "microsoft/vsts-cordova-tasks" => (),
+    "microsoft/vsts-extension-samples" => (),
+    "microsoft/vsts-nuget-bootstrapper" => (),
+    "microsoft/vsts-vmware" => (),
+    "microsoft/vsts-zendesk-app" => (),
+    "microsoft/vswhere" => (),
+    "microsoft/WebTemplateStudio" => (),
+    "microsoft/weekly-planner-wp" => (),
+    "microsoft/Win2D" => (),
+    "microsoft/WinAppDriver" => (),
+    "microsoft/Windows-appsample-marble-maze" => (),
+    "microsoft/Windows-appsample-networkhelper" => (),
+    "microsoft/Windows-appsample-rssreader" => (),
+    "microsoft/Windows-appsample-trafficapp" => (),
+    "microsoft/Windows-Camera" => (),
+    "microsoft/Windows-classic-samples" => (),
+    "microsoft/Windows-Driver-Frameworks" => (),
+    "microsoft/Windows-driver-samples" => (),
+    "microsoft/windows-phone-callout-project" => (),
+    "microsoft/Windows-Time-Calibration-Tools" => (),
+    "microsoft/Windows-universal-samples" => (),
+    "microsoft/WindowsCompositionSamples" => (),
+    "microsoft/WindowsProtocolTestSuites" => (),
+    "microsoft/WindowsTemplateStudio" => (),
+    "microsoft/WingTipTickets" => (),
+    "microsoft/WinObjC" => (),
+    "microsoft/workbooks" => (),
+    "microsoft/WSL" => (),
+    "microsoft/wslg" => (),
+    "microsoft/XamarinAzure_ShoppingDemoApp" => (),
+    "microsoft/XamlBehaviors" => (),
+    "microsoft/XamlBehaviorsWpf" => (),
+    "microsoft/xlang" => (),
+    "microsoft/XmlNotepad" => (),
+    "microsoft/Yams" => (),
+    "microsoft/Zen" => (),
+    "moonlight-stream/moonlight-android" => (),
+    "moonlight-stream/moonlight-docs" => (),
+    "MTfloder/DimensionNoQuit" => (),
+    "MultiMC/Launcher" => (),
+    "NUKnightLab/cityhallmonitor" => (),
+    "nunit/docs" => (),
+    "ohmyzsh/ohmyzsh" => (),
+    "olikraus/lpc11u3x-gps-logger" => (),
+    "olikraus/lpc804_plu" => (),
+    "onplus/shadowsocks-heroku" => (),
+    "oznu/dns-zone-blacklist" => (),
+    "oznu/docker-dns-ad-blocker" => (),
+    "oznu/docker-unms" => (),
+    "oznu/homebridge-gsh" => (),
+    "PathOfBuildingCommunity/PathOfBuilding" => (),
+    "PEXPlugins/PermissionsEx" => (),
+    "PHPMailer/PHPMailer" => (),
+    "PlaceholderAPI/Javascript-Expansion" => (),
+    "PlaceholderAPI/PlaceholderAPI" => (),
+    "processing/p5.js-web-editor" => (),
+    "processing/p5.js" => (),
+    "processing/processing4" => (),
+    "pymedusa/Medusa" => (),
+    "qbittorrent/qBittorrent" => (),
+    "rapid7/armor" => (),
+    "rapid7/autocompose" => (),
+    "rapid7/metasploit-framework" => (),
+    "rapid7/metasploit-payloads" => (),
+    "rapid7/metasploitable3" => (),
+    "rapid7/r7insight_js" => (),
+    "rapid7/r7insight_node" => (),
+    "rapid7/rex-text" => (),
+    "reactiflux/discord-irc" => (),
+    "ReactiveX/RxJava" => (),
+    "RicoSuter/NSwag" => (),
+    "Ryujinx/Ryujinx" => (),
+    "SeleniumHQ/docker-selenium" => (),
+    "SeleniumHQ/htmlunit-driver" => (),
+    "SeleniumHQ/selenium-ide" => (),
+    "SeleniumHQ/selenium" => (),
+    "SeleniumHQ/www.seleniumhq.org" => (),
+    "serilog/serilog" => (),
+    "shadowrocketHelp/help" => (),
+    "shadowrocketHelp/v2rayHelp" => (),
+    "SleepyTrousers/EnderIO" => (),
+    "spring-projects/spring-authorization-server" => (),
+    "spring-projects/spring-boot-data-geode" => (),
+    "spring-projects/spring-boot" => (),
+    "spring-projects/spring-cloud" => (),
+    "spring-projects/spring-data-gemfire" => (),
+    "spring-projects/spring-data-geode" => (),
+    "spring-projects/spring-framework" => (),
+    "spring-projects/spring-integration-java-dsl" => (),
+    "spring-projects/spring-integration" => (),
+    "spring-projects/spring-kafka" => (),
+    "spring-projects/spring-restdocs" => (),
+    "spring-projects/spring-security-oauth2-boot" => (),
+    "spring-projects/spring-security-samples" => (),
+    "spring-projects/spring-security" => (),
+    "spring-projects/spring-session-bom" => (),
+    "spring-projects/sts4" => (),
+    "sqlmapproject/sqlmap" => (),
+    "ssenmosip/mosip-temp-documentation" => (),
+    "stan-dev/bayesplot" => (),
+    "stan-dev/cmdstanpy" => (),
+    "stan-dev/rstanarm" => (),
+    "stan-dev/stanc3" => (),
+    "Stickymaddness/Sextant" => (),
+    "StrikerRockers-Mods/VanillaTweaks" => (),
+    "swagger-api/swagger-codegen-generators" => (),
+    "swagger-api/swagger-codegen" => (),
+    "swagger-api/swagger-core" => (),
+    "swagger-api/swagger-editor" => (),
+    "swagger-api/swagger-ui" => (),
+    "SynthSy/PSO2-Dictionary" => (),
+    "Tautulli/Tautulli" => (),
+    "tesseract-ocr/tesseract" => (),
+    "TheBusyBiscuit/CS-CoreLib2" => (),
+    "TheIllusiveC4/Champions" => (),
+    "TheIllusiveC4/Comforts" => (),
+    "TheIllusiveC4/ConstructsArmory" => (),
+    "TheIllusiveC4/CorpseComplex" => (),
+    "TheIllusiveC4/Curios" => (),
+    "TheIllusiveC4/Diet" => (),
+    "TheIllusiveC4/VeinMining" => (),
+    "TilesOrganization/support" => (),
+    "TownyAdvanced/FlagWar" => (),
+    "TownyAdvanced/Pl3xMap-Towny" => (),
+    "TownyAdvanced/SiegeWar" => (),
+    "TownyAdvanced/WorldGuard-Towny" => (),
+    "Tyrrrz/CliWrap" => (),
+    "Tyrrrz/Gress" => (),
+    "Tyrrrz/LightBulb" => (),
+    "Tyrrrz/Onova" => (),
+    "Tyrrrz/YoutubeDownloader" => (),
+    "Tyrrrz/YoutubeExplode.Converter" => (),
+    "Tyrrrz/YoutubeExplode" => (),
+    "upalr/Python-camp" => (),
+    "vFense/vFense" => (),
+    "volatilityfoundation/volatility" => (),
+    "webyog/sqlyog-community" => (),
+    "wicknix/Arctic-Fox" => (),
+    "wicknix/SpiderWeb" => (),
+    "wiremod/advdupe2" => (),
+    "wiremod/Miscellaneous" => (),
+    "woocommerce/facebook-for-woocommerce" => (),
+    "woocommerce/google-listings-and-ads" => (),
+    "woocommerce/pinterest-for-woocommerce" => (),
+    "woocommerce/woocommerce-admin-test-helper" => (),
+    "woocommerce/woocommerce-admin" => (),
+    "woocommerce/woocommerce-android" => (),
+    "woocommerce/woocommerce-gateway-amazon-pay" => (),
+    "woocommerce/woocommerce-paypal-payments" => (),
+    "woocommerce/woocommerce" => (),
+    "xenia-project/xenia" => (),
+    "xMistt/fortnitepy-bot" => (),
+    "xMistt/FortniteRuby" => (),
+    "xMistt/snailapi" => (),
+    "xmrig/xmrig-amd" => (),
+    "xmrig/xmrig-nvidia" => (),
+    "xmrig/xmrig-proxy" => (),
+    "xmrig/xmrig" => (),
+    "zaclimon/xipl" => (),
+};
 
 #[cfg(test)]
 mod tests {
+
     #[test]
-    fn test_contain() {
-        let set = super::generate_decommission_list();
+    fn test_contain_phf() {
         let generated = format!("stan-dev/stanc3");
-        assert!(set.contains(generated.as_str()));
+        assert!(super::DECOMMISSION_LIST.contains_key(generated.as_str()));
     }
 }

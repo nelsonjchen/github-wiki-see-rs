@@ -1,13 +1,10 @@
-use std::collections::HashSet;
-use std::future::Future;
-
-use lazy_static::lazy_static;
 use quick_xml::events::BytesText;
 use reqwest::{Client, StatusCode};
 use rocket::futures::TryFutureExt;
 use scraper::{Html, Selector};
+use std::future::Future;
 
-use crate::decommission::generate_decommission_list;
+use crate::decommission::DECOMMISSION_LIST;
 use crate::scraper::process_html_index;
 
 #[allow(dead_code)]
@@ -33,10 +30,6 @@ pub enum ContentError {
     OtherError(String),
 }
 
-lazy_static! {
-    static ref DECOMMISSION_LIST: HashSet<&'static str> = generate_decommission_list();
-}
-
 const FALLBACK_HOST: &str = "https://gh-mirror-gucl6ahvva-uc.a.run.app";
 
 pub async fn retrieve_source_file<'a>(
@@ -46,7 +39,7 @@ pub async fn retrieve_source_file<'a>(
     client: &'a Client,
 ) -> Result<Content, ContentError> {
     // Skip decomissioned wikis
-    if DECOMMISSION_LIST.contains(format!("{}/{}", account, repository).as_str()) {
+    if DECOMMISSION_LIST.contains_key(format!("{}/{}", account, repository).as_str()) {
         return Err(ContentError::Decommissioned);
     }
 

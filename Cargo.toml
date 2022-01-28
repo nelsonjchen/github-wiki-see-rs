@@ -22,3 +22,6 @@ lazy_static = "1.4.0"
 percent-encoding = "2.1.0"
 scraper = "0.12.0"
 quick-xml = "0.22.0"
+phf = { version = "0.10", features = ["macros"] }
+
+[features]
