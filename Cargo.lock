@@ -753,6 +753,7 @@ dependencies = [
  "lazy_static",
  "nipper",
  "percent-encoding",
+ "quick-xml",
  "regex",
  "reqwest",
  "rocket",
@@ -1521,6 +1522,15 @@ dependencies = [
  "syn",
  "version_check",
  "yansi",
+]
+
+[[package]]
+name = "quick-xml"
+version = "0.22.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8533f14c8382aaad0d592c812ac3b826162128b65662331e1127b45c3d18536b"
+dependencies = [
+ "memchr",
 ]
 
 [[package]]

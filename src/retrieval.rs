@@ -2,6 +2,7 @@ use std::collections::HashSet;
 use std::future::Future;
 
 use lazy_static::lazy_static;
+use quick_xml::events::BytesText;
 use reqwest::{Client, StatusCode};
 use rocket::futures::TryFutureExt;
 use scraper::{Html, Selector};
@@ -60,14 +61,7 @@ pub async fn retrieve_source_file<'a>(
         })
         .or_else(|err| async {
             if err == ContentError::TooMayRequests {
-                retrieve_fallback_html(
-                    account,
-                    repository,
-                    page,
-                    client,
-                    FALLBACK_HOST,
-                )
-                .await
+                retrieve_fallback_html(account, repository, page, client, FALLBACK_HOST).await
             } else {
                 Err(err)
             }
@@ -183,14 +177,7 @@ pub async fn retrieve_wiki_index<'a>(
     let html = retrieve_github_com_html(account, repository, "", client, "https://github.com")
         .or_else(|err| async {
             if err == ContentError::TooMayRequests {
-                retrieve_github_com_html(
-                    account,
-                    repository,
-                    "",
-                    client,
-                    FALLBACK_HOST,
-                )
-                .await
+                retrieve_github_com_html(account, repository, "", client, FALLBACK_HOST).await
             } else {
                 Err(err)
             }
@@ -210,6 +197,74 @@ pub async fn retrieve_wiki_index<'a>(
             .join("\n"),
     ));
     Ok(content)
+}
+
+pub async fn retrieve_wiki_sitemap_index<'a>(
+    account: &'a str,
+    repository: &'a str,
+    client: &'a Client,
+) -> Result<String, ContentError> {
+    let html = retrieve_github_com_html(account, repository, "", client, "https://github.com")
+        .or_else(|err| async {
+            if err == ContentError::TooMayRequests {
+                retrieve_github_com_html(account, repository, "", client, FALLBACK_HOST).await
+            } else {
+                Err(err)
+            }
+        })
+        .await?;
+    let wiki_page_urls = process_html_index(&html);
+
+    use quick_xml::events::{BytesEnd, BytesStart, Event};
+
+    use quick_xml::Writer;
+    use std::io::Cursor;
+
+    let mut writer = Writer::new(Cursor::new(Vec::new()));
+
+    let mut urlset_el = BytesStart::owned(b"urlset".to_vec(), "urlset".len());
+    urlset_el.push_attribute(("xmlns", "http://www.sitemaps.org/schemas/sitemap/0.9"));
+    urlset_el.push_attribute(("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance"));
+    urlset_el.push_attribute(("xsi:schemaLocation", "http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"));
+
+    writer
+        .write_event(Event::Start(urlset_el))
+        .map_err(|o| ContentError::OtherError(o.to_string()))?;
+
+    for (url, _) in wiki_page_urls {
+        let url_el = BytesStart::owned(b"url".to_vec(), "url".len());
+        writer
+            .write_event(Event::Start(url_el))
+            .map_err(|o| ContentError::OtherError(o.to_string()))?;
+
+        let loc_el = BytesStart::owned(b"loc".to_vec(), "loc".len());
+        writer
+            .write_event(Event::Start(loc_el))
+            .map_err(|o| ContentError::OtherError(o.to_string()))?;
+
+        writer
+            .write_event(Event::Text(BytesText::from_plain_str(&format!(
+                "https://github-wiki-see.page/m{url}"
+            ))))
+            .map_err(|o| ContentError::OtherError(o.to_string()))?;
+
+        writer
+            .write_event(Event::End(BytesEnd::borrowed(b"loc")))
+            .map_err(|o| ContentError::OtherError(o.to_string()))?;
+
+        writer
+            .write_event(Event::End(BytesEnd::borrowed(b"url")))
+            .map_err(|o| ContentError::OtherError(o.to_string()))?;
+    }
+
+    writer
+        .write_event(Event::End(BytesEnd::borrowed(b"urlset")))
+        .map_err(|op| ContentError::OtherError(op.to_string()))?;
+
+    use std::str;
+    let written = &writer.into_inner().into_inner();
+    let xml_str = str::from_utf8(written).map_err(|op| ContentError::OtherError(op.to_string()))?;
+    Ok(xml_str.to_string())
 }
 
 #[cfg(test)]
@@ -290,6 +345,16 @@ mod tests {
     async fn page_list() {
         let client = Client::new();
         let future = retrieve_wiki_index("nelsonjchen", "github-wiki-test", &client);
+        let content = future.await;
+
+        println!("{:?}", content);
+        assert!(content.is_ok());
+    }
+
+    #[tokio::test]
+    async fn wiki_sitemap_index() {
+        let client = Client::new();
+        let future = retrieve_wiki_sitemap_index("nelsonjchen", "github-wiki-test", &client);
         let content = future.await;
 
         println!("{:?}", content);
