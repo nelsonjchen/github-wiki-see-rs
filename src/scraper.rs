@@ -199,6 +199,17 @@ mod tests {
     }
 
     #[test]
+    fn transform_img_src_blob_to_github_raw() {
+        // https://github.com/Navid200/xDrip/wiki/Updates
+        let html = "<html><head></head><body><img src=\"https://github.com/Navid200/xDrip/blob/master/Documentation/images/Releases.png\"></body></html>";
+
+        assert_eq!(
+            process_html(html, "some_account", "some_repo", false),
+            "<html><head></head><body><img src=\"https://github.com/Navid200/xDrip/raw/master/Documentation/images/Releases.png\"></body></html>"
+        );
+    }
+
+    #[test]
     fn get_page_list() {
         let html = include_str!("../test-data/wiki-index.html");
 

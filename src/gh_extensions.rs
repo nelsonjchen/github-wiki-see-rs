@@ -15,6 +15,8 @@ pub fn github_wiki_markdown_to_pure_markdown<'a, 'b>(
             "\\[\\[(?P<image_url>.*\\.(?i)(jpg|jpeg|png|gif))\\|(alt=)?(?P<link_text>.*?)\\]\\]"
         )
         .unwrap();
+        static ref IMG_REPO_BLOB: Regex =
+            Regex::new(r#"(?P<pre>!\[.*\]\(https://github.com/.+/.+)/blob/(?P<suf>.*)"#).unwrap();
         static ref LINK_RE: Regex =
             Regex::new("\\[\\[((?P<link_text>.*?)\\| *)?(?P<page_name>.*?)\\]\\]").unwrap();
     }
@@ -27,8 +29,10 @@ pub fn github_wiki_markdown_to_pure_markdown<'a, 'b>(
         ),
     );
 
+    let processed_blob_md = IMG_REPO_BLOB.replace_all(&processed_img_md, "$pre/raw/$suf");
+
     LINK_RE
-        .replace_all(&processed_img_md, |caps: &Captures<'_>| {
+        .replace_all(&processed_blob_md, |caps: &Captures<'_>| {
             let page_name = match caps.name("page_name") {
                 Some(page_name) => page_name.as_str(),
                 None => "",
@@ -64,6 +68,16 @@ mod tests {
         assert_eq!(
             result,
             "![Timon (Global), Tima (Swedish)](https://raw.githubusercontent.com/wiki/Erithano/Timon-Your-FAQ-bot-for-Microsoft-Teams/images/TimonHiWhite.jpg)"
+        );
+    }
+
+    #[test]
+    fn image_links_repo() {
+        let md = r#"![](https://github.com/Navid200/xDrip/blob/master/Documentation/images/Releases.png)"#;
+        let result = github_wiki_markdown_to_pure_markdown(md, "Navid200", "xDrip");
+        assert_eq!(
+            result,
+            "![](https://github.com/Navid200/xDrip/raw/master/Documentation/images/Releases.png)"
         );
     }
 
