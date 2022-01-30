@@ -85,3 +85,4 @@ jobs:
           cache-from: type=gha,scope=cached-stage
           cache-to: type=gha,scope=cached-stage,mode=max
           outputs: type=docker
+      - run: docker build .
