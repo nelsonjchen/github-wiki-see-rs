@@ -36,12 +36,13 @@ jobs:
           context: .
           cache-from: type=gha,scope=cached-stage
           cache-to: type=gha,scope=cached-stage,mode=max
-          output: type=cacheonly
+          load: true
+          tags: app:latest
       - uses: superfly/flyctl-actions@1.1
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         with:
-          args: "deploy"
+          args: "deploy -i app:latest"
       - name: Cloudflare Cache Purge Action
         uses: NathanVaughn/actions-cloudflare-purge@v2.0.0
         if: success()
