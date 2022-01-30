@@ -76,4 +76,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: docker buildx build --cache-from=type=gha --cache-to=type=gha .
+      - run: docker buildx build --cache-from=type=gha --cache-to=type=gha,mode=max .
