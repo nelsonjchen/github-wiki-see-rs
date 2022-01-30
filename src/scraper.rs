@@ -74,13 +74,7 @@ pub fn process_html(
             }
         }
     });
-    // Unlink revisions _history link
-    document
-        .select("a.Link--muted")
-        .iter()
-        .for_each(|mut thing| {
-            thing.replace_with_html(thing.text());
-        });
+
     String::from(document.html())
 }
 
