@@ -36,6 +36,11 @@ jobs:
       - uses: satackey/action-docker-layer-caching@v0.0.11
         # Ignore the failure of a step and avoid terminating the job.
         continue-on-error: true
+      # Build multi-stage docker image stage by stage and tag each stage
+      # Untagged/old images will be pruned.
+      - run: docker build --target chef --tag chef .
+      - run: docker build --target planner --tag planner .
+      - run: docker build --target builder --tag builder .
       - uses: superfly/flyctl-actions@1.1
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
@@ -47,3 +52,4 @@ jobs:
         with:
           cf_zone: ${{ secrets.CLOUDFLARE_ZONE }}
           cf_auth: ${{ secrets.CLOUDFLARE_AUTH_KEY }}
+      - run: docker image prune -a --force
