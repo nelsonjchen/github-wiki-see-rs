@@ -10,6 +10,7 @@
             overflow-wrap: break-word;
             min-width: 0;
         }
+
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description"
@@ -32,9 +33,10 @@
         this service can be crawled and indexed by major search engines.
     </p>
     <p> Currently, <a href=https://github.com/github/feedback/discussions/4992>GitHub prevents crawling of repository
-            wiki content</a> for wikis that are publically editable and some other unknown criteria(s). You can find <a
-            href="https://docs.google.com/spreadsheets/d/1_W9s8IhnSoypXjTKYSRBK5CNPTQJfXRl7V_1mY0Xq28/edit#gid=905984022">about
-            1,200</a> direct GitHub.com Wikis' content on search engines such as Google and DuckDuckGo but not the
+            wiki content</a> for wikis that are publically editable and some other unknown criteria(s) that most wikis
+        do not meet. You can find <a
+            href="https://docs.google.com/spreadsheets/d/1_W9s8IhnSoypXjTKYSRBK5CNPTQJfXRl7V_1mY0Xq28/edit#gid=905984022">
+            about 1,200</a> direct GitHub.com Wikis' content on search engines such as Google and DuckDuckGo but not the
         roughly remaining 420,000. The blocking negatively impacts the effectiveness of FAQs and other knowledge bases
         on GitHub Wikis and also negatively impacts users who search for information that may only be found on those
         GitHub Wikis that do not meet GitHub's currently ambiguious criteria.</p>
@@ -78,8 +80,7 @@
     <p> For anti-abuse reasons, all links rendered in the service that are going out of GitHub are tagged with
         <code>rel="nofollow <a href="https://developers.google.com/search/blog/2019/09/evolving-nofollow-new-ways-to-identify">ugc</a>"</code>
         as to not affect search engine rankings or to promote mass vandalism of GitHub Wikis. This is in addition to
-        <code>rel="nofollow"</code> in the original content.
-    </p>
+        <code>rel="nofollow"</code> in the original content. </p>
     <h2 id="usage">Usage</h2>
     <ul>
         <li>Wiki Reader: Use your favorite search engine! That is the intended interface to the content "on" this
@@ -124,8 +125,8 @@
             href="https://github.com/nelsonjchen/github-wiki-see-rs/issues/6">Flashing yellow was very unpopular.</a>
     </p>
     <p> As of January 2022, GitHub does appear to be letting a few Wikis be indexed according to some non-public
-        criteria. These small sample of Wikis allow native indexing by not having a <code>x-robots-tag: none</code>
-        HTTP header. GHWSEE has a manually periodically generated list of these Wikis burned in and will permanently
+        criteria. These small sample of Wikis allow native indexing by not having a <code>x-robots-tag: none</code> HTTP
+        header. GHWSEE has a manually periodically generated list of these Wikis burned in and will permanently
         automatically redirect URLs with them to GitHub.com. The sample of links links below help test the partial
         decommissioning functionality. Hopefully the permanent redirects in GHWSEE will help GHWSEE fall off search
         engines for all currently directly indexable repositories. </p>
