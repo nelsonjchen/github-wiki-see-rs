@@ -1,6 +1,6 @@
+use futures::future::TryFutureExt;
 use quick_xml::events::BytesText;
 use reqwest::{Client, StatusCode};
-use rocket::futures::TryFutureExt;
 use scraper::{Html, Selector};
 use std::future::Future;
 

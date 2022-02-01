@@ -750,6 +750,7 @@ dependencies = [
  "askama",
  "askama_rocket",
  "comrak",
+ "futures",
  "lazy_static",
  "nipper",
  "percent-encoding",
