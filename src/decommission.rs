@@ -3287,7 +3287,7 @@ mod tests {
 
     #[test]
     fn test_contain_phf() {
-        let generated = format!("stan-dev/stanc3");
+        let generated = format!("zxing/zxing");
         assert!(super::DECOMMISSION_LIST.contains(generated.as_str()));
     }
 }
