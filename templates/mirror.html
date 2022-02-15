@@ -210,26 +210,17 @@
     <!-- <meta property="og:description" content="not used"> -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ original_title }}">
-    <script>
-        function visit_original(e) {
-            e.preventDefault();
-            // Don't save the service URL in the history.
-            window.location.replace("{{ original_url }}");
-        }
-    </script>
 </head>
 
 <body id="main">
     <nav id="header_button">
-        <a href="{{ original_url }}" onclick="visit_original(event)" class="visit_url_button"> View Original Page on
-            GitHub.com</a>
+        <a href="{{ original_url }}" class="visit_url_button"> View Original Page on GitHub.com</a>
         <p>⚠️ The indexable preview below may have <em>rendering errors</em>, <em>broken links</em>, <em>missing
                 images</em>, and does not include the <em>last updated date.</em> Please view the original page on
             GitHub.com and not this indexable preview if you intend to <em>use</em> this content. </p>
     </nav>
     <aside id="header_info">
-        <p>📄 Original URL: <a href="{{ original_url }}" onclick="visit_original(event)"
-                class="visit_url_link">{{ original_url }}</a>
+        <p>📄 Original URL: <a href="{{ original_url }}" class="visit_url_link">{{ original_url }}</a>
         </p>
     </aside>
     <article id="content">
