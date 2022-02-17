@@ -1,4 +1,5 @@
 use futures::future::TryFutureExt;
+use futures::FutureExt;
 use quick_xml::events::BytesText;
 use reqwest::{Client, StatusCode};
 use scraper::{Html, Selector};
@@ -38,17 +39,31 @@ pub async fn retrieve_source_file<'a>(
     page: &'a str,
     client: &'a Client,
 ) -> Result<Content, ContentError> {
-    // Skip decomissioned wikis
+    // Skip decommissioned wikis
     if DECOMMISSION_LIST.contains(format!("{}/{}", account, repository).as_str()) {
         return Err(ContentError::Decommissioned);
     }
 
-    // Pull extensions from
-    // https://github.com/gollum/gollum-lib/blob/b074c6314dc47571cae91dd333bd1b1f2a816c48/lib/gollum-lib/markups.rb#L70
-
-    // Try markdown first
-
     retrieve_source_file_extension(account, repository, page, client, &Content::Markdown, "md")
+        // Is there something that vaguely looks like HTML? Fallback to HTML if seen
+        .map(|result| match &result {
+            Ok(Content::Markdown(md)) => {
+                use lazy_static::lazy_static;
+                use regex::Regex;
+
+                lazy_static! {
+                    static ref RE: Regex = Regex::new("<.{3,10}>").unwrap();
+                }
+
+                if RE.is_match(md) {
+                    return Err(ContentError::OtherError(
+                        "Markdown contains HTML".to_string(),
+                    ));
+                }
+                result
+            }
+            _ => result,
+        })
         .or_else(|_| async {
             retrieve_fallback_html(account, repository, page, client, "https://github.com").await
         })
