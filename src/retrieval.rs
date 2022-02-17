@@ -322,6 +322,18 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn html_in_markdown() {
+        let client = Client::new();
+
+        let future = retrieve_source_file("wlsdn2316", "1-tetris-", "Functions", &client);
+        let content = future.await;
+
+        assert!(content.is_ok());
+        // Fallback must be used for HTML in Markdown documents
+        assert!(matches!(content, Ok(Content::FallbackHtml(_))));
+    }
+
+    #[tokio::test]
     async fn fallback_encoded() {
         let client = Client::new();
 
