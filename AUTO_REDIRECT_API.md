@@ -6,7 +6,7 @@ Run this on the domain https://github-wiki-see.page and it will automatically re
 
 ```javascript
 if (document.getElementById('header_button'))
-    document.querySelector(".visit_url_button").click();
+    window.location.replace(document.querySelector(".visit_url_button").href);
 ```
 
 This API will be maintained as the mirror page changes or gets updated. The ID names and class names used in the example above will stay this and will not change for the foreseeable future.
