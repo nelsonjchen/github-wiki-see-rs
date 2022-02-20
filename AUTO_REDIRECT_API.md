@@ -19,6 +19,8 @@ Please contribute if you have other examples of using this API with other setups
 
 ### Page Extender.app
 
+PageExtender is a Safari Extension that injects CSS and JS files into websites, allowing you to customize your favorite websites to your needs.
+
 See [@gingerbeardman](https://github.com/gingerbeardman)'s post:
 
 https://github.com/nelsonjchen/github-wiki-see-rs/issues/136#issuecomment-1040821971
