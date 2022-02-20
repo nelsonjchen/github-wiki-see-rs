@@ -21,7 +21,13 @@ Please contribute if you have other examples of using this API with other setups
 
 PageExtender is a Safari Extension that injects CSS and JS files into websites, allowing you to customize your favorite websites to your needs.
 
-See [@gingerbeardman](https://github.com/gingerbeardman)'s post:
+Create a file: `github-wiki-see.page.js`
+
+The file is named so that it only runs on the domain `github-wiki-see.page` and not on any other domain.
+
+Contents: Use the example Javascript at the top of this document.
+
+See [@gingerbeardman](https://github.com/gingerbeardman)'s post for the original post but note it uses an older version of the example Javascript which may have back button issues:
 
 https://github.com/nelsonjchen/github-wiki-see-rs/issues/136#issuecomment-1040821971
 
