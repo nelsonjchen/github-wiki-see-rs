@@ -190,7 +190,7 @@ async fn mirror_page<'a>(
 
     let page_title = format!(
         "{} - {}/{} Wiki",
-        page.replace("-", " "),
+        page.replace('-', " "),
         account,
         repository
     );

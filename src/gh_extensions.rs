@@ -43,7 +43,7 @@ pub fn github_wiki_markdown_to_pure_markdown<'a, 'b>(
                 None => page_name,
             };
 
-            let page_name_link = page_name.replace(" ", "-");
+            let page_name_link = page_name.replace(' ', "-");
 
             format!(
                 "[{}](/{}/{}/wiki/{})",
