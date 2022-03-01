@@ -26,11 +26,11 @@ All links rendered in the tool going outside of GitHub are tagged with `rel="nof
 
 ## Decommissioning
 
-When GitHub removes wikis from their `robots.txt` and `x-robots-tag: none` from the pages on GitHub
-or figures out some other way to serve the content in harmony with what they desire for SEO,
-this tool will be modified to simply "308" redirect the link to GitHub. May this happen someday and soon.
+Please see:
 
-If some other unforeseen consequence of the tool happens, this may be done as well.
+https://github-wiki-see.page/#decommissioning
+
+But basically if GitHub lets it be indexed, this service will 308 redirect it.
 
 [gcr]: https://cloud.google.com/run
 [flyio]: https://fly.io
