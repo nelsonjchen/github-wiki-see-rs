@@ -1,3 +1,7 @@
-# Crawl it all. 🟢
+# Workaround inadverdent indexing of /cgi-bin/ stuff
+User-agent: *
+Disallow: /cgi-bin/
+
+# Crawl it all otherwise. 🟢
 
 Sitemap: https://github-wiki-see.page/sitemap.xml
