@@ -161,7 +161,9 @@
     <p> As of January 2022, GitHub does appear to be letting a few Wikis be indexed according to some non-public
         criteria. These small sample of Wikis allow native indexing by not having a <code>x-robots-tag: none</code> HTTP
         header. GHWSEE has a manually periodically generated list of these Wikis burned in and will permanently
-        automatically redirect URLs with them to GitHub.com. By automatically redirecting, it is hoped that GHWSEE falls
+        automatically redirect URLs with them to GitHub.com. Additionally, a Cloudflare Worker is implemented in front
+        of the proxied URLs to check GitHub and automatically redirect if the backing page is detected to allow indexing
+        if something doesn't get added to that list on time. By automatically redirecting, it is hoped that GHWSEE falls
         off the search engine index and that GHWSEE's ranking may be conferred directly on GitHub's ranking. The small
         sample of links below help test the partial decommissioning functionality. </p>
     <ul>
