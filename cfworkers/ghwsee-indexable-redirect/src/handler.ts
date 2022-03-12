@@ -3,6 +3,7 @@ export async function handleRequest(request: Request): Promise<Response> {
   const isIndexable = indexable(githubUrl)
   const ghwseeResponse = await fetch(request)
   if (await isIndexable) {
+    console.log("Redirecting to: " + githubUrl.href)
     return new Response(null, {
       status: 308,
       statusText: "Permanent Redirect",
