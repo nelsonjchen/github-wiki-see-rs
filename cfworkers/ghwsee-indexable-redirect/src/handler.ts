@@ -1,7 +1,12 @@
 export async function handleRequest(request: Request): Promise<Response> {
   const githubUrl = new URL(request.url.replace("github-wiki-see.page/m", "github.com"))
 
-  const ghwseeResponse = fetch(request)
+  const ghwseeResponse = fetch(request, {
+    cf: {
+      cacheEverything: true,
+      cacheTtl: 7200,
+    }
+  })
 
   const pathComponents = githubUrl.pathname.split("/")
   if (pathComponents.length > 3 && pathComponents[2] === "wiki_index") {
@@ -36,6 +41,10 @@ export async function handleRequest(request: Request): Promise<Response> {
 export async function indexable(url: URL): Promise<boolean> {
   const response = await fetch(url.toString(), {
     redirect: 'follow',
+    cf: {
+      cacheEverything: true,
+      cacheTtl: 86400,
+    }
   })
   if (response.status != 200) {
     return false
