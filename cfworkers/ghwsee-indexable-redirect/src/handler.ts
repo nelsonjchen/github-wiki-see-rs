@@ -26,7 +26,7 @@ export async function handleRequest(request: Request): Promise<Response> {
   console.log("No Redirect: " + githubUrl.href)
 
   const response = await ghwseeResponse
-  if (response.status === 308) {
+  if (response.status === 308 && !request.url.endsWith("/wiki/Home")) {
     console.warn("Redirected Unindexable: " + response.headers.get("Location"))
   }
 
