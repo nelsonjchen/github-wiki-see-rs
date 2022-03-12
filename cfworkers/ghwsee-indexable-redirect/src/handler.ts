@@ -8,16 +8,21 @@ export async function handleRequest(request: Request): Promise<Response> {
     return await ghwseeResponse
   }
 
-  if (await indexable(githubUrl)) {
-    console.log("Redirecting to: " + githubUrl.href)
-    return new Response(null, {
-      status: 308,
-      statusText: "Permanent Redirect",
-      headers: {
-        "Location": githubUrl.toString(),
-      }
-    })
+  try {
+    if (await indexable(githubUrl)) {
+      console.log("Redirecting to: " + githubUrl.href)
+      return new Response(null, {
+        status: 308,
+        statusText: "Permanent Redirect",
+        headers: {
+          "Location": githubUrl.toString(),
+        }
+      })
+    }
+  } catch (e) {
+    console.error(e)
   }
+
   console.log("Not redirecting: " + githubUrl.href)
 
   return await ghwseeResponse
