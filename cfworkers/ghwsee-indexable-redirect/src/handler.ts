@@ -35,7 +35,7 @@ export async function handleRequest(request: Request): Promise<Response> {
 
 export async function indexable(url: URL): Promise<boolean> {
   const response = await fetch(url.toString(), {
-    redirect: 'manual',
+    redirect: 'follow',
   })
   if (response.status != 200) {
     return false
