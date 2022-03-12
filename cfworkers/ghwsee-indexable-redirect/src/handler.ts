@@ -18,6 +18,7 @@ export async function handleRequest(request: Request): Promise<Response> {
       }
     })
   }
+  console.log("Not redirecting: " + githubUrl.href)
 
   return await ghwseeResponse
 }
