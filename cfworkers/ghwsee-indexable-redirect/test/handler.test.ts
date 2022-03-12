@@ -33,4 +33,24 @@ describe('handle', () => {
 
     expect(result.status).toEqual(200)
   })
+
+  test('does not try to redirect wiki_index on an indexable wiki', async () => {
+    const request_url = `https://github-wiki-see.page/m/PixarAnimationStudios/USD/wiki_index`
+    console.debug(request_url)
+    const result = await handleRequest(
+      new Request(request_url, { method: 'GET' }),
+    )
+
+    expect(result.status).toEqual(200)
+  })
+
+  test('does not try to redirect wiki_index on an unindexable wiki', async () => {
+    const request_url = `https://github-wiki-see.page/m/commaai/openpilot/wiki_index`
+    console.debug(request_url)
+    const result = await handleRequest(
+      new Request(request_url, { method: 'GET' }),
+    )
+
+    expect(result.status).toEqual(200)
+  })
 })

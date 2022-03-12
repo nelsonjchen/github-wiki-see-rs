@@ -1,8 +1,14 @@
 export async function handleRequest(request: Request): Promise<Response> {
   const githubUrl = new URL(request.url.replace("github-wiki-see.page/m", "github.com"))
-  const isIndexable = indexable(githubUrl)
-  const ghwseeResponse = await fetch(request)
-  if (await isIndexable) {
+
+  const ghwseeResponse = fetch(request)
+
+  const pathComponents = githubUrl.pathname.split("/")
+  if (pathComponents.length > 3 && pathComponents[2] === "wiki_index") {
+    return await ghwseeResponse
+  }
+
+  if (await indexable(githubUrl)) {
     console.log("Redirecting to: " + githubUrl.href)
     return new Response(null, {
       status: 308,
@@ -12,7 +18,8 @@ export async function handleRequest(request: Request): Promise<Response> {
       }
     })
   }
-  return ghwseeResponse
+
+  return await ghwseeResponse
 }
 
 export async function indexable(url: URL): Promise<boolean> {
