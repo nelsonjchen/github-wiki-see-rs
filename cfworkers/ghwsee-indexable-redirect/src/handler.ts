@@ -10,7 +10,7 @@ export async function handleRequest(request: Request): Promise<Response> {
 
   try {
     if (await indexable(githubUrl)) {
-      console.log("Redirecting to: " + githubUrl.href)
+      console.log("Indexable Redirect: " + githubUrl.href)
       return new Response(null, {
         status: 308,
         statusText: "Permanent Redirect",
@@ -23,7 +23,7 @@ export async function handleRequest(request: Request): Promise<Response> {
     console.error(e)
   }
 
-  console.log("Not redirecting: " + githubUrl.href)
+  console.log("No Redirect: " + githubUrl.href)
 
   return await ghwseeResponse
 }
