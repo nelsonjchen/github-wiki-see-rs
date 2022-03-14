@@ -13,6 +13,8 @@ export async function handleRequest(request: Request): Promise<Response> {
     return await ghwseeResponse
   }
 
+  console.log(request.headers.get("user-agent"))
+
   try {
     if (await indexable(githubUrl)) {
       console.log("Indexable Redirect: " + githubUrl.href)
