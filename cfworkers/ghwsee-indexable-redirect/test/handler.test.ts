@@ -1,9 +1,9 @@
-import { handleRequest, indexable } from '../src/handler'
+import { handleRequest, originalInfo } from '../src/handler'
 
 describe('handle', () => {
   test('can determine if a URL is indexable', async () => {
     const url = new URL('https://github.com/PixarAnimationStudios/USD/wiki')
-    expect(await indexable(url)).toBeTruthy()
+    expect(((await originalInfo(url)).indexable)).toBeTruthy()
   })
 
   test('redirects an indexable wiki', async () => {
@@ -21,7 +21,7 @@ describe('handle', () => {
 
   test('can determine if a URL is not indexable', async () => {
     const url = new URL('https://github.com/commaai/openpilot/wiki')
-    expect(await indexable(url)).toBeFalsy()
+    expect(await (await originalInfo(url)).indexable).toBeFalsy()
   })
 
   test('does not redirects an indexable wiki', async () => {

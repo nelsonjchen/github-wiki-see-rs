@@ -1,3 +1,7 @@
+interface OriginalInfo {
+  indexable:boolean;
+}
+
 export async function handleRequest(request: Request): Promise<Response> {
   const githubUrl = new URL(request.url.replace("github-wiki-see.page/m", "github.com"))
 
@@ -16,7 +20,8 @@ export async function handleRequest(request: Request): Promise<Response> {
   console.log(request.headers.get("user-agent"))
 
   try {
-    if (await indexable(githubUrl)) {
+    const info = await originalInfo(githubUrl);
+    if (info.indexable) {
       console.log("Indexable Redirect: " + githubUrl.href)
       return new Response(null, {
         status: 308,
@@ -40,7 +45,7 @@ export async function handleRequest(request: Request): Promise<Response> {
   return await ghwseeResponse
 }
 
-export async function indexable(url: URL): Promise<boolean> {
+export async function originalInfo(url: URL): Promise<OriginalInfo> {
   const response = await fetch(url.toString(), {
     redirect: 'follow',
     cf: {
@@ -49,10 +54,16 @@ export async function indexable(url: URL): Promise<boolean> {
     }
   })
   if (response.status != 200) {
-    return false
+    return {
+      indexable: false
+    }
   }
   if (response.headers.has('x-robots-tag')) {
-    return false
+    return {
+      indexable: false
+    }
   }
-  return true
+  return {
+    indexable: true
+  }
 }
