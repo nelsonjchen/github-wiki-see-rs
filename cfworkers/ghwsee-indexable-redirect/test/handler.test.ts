@@ -3,7 +3,7 @@ import { handleRequest, originalInfo } from '../src/handler'
 describe('handle', () => {
   test('can determine if a URL is indexable', async () => {
     const url = new URL('https://github.com/PixarAnimationStudios/USD/wiki')
-    expect(((await originalInfo(url)).indexable)).toBeTruthy()
+    expect((await originalInfo(url)).indexable).toBeTruthy()
   })
 
   test('redirects an indexable wiki', async () => {
@@ -15,7 +15,7 @@ describe('handle', () => {
 
     expect(result.status).toEqual(308)
     expect(result.headers.get('location')).toEqual(
-      'https://github.com/PixarAnimationStudios/USD/wiki'
+      'https://github.com/PixarAnimationStudios/USD/wiki',
     )
   })
 
