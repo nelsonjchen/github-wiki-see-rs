@@ -50,14 +50,20 @@ export async function handleRequest(request: Request): Promise<Response> {
     console.warn('Redirected Unindexable: ' + response.headers.get('Location'))
   }
 
+  const newResponse = new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers,
+  })
+
   if (lastModifiedDate) {
-    response.headers.set('last-modified', lastModifiedDate.toUTCString())
+    newResponse.headers.set('last-modified', lastModifiedDate.toUTCString())
   } else {
     // Don't claim a last modified date if it wasn't found on the original page.
-    response.headers.delete('last-modified')
+    newResponse.headers.delete('last-modified')
   }
 
-  return response
+  return newResponse
 }
 
 export async function originalInfo(url: URL): Promise<OriginalInfo> {
