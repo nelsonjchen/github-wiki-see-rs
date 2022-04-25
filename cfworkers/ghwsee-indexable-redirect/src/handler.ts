@@ -1,5 +1,6 @@
 interface OriginalInfo {
   indexable: boolean
+  last_modified?: Date
 }
 
 export async function handleRequest(request: Request): Promise<Response> {
@@ -15,11 +16,15 @@ export async function handleRequest(request: Request): Promise<Response> {
   })
 
   const pathComponents = githubUrl.pathname.split('/')
+
+  // Don't redirect wiki_index path. Index that, even for indexable wikis.
   if (pathComponents.length > 3 && pathComponents[2] === 'wiki_index') {
     return await ghwseeResponse
   }
 
   console.log(request.headers.get('user-agent'))
+
+  let lastModifiedDate: Date | undefined = undefined
 
   try {
     const info = await originalInfo(githubUrl)
@@ -33,6 +38,7 @@ export async function handleRequest(request: Request): Promise<Response> {
         },
       })
     }
+    lastModifiedDate = info.last_modified
   } catch (e) {
     console.error(e)
   }
@@ -44,7 +50,14 @@ export async function handleRequest(request: Request): Promise<Response> {
     console.warn('Redirected Unindexable: ' + response.headers.get('Location'))
   }
 
-  return await ghwseeResponse
+  if (lastModifiedDate) {
+    response.headers.set('last-modified', lastModifiedDate.toUTCString())
+  } else {
+    // Don't claim a last modified date if it wasn't found on the original page.
+    response.headers.delete('last-modified')
+  }
+
+  return response
 }
 
 export async function originalInfo(url: URL): Promise<OriginalInfo> {
@@ -55,16 +68,29 @@ export async function originalInfo(url: URL): Promise<OriginalInfo> {
       cacheTtl: 86400,
     },
   })
-  if (response.status != 200) {
+
+  if (response.status != 200 || response.headers.has('x-robots-tag')) {
+    // Scan the response body for a date of last change
+    const body = await response.text()
+
+    // <relative-time datetime="2022-04-24T17:07:11Z"
+    const dateRegex = /<relative-time datetime="([^"]+)"/g
+    const match = dateRegex.exec(body)
+
+    if (match) {
+      const dateString = match[1]
+      const date = new Date(dateString)
+      return {
+        indexable: false,
+        last_modified: date,
+      }
+    }
+
     return {
       indexable: false,
     }
   }
-  if (response.headers.has('x-robots-tag')) {
-    return {
-      indexable: false,
-    }
-  }
+
   return {
     indexable: true,
   }
