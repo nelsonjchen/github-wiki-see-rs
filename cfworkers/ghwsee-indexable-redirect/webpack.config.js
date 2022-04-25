@@ -17,7 +17,7 @@ module.exports = {
         test: /\.tsx?$/,
         loader: 'ts-loader',
         options: {
-          "allowTsInNodeModules": true,
+          allowTsInNodeModules: true,
           // transpileOnly is useful to skip typescript checks occasionally:
           // transpileOnly: true,
         },
