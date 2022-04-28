@@ -2,8 +2,7 @@
 
 ![GitHub](https://img.shields.io/github/license/nelsonjchen/github-wiki-see-rs) ![GitHub](https://img.shields.io/github/stars/nelsonjchen/github-wiki-see-rs)
 
-
-*As seen at https://github-wiki-see.page by search engines and archivers!*
+_As seen at https://github-wiki-see.page by search engines and archivers!_
 
 GitHub Wiki Search Engine Enablement is a service to allow GitHub Wikis to be indexed by search engines.
 
@@ -22,7 +21,10 @@ ignore the content.
 Humans should see the "content" as a redirect; the robots should not.
 
 All links rendered in the tool going outside of GitHub are tagged with `rel="nofollow ugc"` to prevent ranking
- manipulation which is probably one the reason wiki content was excluded from indexing.
+manipulation which is probably one the reason wiki content was excluded from indexing.
+
+A Cloudflare Worker is placed in front to additionally protect against the service accidentally mirroring indexable content
+on GitHub as well as enrich a "last modified" header date on the proxied content if possible from the original content if the original content isn't indexable.
 
 ## Decommissioning
 
@@ -34,4 +36,3 @@ But basically if GitHub lets it be indexed, this service will 308 redirect it.
 
 [gcr]: https://cloud.google.com/run
 [flyio]: https://fly.io
-
