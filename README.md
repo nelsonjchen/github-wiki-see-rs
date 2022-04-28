@@ -24,7 +24,7 @@ All links rendered in the tool going outside of GitHub are tagged with `rel="nof
 manipulation which is probably one the reason wiki content was excluded from indexing.
 
 A Cloudflare Worker is placed in front to additionally protect against the service accidentally mirroring indexable content
-on GitHub as well as enrich a "last modified" header date on the proxied content if possible from the original content if the original content isn't indexable.
+on GitHub. The worker also enriches a "last modified" header date on the proxied content if possible from the original content if the original content isn't indexable to better hint to search engines the freshness of content and better utilize their crawler budget.
 
 ## Decommissioning
 
