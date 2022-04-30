@@ -16,13 +16,13 @@ askama = { git = "https://github.com/djc/askama.git", features = ["with-rocket",
 askama_rocket = { git = "https://github.com/djc/askama.git", rev="4d936524" }
 reqwest = { version = "0.11", features = ["deflate", "brotli", "gzip"] }
 tokio = { version = "1", features = ["full"] }
-comrak = "0.12.1"
-regex = "1.5.4"
+comrak = "0.12"
+regex = "1"
 lazy_static = "1.4.0"
 percent-encoding = "2.1.0"
-scraper = "0.12.0"
+scraper = "0.13.0"
 quick-xml = "0.22.0"
 phf = { version = "0.10", features = ["macros"] }
-futures = "0.3.19"
+futures = "0.3.21"
 
 [features]
