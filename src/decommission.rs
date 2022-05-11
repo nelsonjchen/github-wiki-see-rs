@@ -3280,6 +3280,9 @@ pub static DECOMMISSION_LIST: phf::Set<&'static str> = phf_set! {
     "zwczou/weixin-python",
     "zxing/zxing",
     "zyedidia/micro",
+    // BEGIN MANUAL ADDITIONS
+    // https://github.com/koalaman/shellcheck/issues/2487#issuecomment-1123225156
+    "koalaman/shellcheck"
 };
 
 #[cfg(test)]
