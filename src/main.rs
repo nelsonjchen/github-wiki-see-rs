@@ -87,12 +87,12 @@ async fn wiki_debug_sitemaps(
     account: &str,
     repository: &str,
     client: &State<Client>,
-) -> Result<content::Xml<String>, status::Custom<String>> {
+) -> Result<content::RawXml<String>, status::Custom<String>> {
     let content = retrieve_wiki_sitemap_index(account, repository, client)
         .await
         .map_err(|op| status::Custom(Status::InternalServerError, format!("Error: {:?}", op)))?;
 
-    Ok(content::Xml(content))
+    Ok(content::RawXml(content))
 }
 
 #[derive(Template)]
