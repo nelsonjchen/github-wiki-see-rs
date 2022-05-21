@@ -131,7 +131,7 @@ pub const NON_ALPHANUMERIC_GH: &percent_encoding::AsciiSet = &percent_encoding::
     .add(b'$')
     .add(b'%')
     .add(b'&')
-    .add(b'\'')
+    // .add(b'\'') // OK to exist in URL
     .add(b'(')
     .add(b')')
     .add(b'*')
@@ -140,7 +140,7 @@ pub const NON_ALPHANUMERIC_GH: &percent_encoding::AsciiSet = &percent_encoding::
     // .add(b'-') // OK to exist in URL
     // .add(b'.') // OK to exist in URL
     .add(b'/')
-    .add(b':')
+    // .add(b':') // OK to exist in URL
     .add(b';')
     .add(b'<')
     .add(b'=')
