@@ -3,6 +3,23 @@ interface OriginalInfo {
   last_modified?: Date
 }
 
+class ModifiedDateAppender implements HTMLRewriterElementContentHandlers {
+  date: Date
+
+  constructor(date: Date) {
+    this.date = date
+  }
+
+  element(element: Element) {
+    element.append(
+      `<p>📅 Last Modified: ${this.date.toUTCString()}</p>`,
+      {
+        html: true,
+      }
+    )
+  }
+}
+
 export async function handleRequest(request: Request): Promise<Response> {
   const githubUrl = new URL(
     request.url.replace('github-wiki-see.page/m', 'github.com'),
@@ -50,20 +67,22 @@ export async function handleRequest(request: Request): Promise<Response> {
     console.warn('Redirected Unindexable: ' + response.headers.get('Location'))
   }
 
-  const newResponse = new Response(response.body, {
+  let maybeDatedResponse = new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
     headers: response.headers,
   })
 
+
   if (lastModifiedDate) {
-    newResponse.headers.set('last-modified', lastModifiedDate.toUTCString())
+    maybeDatedResponse.headers.set('last-modified', lastModifiedDate.toUTCString())
+    maybeDatedResponse = new HTMLRewriter().on("#header_info", new ModifiedDateAppender(lastModifiedDate)).transform(maybeDatedResponse)
   } else {
     // Don't claim a last modified date if it wasn't found on the original page.
-    newResponse.headers.delete('last-modified')
+    maybeDatedResponse.headers.delete('last-modified')
   }
 
-  return newResponse
+  return maybeDatedResponse
 }
 
 export async function originalInfo(url: URL): Promise<OriginalInfo> {

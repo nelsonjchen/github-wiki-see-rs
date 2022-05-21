@@ -58,6 +58,11 @@ describe('handle', () => {
     expect(result.status).toEqual(200)
     // The index is synthesized and there is no last modified to claim.
     expect(result.headers.has('Last-Modified')).toBeFalsy()
+
+    const bodyText = await result.text()
+
+    console.debug(bodyText)
+    expect(bodyText.includes("Modified Date")).toBeFalsy()
   })
 
   test('extracts a date from a non-indexable original page', async () => {
@@ -77,7 +82,7 @@ describe('handle', () => {
   test('synthesizes a correct last modified', async () => {
     // This page is never edited so this date won't change.
     const request_url =
-      'https://github.com/nelsonjchen/wiki-public-test/wiki/last-modified-test'
+      'https://github-wiki-see.page/m/nelsonjchen/wiki-public-test/wiki/last-modified-test'
     const result = await handleRequest(
       new Request(request_url, { method: 'GET' }),
     )
@@ -86,5 +91,9 @@ describe('handle', () => {
     expect(result.headers.get('Last-Modified')).toEqual(
       'Sun, 24 Apr 2022 17:07:11 GMT',
     )
+
+    const bodyText = await result.text()
+
+    expect(bodyText.includes("Last Modified")).toBeTruthy()
   })
 })
