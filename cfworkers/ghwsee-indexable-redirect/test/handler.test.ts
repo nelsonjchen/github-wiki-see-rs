@@ -62,7 +62,7 @@ describe('handle', () => {
     const bodyText = await result.text()
 
     console.debug(bodyText)
-    expect(bodyText.includes("Modified Date")).toBeFalsy()
+    expect(bodyText.includes('Modified Date')).toBeFalsy()
   })
 
   test('extracts a date from a non-indexable original page', async () => {
@@ -94,6 +94,8 @@ describe('handle', () => {
 
     const bodyText = await result.text()
 
-    expect(bodyText.includes("Last Modified")).toBeTruthy()
+    expect(
+      bodyText.includes('Last Modified: Sun, 24 Apr 2022 17:07:11 GMT'),
+    ).toBeTruthy()
   })
 })
