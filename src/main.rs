@@ -42,6 +42,18 @@ fn favicon() -> (Status, (ContentType, &'static [u8])) {
     )
 }
 
+#[get("/callToAction.svg")]
+fn call_to_action_svg
+() -> (Status, (ContentType, &'static [u8])) {
+    (
+        Status::Ok,
+        (
+            ContentType::SVG,
+            include_bytes!("../templates/callToAction.svg"),
+        ),
+    )
+}
+
 #[get("/robots.txt")]
 fn robots_txt() -> (Status, (ContentType, &'static [u8])) {
     (
@@ -426,6 +438,8 @@ fn rocket() -> _ {
             routes![
                 front,
                 favicon,
+                call_to_action_svg
+                ,
                 robots_txt,
                 sitemap_xml,
                 base_sitemap_xml,

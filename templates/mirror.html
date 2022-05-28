@@ -3,11 +3,16 @@
 <head>
     <title> {{ original_title }} </title>
     <style>
-        body {
+        #main {
             max-width: 38rem;
             margin: auto;
             overflow-wrap: break-word;
             min-width: 0;
+            background-color: white;
+        }
+
+        body {
+            background-image: url('/callToAction.svg');
         }
 
         img {
@@ -218,32 +223,34 @@
     <meta property="og:title" content="{{ original_title }}">
 </head>
 
-<body id="main">
-    <nav id="header_button">
-        <a href="{{ original_url }}" class="visit_url_button"> View Page on GitHub.com</a>
-        <p>⚠️ The <a href="https://en.wiktionary.org/wiki/indexable">indexable</a> preview below may have <em>rendering
-                errors</em>, <em>broken links</em>, <em>missing images</em>, and may not include the <em>last modified
-                date.</em> Please view the original page on GitHub.com and not this indexable preview if you intend to
-            <em>use</em> this content. </p>
-    </nav>
-    <aside id="header_info">
-        <p>📄 URL: <a href="{{ original_url }}" class="visit_url_link">{{ original_url }}</a>
-        </p>
-        <!-- Last Modified Date added around here from redirect checker-->
-    </aside>
-    <article id="content">
-        <h1>{{ original_title }}</h1>
-        <div id="mirrored"> {{ mirrored_content|safe }} </div>
-    </article>
-    <nav id="index">
-        <a href="{{ index_url }}">🗂️ Page Index for this GitHub Wiki</a>
-    </nav>
-    <aside id="footer_info">
-        <p><a href="/"><span class="emoji">ℹ️</span>About GitHub Wiki SEE, a search engine enabler for GitHub Wikis as
-                <span class="blocks">GitHub blocks most GitHub Wikis from search engines.</span></a></p>
-        <p>There are <em>no ads</em> in this search engine enabler service. The button and/or link at the top will take
-            you <em>directly</em> to GitHub.</p>
-    </aside>
+<body>
+    <div id="main">
+        <nav id="header_button">
+            <a href="{{ original_url }}" class="visit_url_button"> View Page on GitHub.com</a>
+            <p>⚠️ The <a href="https://en.wiktionary.org/wiki/indexable">indexable</a> preview below may have
+                <em>rendering errors</em>, <em>broken links</em>, <em>missing images</em>, and may not include the
+                <em>last modified date.</em> Please view the original page on GitHub.com and not this indexable preview
+                if you intend to <em>use</em> this content. </p>
+        </nav>
+        <aside id="header_info">
+            <p>📄 URL: <a href="{{ original_url }}" class="visit_url_link">{{ original_url }}</a>
+            </p>
+            <!-- Last Modified Date added around here from redirect checker-->
+        </aside>
+        <article id="content">
+            <h1>{{ original_title }}</h1>
+            <div id="mirrored"> {{ mirrored_content|safe }} </div>
+        </article>
+        <nav id="index">
+            <a href="{{ index_url }}">🗂️ Page Index for this GitHub Wiki</a>
+        </nav>
+        <aside id="footer_info">
+            <p><a href="/"><span class="emoji">ℹ️</span>About GitHub Wiki SEE, a search engine enabler for GitHub Wikis
+                    as <span class="blocks">GitHub blocks most GitHub Wikis from search engines.</span></a></p>
+            <p>There are <em>no ads</em> in this search engine enabler service. The button and/or link at the top will
+                take you <em>directly</em> to GitHub.</p>
+        </aside>
+    </div>
 </body>
 
 </html>
