@@ -43,8 +43,7 @@ fn favicon() -> (Status, (ContentType, &'static [u8])) {
 }
 
 #[get("/callToAction.svg")]
-fn call_to_action_svg
-() -> (Status, (ContentType, &'static [u8])) {
+fn call_to_action_svg() -> (Status, (ContentType, &'static [u8])) {
     (
         Status::Ok,
         (
@@ -438,8 +437,7 @@ fn rocket() -> _ {
             routes![
                 front,
                 favicon,
-                call_to_action_svg
-                ,
+                call_to_action_svg,
                 robots_txt,
                 sitemap_xml,
                 base_sitemap_xml,
