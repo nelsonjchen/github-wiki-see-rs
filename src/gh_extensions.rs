@@ -43,6 +43,10 @@ pub fn github_wiki_markdown_to_pure_markdown<'a, 'b>(
                 None => page_name,
             };
 
+            if page_name.starts_with("http://") || page_name.starts_with("https://") {
+                return format!("[{}]({})", link_text, page_name);
+            }
+
             let page_name_link = page_name.replace(' ', "-");
 
             format!(
@@ -89,6 +93,14 @@ mod tests {
             result,
             "[Meeting with James 30th March](/hamstar/Braincase/wiki/Meeting-with-James-30th-March)"
         );
+    }
+
+    #[test]
+    fn media_wiki_external_links() {
+        // https://github.com/vyvvvip/html5-boilerplate/wiki/sites
+        let md = r#"[[10, The TV Series|http://www.10-la-serie.ch/]]"#;
+        let result = github_wiki_markdown_to_pure_markdown(md, "hamstar", "Braincase");
+        assert_eq!(result, "[10, The TV Series](http://www.10-la-serie.ch/)");
     }
 
     #[test]
