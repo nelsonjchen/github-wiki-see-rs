@@ -98,4 +98,18 @@ describe('handle', () => {
       bodyText.includes('Last Modified: Sun, 24 Apr 2022 17:07:11 GMT'),
     ).toBeTruthy()
   })
+
+  test('redirects an unindexable wiki that was moved', async () => {
+    const request_url = `https://github-wiki-see.page/m/lorenwest/node-config/wiki`
+    console.debug(request_url)
+    const result = await handleRequest(
+      new Request(request_url, { method: 'GET' }),
+    )
+
+    expect(result.status).toEqual(308)
+    expect(result.headers.get('location')).toEqual(
+      'https://github-wiki-see.page/m/node-config/node-config/wiki',
+    )
+    
+  })
 })

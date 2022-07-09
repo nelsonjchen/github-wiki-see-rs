@@ -1,6 +1,7 @@
 interface OriginalInfo {
   indexable: boolean
   last_modified?: Date
+  moved_to?: string
 }
 
 class ModifiedDateAppender implements HTMLRewriterElementContentHandlers {
@@ -15,8 +16,7 @@ class ModifiedDateAppender implements HTMLRewriterElementContentHandlers {
       `<p>📅 Last Modified: ${this.date.toUTCString()}</p>`,
       {
         html: true,
-      }
-    )
+    })
   }
 }
 
@@ -45,6 +45,19 @@ export async function handleRequest(request: Request): Promise<Response> {
 
   try {
     const info = await originalInfo(githubUrl)
+    if (info.moved_to) {
+      console.log('Repo Moved Redirect: ' + githubUrl.href)
+
+      const redirectUrl =
+        'https://github-wiki-see.page/m' + new URL(info.moved_to).pathname
+
+      return new Response('', {
+        status: 308,
+        headers: {
+          location: redirectUrl,
+        },
+      })
+    }
     if (info.indexable) {
       console.log('Indexable Redirect: ' + githubUrl.href)
       return new Response(null, {
@@ -95,6 +108,23 @@ export async function originalInfo(url: URL): Promise<OriginalInfo> {
   })
 
   if (response.status != 200 || response.headers.has('x-robots-tag')) {
+    // Check if Moved Repo
+    if (response.redirected) {
+      // If the account and repository parts of the url are different from the original url, then it's a moved repo.
+      const originalAccountRepo = /\.com(\/.*\/.*\/)/.exec(url.toString())
+      const redirectedAccountRepo = /\.com(\/.*\/.*\/)/.exec(response.url)
+      if (
+        originalAccountRepo &&
+        redirectedAccountRepo &&
+        originalAccountRepo[1] !== redirectedAccountRepo[1]
+      ) {
+        return {
+          indexable: false,
+          moved_to: response.url,
+        }
+      }
+    }
+
     // Scan the response body for a date of last change
     const body = await response.text()
 
