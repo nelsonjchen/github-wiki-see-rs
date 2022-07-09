@@ -12,10 +12,8 @@ class ModifiedDateAppender implements HTMLRewriterElementContentHandlers {
   }
 
   element(element: Element) {
-    element.append(
-      `<p>📅 Last Modified: ${this.date.toUTCString()}</p>`,
-      {
-        html: true,
+    element.append(`<p>📅 Last Modified: ${this.date.toUTCString()}</p>`, {
+      html: true,
     })
   }
 }
@@ -86,10 +84,14 @@ export async function handleRequest(request: Request): Promise<Response> {
     headers: response.headers,
   })
 
-
   if (lastModifiedDate) {
-    maybeDatedResponse.headers.set('last-modified', lastModifiedDate.toUTCString())
-    maybeDatedResponse = new HTMLRewriter().on("#header_info", new ModifiedDateAppender(lastModifiedDate)).transform(maybeDatedResponse)
+    maybeDatedResponse.headers.set(
+      'last-modified',
+      lastModifiedDate.toUTCString(),
+    )
+    maybeDatedResponse = new HTMLRewriter()
+      .on('#header_info', new ModifiedDateAppender(lastModifiedDate))
+      .transform(maybeDatedResponse)
   } else {
     // Don't claim a last modified date if it wasn't found on the original page.
     maybeDatedResponse.headers.delete('last-modified')
