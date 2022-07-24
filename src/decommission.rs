@@ -3299,7 +3299,7 @@ mod tests {
 
     #[test]
     fn test_contain_phf() {
-        let generated = format!("zxing/zxing");
+        let generated = format!("koalaman/shellcheck");
         assert!(super::DECOMMISSION_LIST.contains(generated.as_str()));
     }
 }
