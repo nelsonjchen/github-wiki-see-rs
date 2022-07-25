@@ -176,26 +176,29 @@
         please consider donating money recurringly or one-time to the <a href="https://archive.org">Internet Archive</a>
         and/or your time to <a href="https://archiveteam.org">Archive Team</a> projects. </p>
     <h2 id="decommissioning">Decommissioning</h2>
-    <p>This site will be decommissioned to redirect old links once the block is lifted or GitHub produces some other
-        solution to index all useful GitHub Wikis in harmony with their SEO concerns.</p>
+    <p>This service will be completely decommissioned to redirect old links once the block is lifted or GitHub produces
+        some other solution to index all useful GitHub Wikis in harmony with their SEO concerns.</p>
     <p>People shouldn't have linked to this site but maybe the warnings weren't big and red enough. <a
             href="https://github.com/nelsonjchen/github-wiki-see-rs/issues/6">Flashing yellow was very unpopular.</a>
-    </p>
-    <h3>Partial Decommissioning (Continuous)</h3>
-    <p> As of January 2022, GitHub does appear to be letting a few Wikis be indexed according to some non-public
+        Regardless, let us not contribute to link rot. </p>
+    <h3>Ongoing Continuous Partial Decommissioning</h3>
+    <p> As of January 2022, GitHub does appear to be letting some Wikis be indexed according to some non-public
         criteria. These small sample of Wikis allow native indexing by not having a <code>x-robots-tag: none</code> HTTP
-        header. GHWSEE has a manually periodically generated list of these Wikis burned in and will permanently
-        automatically redirect URLs with them to GitHub.com. Additionally, a Cloudflare Worker is implemented in front
-        of the proxied URLs to check GitHub and automatically redirect if the backing page is detected to allow indexing
-        if something doesn't get added to that list on time. By automatically redirecting, it is hoped that GHWSEE falls
-        off the search engine index and that GHWSEE's ranking may be conferred directly on GitHub's ranking. The small
-        sample of links below help test the partial decommissioning functionality. </p>
+        header. A Cloudflare Worker is implemented in front of the proxied URLs to check GitHub and automatically
+        redirect if the backing page is detected to allow indexing if something doesn't get added to that list on time.
+        By automatically redirecting, it is hoped that GHWSEE's entries for that GitHub wiki falls off the search engine
+        index and that GHWSEE's ranking may be conferred directly on GitHub's ranking. </p>
+    <p>Some projects have chosen to mirror their own wiki's content onto their own site as well. These cannot be
+        automatically detected, but may be manually added to the decommission list. </p>
+    <p> The small sample of links below help test the partial decommissioning functionality. </p>
     <ul>
         <li><a href="/m/TileDB-Inc/TileDB/wiki">TileDB-Inc/TileDB</a>
         </li>
         <li><a href="/m/PixarAnimationStudios/USD/wiki">PixarAnimationStudios/USD</a>
         </li>
         <li><a href="/m/naver/billboard.js/wiki">naver/billboard.js</a>
+        </li>
+        <li><a href="/m/koalaman/shellcheck/wiki">koalaman/shellcheck</a> (project self-mirrors)
         </li>
     </ul>
     <hr>
