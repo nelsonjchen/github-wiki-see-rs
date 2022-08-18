@@ -15,7 +15,7 @@ pub static DECOMMISSION_LIST: phf::Set<&'static str> = phf_set! {
 /*
 This is now handled by the Cloudflare worker script checking.
 
-Some repos became indexable again:
+Some repos became unindexable again, eg.:
 
 * karafka/karafka
 
