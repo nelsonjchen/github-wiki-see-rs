@@ -10,7 +10,7 @@ edition = "2021"
 # Who knows.
 nipper = "0.1.9"
 # WIP!
-rocket = "0.5.0-rc.1"
+rocket = "0.5.0-rc.2"
 # WIP
 askama = { git = "https://github.com/djc/askama.git", features = ["with-rocket", "mime", "mime_guess"], rev="4d936524" }
 askama_rocket = { git = "https://github.com/djc/askama.git", rev="4d936524" }
