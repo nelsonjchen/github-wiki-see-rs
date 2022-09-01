@@ -104,10 +104,10 @@
             high star count (500+). These Wikis are likely to be whitelisted by GitHub for direct indexing (please test
             first). An example of this can be seen on the <a href="https://github.com/golang/vscode-go/issues/2094">Go
                 for VSCode repository.</a> </li>
-        <li> Some organizations or projects also mirror their content themselves and choose to keep their Wikis
-            editable. <a href="https://github.com/koalaman/shellcheck/issues/2487">The ShellCheck project did this</a>.
-            NOTE: GHWSEE cannot automatically disengage itself for wikis backed by this setup as it is technically
-            impossible to automatically detect. Please <a
+        <li> Some organizations or projects such as <a
+                href="https://github.com/koalaman/shellcheck/issues/2487">ShellCheck</a> mirror their content themselves
+            and choose to keep their Wikis editable. NOTE: GHWSEE cannot automatically disengage itself for wikis backed
+            by this setup as it is technically impossible to automatically detect. Please <a
                 href="https://github.com/nelsonjchen/github-wiki-see-rs/issues">create an issue</a> if your project or
             any other project still permits editing but mirrors their content themselves and a blacklist entry can be <a
                 href="https://github.com/nelsonjchen/github-wiki-see-rs/blob/master/src/decommission.rs#L3283">added</a>.
@@ -129,10 +129,10 @@
         <code>rel="nofollow"</code> in the original content. </p>
     <h2 id="usage">Usage</h2>
     <ul>
-        <li>Wiki Reader: Use your favorite search engine! That is the intended interface to the content "on" this
-            service and to get a link to the original GitHub content. Do not read the content on this site as it may
-            have rendered with errors and is only meant for robots. Go directly to the original page on GitHub with the
-            link or button.</li>
+        <li>Wiki Reader: Use your favorite search engine! <em>Every</em> query you run searches a corpus that has GHWSEE
+            in it. That is the intended interface to the content "on" this service and to get a link to the original
+            GitHub content. Do not read or use the content on this site as it may have rendered with errors and is only
+            meant for robots. Go directly to the original page on GitHub with the link or button.</li>
         <ul>
             <li> Scripters/Extension Authors/Power Users: If you would like to automatically redirect to the GitHub Wiki
                 page on GitHub.com when landing on a GHWSEE page, please see this document for an API and/or examples:
@@ -155,21 +155,23 @@
                     href="https://github.com/MiSTer-devel/Main_MiSTer#main_mister-main-binary-and-wiki-repo">MiSTer
                     historical computing and gaming recreation project linked a "crawlable wiki" that GHWSEE serves in
                     their README on GitHub which can be indexed</a>. While the link is "nofollow" on the README as
-                displayed on GitHub, that attribute is more of a guideline than a hard rule nowadays for search engines
-                anyway. Popular repositories can confer their own ranking power onto their proxied and indexable Wiki
-                content on GHWSEE.</li>
+                displayed on GitHub, that attribute is <a
+                    href="https://developers.google.com/search/blog/2019/09/evolving-nofollow-new-ways-to-identify"> of
+                    a guideline than a hard rule nowadays </a> for search engines anyway. Repositories can confer their
+                own ranking power onto their proxied and indexable Wiki content on GHWSEE.</li>
         </ul>
     </ul>
     <h2>Examples</h2>
     <p> These are just examples and testing wikis.</p>
     <ul>
-        <li><a href="/m/nelsonjchen/github-wiki-test/wiki">nelsonjchen/github-wiki-test</a></li>
-        <li><a href="/m/commaai/openpilot/wiki">commaai/openpilot</a></li>
+        <li><a href="/m/nelsonjchen/github-wiki-test/wiki">nelsonjchen/github-wiki-test</a> - Test</li>
+        <li><a href="/m/commaai/openpilot/wiki">commaai/openpilot</a> - Poster Child (popular, editable wiki)</li>
         <li><a
                 href="/m/Erithano/Timon-Your-FAQ-bot-for-Microsoft-Teams/wiki">Erithano/Timon-Your-FAQ-bot-for-Microsoft-Teams</a>
-        </li>
-        <li><a href="/m/wlsdn2316/1-tetris-/wiki">wlsdn2316/1-tetris-</a>
-        </li>
+            - Irony </li>
+        <li><a href="/m/wlsdn2316/1-tetris-/wiki">wlsdn2316/1-tetris-</a> - Funky </li>
+        <li><a href="/m/hlky/stable-diffusion/wiki">hlky/stable-diffusion</a> - Fresh, super hot, popular, cutting edge,
+            wonder how fast it'll index changes</li>
     </ul>
     <h2>Project, README, Source, Issues, and other information</h2>
     <a href="https://github.com/nelsonjchen/github-wiki-see-rs">https://github.com/nelsonjchen/github-wiki-see-rs</a>
@@ -194,14 +196,11 @@
         automatically detected, but may be manually added to the decommission list. </p>
     <p> The small sample of links below help test the partial decommissioning functionality. </p>
     <ul>
-        <li><a href="/m/TileDB-Inc/TileDB/wiki">TileDB-Inc/TileDB</a>
-        </li>
-        <li><a href="/m/PixarAnimationStudios/USD/wiki">PixarAnimationStudios/USD</a>
-        </li>
-        <li><a href="/m/naver/billboard.js/wiki">naver/billboard.js</a>
-        </li>
-        <li><a href="/m/IgniteUI/igniteui-angular/wiki">IgniteUI/igniteui-angular</a> (~500 stars) </li>
-        <li><a href="/m/koalaman/shellcheck/wiki">koalaman/shellcheck</a> (project self-mirrors) </li>
+        <li><a href="/m/TileDB-Inc/TileDB/wiki">TileDB-Inc/TileDB</a> - 1000+ stars, no editing </li>
+        <li><a href="/m/PixarAnimationStudios/USD/wiki">PixarAnimationStudios/USD</a> - 1000+ stars, no editing </li>
+        <li><a href="/m/naver/billboard.js/wiki">naver/billboard.js</a> - 1000+ stars, no editing </li>
+        <li><a href="/m/IgniteUI/igniteui-angular/wiki">IgniteUI/igniteui-angular</a> - ~500 stars, no editing </li>
+        <li><a href="/m/koalaman/shellcheck/wiki">koalaman/shellcheck</a> - project self-mirrors </li>
     </ul>
     <hr>
     <p> This project is not affiliated with GitHub in any way, if it wasn't obvious from the substandard CSS and code.
