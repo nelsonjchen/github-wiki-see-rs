@@ -3292,6 +3292,7 @@ Some repos became unindexable again, eg.:
     // BEGIN MANUAL ADDITIONS
     // https://github.com/koalaman/shellcheck/issues/2487#issuecomment-1123225156
     "koalaman/shellcheck",
+    "A0116137M/test",
 };
 
 #[cfg(test)]
