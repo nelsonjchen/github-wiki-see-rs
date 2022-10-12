@@ -46,10 +46,7 @@ fn favicon() -> (Status, (ContentType, &'static [u8])) {
 fn social_png() -> (Status, (ContentType, &'static [u8])) {
     (
         Status::Ok,
-        (
-            ContentType::PNG,
-            include_bytes!("../templates/social.png"),
-        ),
+        (ContentType::PNG, include_bytes!("../templates/social.png")),
     )
 }
 
