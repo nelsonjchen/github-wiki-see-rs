@@ -42,6 +42,17 @@ fn favicon() -> (Status, (ContentType, &'static [u8])) {
     )
 }
 
+#[get("/social.png")]
+fn social_png() -> (Status, (ContentType, &'static [u8])) {
+    (
+        Status::Ok,
+        (
+            ContentType::PNG,
+            include_bytes!("../templates/social.png"),
+        ),
+    )
+}
+
 #[get("/callToAction.svg")]
 fn call_to_action_svg() -> (Status, (ContentType, &'static [u8])) {
     (
@@ -438,6 +449,7 @@ fn rocket() -> _ {
                 front,
                 favicon,
                 call_to_action_svg,
+                social_png,
                 robots_txt,
                 sitemap_xml,
                 base_sitemap_xml,
