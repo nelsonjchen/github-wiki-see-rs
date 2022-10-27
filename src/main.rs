@@ -208,7 +208,7 @@ async fn mirror_page<'a>(
     );
 
     let page_title = format!(
-        "{} - {}/{} Wiki",
+        "{} - {}/{} GitHub Wiki",
         page.replace('-', " "),
         account,
         repository
@@ -286,7 +286,7 @@ async fn mirror_page_index<'a>(
     // Have original URL to forward to if there is an error.
     let original_url = format!("https://github.com/{}/{}/wiki/Home", account, repository);
 
-    let page_title = format!("Page Index - {}/{} Wiki", account, repository);
+    let page_title = format!("Page Index - {}/{} GitHub Wiki", account, repository);
 
     // Grab main content from GitHub
     // Consider it "fatal" if this doesn't exist/errors and forward to GitHub or return an error.
