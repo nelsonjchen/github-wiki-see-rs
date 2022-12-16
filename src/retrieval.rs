@@ -157,7 +157,7 @@ fn retrieve_source_file_extension<'a, T: Fn(String) -> Content>(
     );
 
     client
-        .get(&raw_github_assets_url)
+        .get(raw_github_assets_url)
         .send()
         .map_err(|e| ContentError::OtherError(e.to_string()))
         .and_then(|r| async {
