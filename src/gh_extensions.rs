@@ -5,8 +5,8 @@ use regex::{Captures, Regex};
 // https://docs.github.com/en/communities/documenting-your-project-with-wikis/editing-wiki-content
 // Transform them to pure markdown
 // Transform images first, then links
-pub fn github_wiki_markdown_to_pure_markdown<'a, 'b>(
-    md: &'a str,
+pub fn github_wiki_markdown_to_pure_markdown<'b>(
+    md: &'b str,
     account: &'b str,
     repo: &'b str,
 ) -> String {
@@ -23,10 +23,7 @@ pub fn github_wiki_markdown_to_pure_markdown<'a, 'b>(
     // Disregard alt for now.
     let processed_img_md = IMG_RE.replace_all(
         md,
-        format!(
-            "![$link_text](https://raw.githubusercontent.com/wiki/{}/{}$image_url)",
-            account, repo
-        ),
+        format!("![$link_text](https://raw.githubusercontent.com/wiki/{account}/{repo}$image_url)"),
     );
 
     let processed_blob_md = IMG_REPO_BLOB.replace_all(&processed_img_md, "$pre/raw/$suf");
@@ -44,15 +41,12 @@ pub fn github_wiki_markdown_to_pure_markdown<'a, 'b>(
             };
 
             if page_name.starts_with("http://") || page_name.starts_with("https://") {
-                return format!("[{}]({})", link_text, page_name);
+                return format!("[{link_text}]({page_name})");
             }
 
             let page_name_link = page_name.replace(' ', "-");
 
-            format!(
-                "[{}](/{}/{}/wiki/{})",
-                link_text, account, repo, page_name_link
-            )
+            format!("[{link_text}](/{account}/{repo}/wiki/{page_name_link})")
         })
         .to_string()
 }

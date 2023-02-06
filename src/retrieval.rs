@@ -40,7 +40,7 @@ pub async fn retrieve_source_file<'a>(
     client: &'a Client,
 ) -> Result<Content, ContentError> {
     // Skip decommissioned wikis
-    if DECOMMISSION_LIST.contains(format!("{}/{}", account, repository).as_str()) {
+    if DECOMMISSION_LIST.contains(format!("{account}/{repository}").as_str()) {
         return Err(ContentError::Decommissioned);
     }
 
@@ -86,9 +86,9 @@ async fn retrieve_github_com_html<'a>(
 ) -> Result<String, ContentError> {
     // Home is special
     let raw_github_url = if page == "Home" {
-        format!("{}/{}/{}/wiki", domain, account, repository)
+        format!("{domain}/{account}/{repository}/wiki")
     } else {
-        format!("{}/{}/{}/wiki/{}", domain, account, repository, page)
+        format!("{domain}/{account}/{repository}/wiki/{page}")
     };
 
     let resp_attempt = client.get(raw_github_url).send().await;
@@ -152,8 +152,7 @@ fn retrieve_source_file_extension<'a, T: Fn(String) -> Content>(
     let page_encoded =
         percent_encoding::utf8_percent_encode(page, percent_encoding::NON_ALPHANUMERIC);
     let raw_github_assets_url = format!(
-        "https://raw.githubusercontent.com/wiki/{}/{}/{}.{}",
-        account, repository, page_encoded, extension
+        "https://raw.githubusercontent.com/wiki/{account}/{repository}/{page_encoded}.{extension}"
     );
 
     client
@@ -200,7 +199,7 @@ pub async fn retrieve_wiki_index<'a>(
         wiki_page_urls.len(),
         wiki_page_urls
             .into_iter()
-            .map(|(url, text)| format!("* [{}]({})", text, url))
+            .map(|(url, text)| format!("* [{text}]({url})"))
             .collect::<Vec<String>>()
             .join("\n"),
     ));
@@ -299,7 +298,7 @@ mod tests {
         );
         let content = future.await;
 
-        println!("{:?}", content);
+        println!("{content:?}");
         assert!(content.is_ok());
     }
 
@@ -317,7 +316,7 @@ mod tests {
         );
         let content = future.await;
 
-        println!("{:?}", content);
+        println!("{content:?}");
         assert!(content.is_ok());
     }
 
@@ -346,7 +345,7 @@ mod tests {
         );
         let content = future.await;
 
-        println!("{:?}", content);
+        println!("{content:?}");
         assert!(content.is_ok());
     }
 
@@ -363,7 +362,7 @@ mod tests {
         );
         let content = future.await;
 
-        println!("{:?}", content);
+        println!("{content:?}");
         assert!(content.is_ok());
     }
 
@@ -373,7 +372,7 @@ mod tests {
         let future = retrieve_wiki_index("nelsonjchen", "github-wiki-test", &client);
         let content = future.await;
 
-        println!("{:?}", content);
+        println!("{content:?}");
         assert!(content.is_ok());
     }
 
@@ -383,7 +382,7 @@ mod tests {
         let future = retrieve_wiki_sitemap_index("nelsonjchen", "github-wiki-test", &client);
         let content = future.await;
 
-        println!("{:?}", content);
+        println!("{content:?}");
         assert!(content.is_ok());
     }
 }

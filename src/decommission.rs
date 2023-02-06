@@ -3300,7 +3300,7 @@ mod tests {
 
     #[test]
     fn test_contain_phf() {
-        let generated = format!("koalaman/shellcheck");
+        let generated = "koalaman/shellcheck".to_string();
         assert!(super::DECOMMISSION_LIST.contains(generated.as_str()));
     }
 }

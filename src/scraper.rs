@@ -59,12 +59,11 @@ pub fn process_html(
             {
                 if !string_href.starts_with("wiki") {
                     let new_string_href =
-                        format!("https://github.com/{}/{}/wiki/", account, repository)
-                            + &string_href;
+                        format!("https://github.com/{account}/{repository}/wiki/") + &string_href;
                     thing.set_attr("src", &new_string_href);
                 } else {
                     let new_string_href =
-                        format!("https://github.com/{}/{}/", account, repository) + &string_href;
+                        format!("https://github.com/{account}/{repository}/") + &string_href;
                     thing.set_attr("src", &new_string_href);
                 }
             }

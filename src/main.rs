@@ -96,8 +96,7 @@ fn generated_sitemap_xml() -> Redirect {
 #[get("/seed_sitemaps/<id>")]
 fn seed_sitemaps(id: &str) -> Redirect {
     Redirect::permanent(format!(
-        "https://nelsonjchen.github.io/github-wiki-see-rs-sitemaps/seed_sitemaps/{}",
-        id
+        "https://nelsonjchen.github.io/github-wiki-see-rs-sitemaps/seed_sitemaps/{id}"
     ))
 }
 
@@ -109,7 +108,7 @@ async fn wiki_debug_sitemaps(
 ) -> Result<content::RawXml<String>, status::Custom<String>> {
     let content = retrieve_wiki_sitemap_index(account, repository, client)
         .await
-        .map_err(|op| status::Custom(Status::InternalServerError, format!("Error: {:?}", op)))?;
+        .map_err(|op| status::Custom(Status::InternalServerError, format!("Error: {op:?}")))?;
 
     Ok(content::RawXml(content))
 }
@@ -194,10 +193,7 @@ async fn mirror_page<'a>(
     use MirrorError::*;
 
     // Have original URL to forward to if there is an error.
-    let original_url = format!(
-        "https://github.com/{}/{}/wiki/{}",
-        account, repository, page,
-    );
+    let original_url = format!("https://github.com/{account}/{repository}/wiki/{page}",);
 
     // Rocket's Redirect / GitHub itself doesn't like unencoded URLs.
     let original_url_encoded = format!(
@@ -232,8 +228,8 @@ async fn mirror_page<'a>(
                 MirrorTemplate {
                     original_title: page_title.clone(),
                     original_url: original_url.clone(),
-                    mirrored_content: format!("500 Internal Server Error - {}", e),
-                    index_url: format!("/m/{}/{}/wiki_index", account, repository),
+                    mirrored_content: format!("500 Internal Server Error - {e}"),
+                    index_url: format!("/m/{account}/{repository}/wiki_index"),
                 },
             )),
         })
@@ -256,10 +252,9 @@ async fn mirror_page<'a>(
     // Append the sidebar if it exists
     let mirrored_content = if let Some(sidebar_html) = sidebar_html {
         format!(
-            "{}\n
+            "{original_html}\n
             <h1>Sidebar</h1>
-            \n{}",
-            original_html, sidebar_html,
+            \n{sidebar_html}",
         )
     } else {
         original_html
@@ -269,7 +264,7 @@ async fn mirror_page<'a>(
         original_title: page_title.clone(),
         original_url: original_url_encoded.clone(),
         mirrored_content,
-        index_url: format!("/m/{}/{}/wiki_index", account, repository),
+        index_url: format!("/m/{account}/{repository}/wiki_index"),
     })
 }
 
@@ -284,9 +279,9 @@ async fn mirror_page_index<'a>(
     use MirrorError::*;
 
     // Have original URL to forward to if there is an error.
-    let original_url = format!("https://github.com/{}/{}/wiki/Home", account, repository);
+    let original_url = format!("https://github.com/{account}/{repository}/wiki/Home");
 
-    let page_title = format!("Page Index - {}/{} GitHub Wiki", account, repository);
+    let page_title = format!("Page Index - {account}/{repository} GitHub Wiki");
 
     // Grab main content from GitHub
     // Consider it "fatal" if this doesn't exist/errors and forward to GitHub or return an error.
@@ -306,8 +301,8 @@ async fn mirror_page_index<'a>(
                 MirrorTemplate {
                     original_title: page_title.clone(),
                     original_url: original_url.clone(),
-                    mirrored_content: format!("500 Internal Server Error - {}", e),
-                    index_url: format!("/m/{}/{}/wiki_index", account, repository),
+                    mirrored_content: format!("500 Internal Server Error - {e}"),
+                    index_url: format!("/m/{account}/{repository}/wiki_index"),
                 },
             )),
         })
@@ -319,7 +314,7 @@ async fn mirror_page_index<'a>(
         original_title: page_title.clone(),
         original_url: original_url.clone(),
         mirrored_content: original_html,
-        index_url: format!("/m/{}/{}/wiki_index", account, repository),
+        index_url: format!("/m/{account}/{repository}/wiki_index"),
     })
 }
 
@@ -329,9 +324,8 @@ fn content_to_html(content: Content, account: &str, repository: &str, page: &str
             let md = format!(
                 "🚨 **github-wiki-see.page does not render asciidoc. Source for crawling below. Please visit the Original URL!** 🚨\n
 ```asciidoc\n
-{}\n
-```\n",
-                ascii_doc
+{ascii_doc}\n
+```\n"
             );
             process_markdown(&md, account, repository, page == "Home")
         }
@@ -339,9 +333,8 @@ fn content_to_html(content: Content, account: &str, repository: &str, page: &str
             let md = format!(
                 "🚨 **github-wiki-see.page does not render Creole. Source for crawling below. Please visit the Original URL!** 🚨\n
 ```creole\n
-{}\n
-```\n",
-                cr
+{cr}\n
+```\n"
             );
             process_markdown(&md, account, repository, page == "Home")
         }
@@ -354,9 +347,8 @@ fn content_to_html(content: Content, account: &str, repository: &str, page: &str
             let md = format!(
                 "🚨 **github-wiki-see.page does not render Mediawiki. Source for crawling below. Please visit the Original URL!** 🚨\n
 ```creole\n
-{}\n
-```\n",
-mw
+{mw}\n
+```\n"
             );
             process_markdown(&md, account, repository, page == "Home")
         }
@@ -364,9 +356,8 @@ mw
             let md = format!(
                 "🚨 **github-wiki-see.page does not render Org-Mode. Source for crawling below. Please visit the Original URL!** 🚨\n
 ```org\n
-{}\n
-```\n",
-og
+{og}\n
+```\n"
             );
             process_markdown(&md, account, repository, page == "Home")
         }
@@ -374,9 +365,8 @@ og
             let md = format!(
                 "🚨 **github-wiki-see.page does not render Pod. Source for crawling below. Please visit the Original URL!** 🚨\n
 ```pod\n
-{}\n
-```\n",
-p
+{p}\n
+```\n"
             );
             process_markdown(&md, account, repository, page == "Home")
         }
@@ -384,9 +374,8 @@ p
             let md = format!(
                 "🚨 **github-wiki-see.page does not render Rdoc. Source for crawling below. Please visit the Original URL!** 🚨\n
 ```rdoc\n
-{}\n
-```\n",
-rd
+{rd}\n
+```\n"
             );
             process_markdown(&md, account, repository, page == "Home")
         }
@@ -394,9 +383,8 @@ rd
             let md = format!(
                 "🚨 **github-wiki-see.page does not render Textile. Source for crawling below. Please visit the Original URL!** 🚨\n
 ```textile\n
-{}\n
-```\n",
-tt
+{tt}\n
+```\n"
             );
             process_markdown(&md, account, repository, page == "Home")
         }
@@ -404,14 +392,13 @@ tt
             let md = format!(
                 "🚨 **github-wiki-see.page does not render ReStructuredText. Source for crawling below. Please visit the Original URL!** 🚨\n
 ```rst\n
-{}\n
-```\n",
-rst
+{rst}\n
+```\n"
             );
             process_markdown(&md, account, repository, page == "Home")
         }
         Content::FallbackHtml(html) => {
-            let annotated_html = format!("{} <h6>⚠️ **GitHub.com Fallback** ⚠️</h6>", html);
+            let annotated_html = format!("{html} <h6>⚠️ **GitHub.com Fallback** ⚠️</h6>");
             process_html(&annotated_html, account, repository, page == "Home")
         }
     }
