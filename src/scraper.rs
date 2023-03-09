@@ -15,6 +15,7 @@ pub fn process_markdown(
     options.extension.table = true;
     options.extension.autolink = true;
     options.extension.tasklist = true;
+    options.extension.header_ids = Some("".to_string());
     options.render.github_pre_lang = true;
 
     let original_html = markdown_to_html(original_markdown, &options);
