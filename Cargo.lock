@@ -842,7 +842,7 @@ dependencies = [
  "nipper",
  "percent-encoding",
  "phf 0.11.2",
- "quick-xml 0.23.1",
+ "quick-xml",
  "regex",
  "reqwest",
  "rocket",
@@ -1683,7 +1683,7 @@ dependencies = [
  "base64",
  "indexmap 1.9.3",
  "line-wrap",
- "quick-xml 0.28.2",
+ "quick-xml",
  "serde",
  "time",
 ]
@@ -1726,15 +1726,6 @@ dependencies = [
  "syn 2.0.22",
  "version_check",
  "yansi",
-]
-
-[[package]]
-name = "quick-xml"
-version = "0.23.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "11bafc859c6815fbaffbbbf4229ecb767ac913fecb27f9ad4343662e9ef099ea"
-dependencies = [
- "memchr",
 ]
 
 [[package]]
