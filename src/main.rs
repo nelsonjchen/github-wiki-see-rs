@@ -6,10 +6,11 @@ use std::time::Duration;
 use reqwest::Client;
 use retrieval::{retrieve_wiki_sitemap_index, Content};
 use rocket::futures::TryFutureExt;
-use rocket::http::{ContentType, Status};
+use rocket::http::{ContentType, Status, Method};
 use rocket::response::{content, status};
 use rocket::response::{Redirect, Responder};
-use rocket::State;
+use rocket::{State, Route};
+use rocket::route::{Handler, Outcome};
 
 use crate::scraper::process_html;
 use askama::Template;
@@ -100,6 +101,31 @@ fn seed_sitemaps(id: &str) -> Redirect {
     ))
 }
 
+#[derive(Clone)]
+struct RemoveSlashes;
+
+#[rocket::async_trait]
+impl Handler for RemoveSlashes {
+    async fn handle<'r>(
+        &self,
+        req: &'r rocket::Request<'_>,
+        data: rocket::Data<'r>,
+    ) -> Outcome<'r> {
+        if req.uri().path().ends_with('/') && req.uri().path().to_string().chars().count() > 1 {
+            let mut uri = req.uri().path().to_string();
+            uri.pop();
+            Outcome::from(req, Redirect::permanent(uri))
+        } else {
+            Outcome::forward(data)
+        }
+    }
+}
+impl From<RemoveSlashes> for Vec<Route> {
+    fn from(rs: RemoveSlashes) -> Vec<Route> {
+        vec![Route::new(Method::Get, "/", rs)]
+    }
+}
+
 #[get("/debug_sitemaps/<account>/<repository>/sitemap.xml")]
 async fn wiki_debug_sitemaps(
     account: &str,
@@ -137,6 +163,7 @@ async fn mirror_home<'a>(
     repository: &'a str,
     client: &State<Client>,
 ) -> Result<MirrorTemplate, MirrorError> {
+
     mirror_page(account, repository, "Home", client).await
 }
 
@@ -415,17 +442,24 @@ static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_P
 fn rocket() -> _ {
     // Mount front Page
 
+
+    let mut mirror_routes = routes![
+        mirror_home,
+        mirror_page_redirect_home,
+        mirror_page,
+        mirror_page_index
+    ];
+    // Strip off trailing slashes on this route
+    mirror_routes.push(
+        Route::ranked(-20, Method::Get, "/<account>/<repository>/wiki/", RemoveSlashes)
+    );
+
     // Mount Mirror
     rocket::build()
         .register("/", catchers![not_found])
         .mount(
             "/m",
-            routes![
-                mirror_home,
-                mirror_page_redirect_home,
-                mirror_page,
-                mirror_page_index
-            ],
+            mirror_routes,
         )
         .mount(
             "/",
