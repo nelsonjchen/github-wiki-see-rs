@@ -21,7 +21,7 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         if: "${{ env.FLY_API_TOKEN != '' }}"
-        run: echo "::set-output name=defined::true"
+        run: echo "defined=true" >> $GITHUB_STATE
 
   deploy:
     needs: [check-env]
