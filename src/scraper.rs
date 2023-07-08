@@ -40,8 +40,8 @@ pub fn process_html(
                     let new_string_href = "/m".to_owned() + &string_href;
                     thing.set_attr("href", &new_string_href);
                 } else {
-                    // Prepend wiki if homepage
-                    if homepage_prepend {
+                    // Prepend wiki if homepage and if the href doesn't start with wiki
+                    if homepage_prepend && !string_href.starts_with("wiki/") {
                         let new_string_href = "wiki/".to_owned() + &string_href;
                         thing.set_attr("href", &new_string_href);
                     }
