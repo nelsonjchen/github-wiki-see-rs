@@ -6,11 +6,11 @@ use std::time::Duration;
 use reqwest::Client;
 use retrieval::{retrieve_wiki_sitemap_index, Content};
 use rocket::futures::TryFutureExt;
-use rocket::http::{ContentType, Status, Method};
+use rocket::http::{ContentType, Method, Status};
 use rocket::response::{content, status};
 use rocket::response::{Redirect, Responder};
-use rocket::{State, Route};
 use rocket::route::{Handler, Outcome};
+use rocket::{Route, State};
 
 use crate::scraper::process_html;
 use askama::Template;
@@ -163,7 +163,6 @@ async fn mirror_home<'a>(
     repository: &'a str,
     client: &State<Client>,
 ) -> Result<MirrorTemplate, MirrorError> {
-
     mirror_page(account, repository, "Home", client).await
 }
 
@@ -442,7 +441,6 @@ static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_P
 fn rocket() -> _ {
     // Mount front Page
 
-
     let mut mirror_routes = routes![
         mirror_home,
         mirror_page_redirect_home,
@@ -450,17 +448,17 @@ fn rocket() -> _ {
         mirror_page_index
     ];
     // Strip off trailing slashes on this route
-    mirror_routes.push(
-        Route::ranked(-20, Method::Get, "/<account>/<repository>/wiki/", RemoveSlashes)
-    );
+    mirror_routes.push(Route::ranked(
+        -20,
+        Method::Get,
+        "/<account>/<repository>/wiki/",
+        RemoveSlashes,
+    ));
 
     // Mount Mirror
     rocket::build()
         .register("/", catchers![not_found])
-        .mount(
-            "/m",
-            mirror_routes,
-        )
+        .mount("/m", mirror_routes)
         .mount(
             "/",
             routes![
