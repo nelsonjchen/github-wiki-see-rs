@@ -16,7 +16,7 @@ pub fn github_wiki_markdown_to_pure_markdown<'b>(
         )
         .unwrap();
         static ref IMG_REPO_BLOB: Regex =
-            Regex::new(r#"(?P<pre>!\[.*\]\(https://github.com/.+/.+)/blob/(?P<suf>.*)"#).unwrap();
+            Regex::new(r"(?P<pre>!\[.*\]\(https://github.com/.+/.+)/blob/(?P<suf>.*)").unwrap();
         static ref LINK_RE: Regex =
             Regex::new("\\[\\[((?P<link_text>.*?)\\| *)?(?P<page_name>.*?)\\]\\]").unwrap();
     }
