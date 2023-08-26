@@ -16,7 +16,6 @@ updates:
       # Allow both direct and indirect updates for all packages
       - dependency-type: "all"
     groups:
-      normal-dependencies:
       patch-dependencies:
         update-types:
         - "patch"
