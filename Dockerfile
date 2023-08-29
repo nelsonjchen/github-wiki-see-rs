@@ -17,8 +17,8 @@ COPY . .
 RUN cargo build --release --bin github-wiki-see
 
 # We do not need the Rust toolchain to run the binary!
-FROM gcr.io/distroless/cc-debian11 AS runtime
-WORKDIR app
+FROM gcr.io/distroless/cc-debian12 AS runtime
+WORKDIR /app
 COPY --from=builder /app/target/release/github-wiki-see /usr/local/bin/github-wiki-see
 
 ENV ROCKET_ADDRESS=0.0.0.0
