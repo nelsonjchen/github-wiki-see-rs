@@ -7,6 +7,7 @@ use reqwest::Client;
 use retrieval::{retrieve_wiki_sitemap_index, Content};
 use rocket::futures::TryFutureExt;
 use rocket::http::{ContentType, Method, Status};
+
 use rocket::response::{content, status};
 use rocket::response::{Redirect, Responder};
 use rocket::route::{Handler, Outcome};
@@ -63,7 +64,19 @@ fn call_to_action_svg() -> (Status, (ContentType, &'static [u8])) {
 }
 
 #[get("/robots.txt")]
-fn robots_txt() -> (Status, (ContentType, &'static [u8])) {
+fn robots_txt(host: &rocket::http::uri::Host<'_>) -> (Status, (ContentType, &'static [u8])) {
+    // Check if the host is an IP address, if so, don't allow crawling
+    let a = host.domain().as_str();
+    // Need to check if the host is an IP address
+    if a.parse::<std::net::IpAddr>().is_ok() {
+        return (
+            Status::Ok,
+            (
+                ContentType::Plain,
+                include_bytes!("../templates/robots_ip.txt"),
+            ),
+        );
+    }
     (
         Status::Ok,
         (
@@ -116,7 +129,7 @@ impl Handler for RemoveSlashes {
             uri.pop();
             Outcome::from(req, Redirect::permanent(uri))
         } else {
-            Outcome::forward(data)
+            Outcome::forward(data, Status::PermanentRedirect)
         }
     }
 }
