@@ -116,7 +116,7 @@ impl Handler for RemoveSlashes {
             uri.pop();
             Outcome::from(req, Redirect::permanent(uri))
         } else {
-            Outcome::forward(data)
+            Outcome::forward(data, Status::PermanentRedirect)
         }
     }
 }

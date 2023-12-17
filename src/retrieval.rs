@@ -235,7 +235,7 @@ pub async fn retrieve_wiki_sitemap_index<'a>(
 
     let mut writer = Writer::new(Cursor::new(Vec::new()));
 
-    let mut urlset_el = BytesStart::owned(b"urlset".to_vec(), "urlset".len());
+    let mut urlset_el = BytesStart::new("urlset");
     urlset_el.push_attribute(("xmlns", "http://www.sitemaps.org/schemas/sitemap/0.9"));
     urlset_el.push_attribute(("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance"));
     urlset_el.push_attribute(("xsi:schemaLocation", "http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"));
@@ -245,33 +245,33 @@ pub async fn retrieve_wiki_sitemap_index<'a>(
         .map_err(|o| ContentError::OtherError(o.to_string()))?;
 
     for (url, _) in wiki_page_urls {
-        let url_el = BytesStart::owned(b"url".to_vec(), "url".len());
+        let url_el = BytesStart::new("url");
         writer
             .write_event(Event::Start(url_el))
             .map_err(|o| ContentError::OtherError(o.to_string()))?;
 
-        let loc_el = BytesStart::owned(b"loc".to_vec(), "loc".len());
+        let loc_el = BytesStart::new("loc");
         writer
             .write_event(Event::Start(loc_el))
             .map_err(|o| ContentError::OtherError(o.to_string()))?;
 
         writer
-            .write_event(Event::Text(BytesText::from_plain_str(&format!(
+            .write_event(Event::Text(BytesText::new(&format!(
                 "https://github-wiki-see.page/m{url}"
             ))))
             .map_err(|o| ContentError::OtherError(o.to_string()))?;
 
         writer
-            .write_event(Event::End(BytesEnd::borrowed(b"loc")))
+            .write_event(Event::End(BytesEnd::new("loc")))
             .map_err(|o| ContentError::OtherError(o.to_string()))?;
 
         writer
-            .write_event(Event::End(BytesEnd::borrowed(b"url")))
+            .write_event(Event::End(BytesEnd::new("url")))
             .map_err(|o| ContentError::OtherError(o.to_string()))?;
     }
 
     writer
-        .write_event(Event::End(BytesEnd::borrowed(b"urlset")))
+        .write_event(Event::End(BytesEnd::new("urlset")))
         .map_err(|op| ContentError::OtherError(op.to_string()))?;
 
     use std::str;
