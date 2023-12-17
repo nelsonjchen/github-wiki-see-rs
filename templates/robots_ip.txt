@@ -1,0 +1,4 @@
+# Block all indexing as you are accessing by IP address
+
+User-agent: *
+Disallow: /
