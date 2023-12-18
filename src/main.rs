@@ -450,6 +450,11 @@ fn not_found() -> &'static str {
 
 static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"),);
 
+#[get("/versionz")]
+fn versionz() -> String {
+    format!("{}, {}", APP_USER_AGENT, git_version::git_version!())
+}
+
 #[launch]
 fn rocket() -> _ {
     // Mount front Page
@@ -485,6 +490,7 @@ fn rocket() -> _ {
                 generated_sitemap_xml,
                 seed_sitemaps,
                 wiki_debug_sitemaps,
+                versionz,
             ],
         )
         .manage(
