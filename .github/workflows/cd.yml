@@ -38,7 +38,7 @@ jobs:
           cache-to: type=gha,scope=cached-stage,mode=max
           load: true
           tags: app:latest
-      - uses: superfly/flyctl-actions@1.4
+      - uses: superfly/flyctl-actions@1.5
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         with:
