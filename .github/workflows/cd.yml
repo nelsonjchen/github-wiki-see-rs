@@ -44,7 +44,7 @@ jobs:
         with:
           args: "deploy --local-only -i app:latest"
       - name: Cloudflare Cache Purge Action
-        uses: NathanVaughn/actions-cloudflare-purge@v3.0.0
+        uses: NathanVaughn/actions-cloudflare-purge@v3.1.0
         if: success()
         with:
           cf_zone: ${{ secrets.CLOUDFLARE_ZONE }}
