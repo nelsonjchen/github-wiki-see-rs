@@ -3293,6 +3293,8 @@ Some repos became unindexable again, eg.:
     // https://github.com/koalaman/shellcheck/issues/2487#issuecomment-1123225156
     "koalaman/shellcheck",
     "A0116137M/test",
+    // DMCAs
+    "brimo235/bankbribrimo-main"
 };
 
 #[cfg(test)]
