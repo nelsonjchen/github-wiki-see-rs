@@ -17,7 +17,7 @@ comrak = "0.20"
 regex = "1"
 lazy_static = "1.4.0"
 percent-encoding = "2.3.1"
-scraper = "0.18.1"
+scraper = "0.19.1"
 quick-xml = "0.31.0"
 phf = { version = "0.11", features = ["macros"] }
 futures = "0.3.30"
