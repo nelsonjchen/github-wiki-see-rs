@@ -154,7 +154,6 @@ async fn wiki_debug_sitemaps(
 
 #[derive(Template)]
 #[template(path = "mirror.html")]
-
 struct MirrorTemplate {
     original_title: String,
     original_url: String,
