@@ -198,7 +198,7 @@ mod tests {
 
         let pages = process_html_index(html);
         assert!(pages.len() > 3);
-        let page_1 = pages.get(0).unwrap();
+        let page_1 = pages.first().unwrap();
         assert!(page_1.0.contains("nelsonjchen"));
         assert!(page_1.0.contains("wiki"));
     }
@@ -209,7 +209,7 @@ mod tests {
 
         let pages = process_html_index(html);
         more_asserts::assert_ge!(pages.len(), 3);
-        assert!(pages.get(0).unwrap().0.contains("Homeless"));
+        assert!(pages.first().unwrap().0.contains("Homeless"));
         assert!(pages.get(1).unwrap().0.contains("Ooze"));
         assert!(pages.get(2).unwrap().0.contains("Porkchops"));
     }
