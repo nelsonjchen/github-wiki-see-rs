@@ -6,7 +6,7 @@ Run this on the domain https://github-wiki-see.page and it will automatically re
 
 ```javascript
 if (document.getElementById('header_button'))
-    window.location.replace(document.querySelector(".visit_url_button").href);
+    window.location.replace(document.querySelector(".visit_url_original").href);
 ```
 
 This API will be maintained as the mirror page changes or gets updated. The ID names and class names used in the example above will stay this and will not change for the foreseeable future.
@@ -38,9 +38,9 @@ https://github.com/nelsonjchen/github-wiki-see-rs/issues/136#issuecomment-104082
 // ==UserScript==
 // @name         github-wiki-see-redirect
 // @namespace    nelsonjchen.github-wiki-see-redirect
-// @version      0.1
+// @version      0.2
 // @description
-// @author       nelsonjchen
+// @author       nelsonjchen, firepup650
 // @match        https://github-wiki-see.page/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=github.com
 // @grant        none
@@ -48,7 +48,7 @@ https://github.com/nelsonjchen/github-wiki-see-rs/issues/136#issuecomment-104082
 (function() {
     'use strict';
     if (document.getElementById('header_button')) {
-        window.location.replace(document.querySelector(".visit_url_button").href);
+        window.location.replace(document.querySelector(".visit_url_original").href);
     }
 })();
 ```
