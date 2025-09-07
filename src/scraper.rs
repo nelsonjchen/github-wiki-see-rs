@@ -1,7 +1,6 @@
-use core::str;
-
 use comrak::{markdown_to_html, ComrakOptions};
-use nipper::Document;
+use lol_html::{element, html_content::Element, HtmlRewriter, Settings};
+use nipper::Document; // <-- Add nipper import back
 
 pub fn process_markdown(
     original_markdown: &str,
@@ -22,62 +21,73 @@ pub fn process_markdown(
     process_html(&original_html, account, repository, homepage_prepend)
 }
 
+// New lol_html version of process_html
 pub fn process_html(
     original_html: &str,
     account: &str,
     repository: &str,
     homepage_prepend: bool,
 ) -> String {
-    let document = Document::from(original_html);
-    document.select("a").iter().for_each(|mut thing| {
-        if let Some(href) = thing.attr("href") {
-            let string_href = String::from(href);
-            if !string_href.starts_with("http://")
-                && !string_href.starts_with("https://")
-                && !string_href.starts_with("//")
-            {
-                if string_href.starts_with('/') {
-                    let new_string_href = "/m".to_owned() + &string_href;
-                    thing.set_attr("href", &new_string_href);
-                } else {
-                    // Prepend wiki if homepage and if the href doesn't start with wiki
-                    if homepage_prepend && !string_href.starts_with("wiki/") {
-                        let new_string_href = "wiki/".to_owned() + &string_href;
-                        thing.set_attr("href", &new_string_href);
+    let mut output = Vec::new();
+    let mut rewriter = HtmlRewriter::new(
+        Settings {
+            element_content_handlers: vec![
+                element!("a[href]", |el: &mut Element| {
+                    if let Some(href) = el.get_attribute("href") {
+                        if !href.starts_with("http://")
+                            && !href.starts_with("https://")
+                            && !href.starts_with("//")
+                        {
+                            if href.starts_with('/') {
+                                let new_href = format!("/m{}", href);
+                                el.set_attribute("href", &new_href).unwrap();
+                            } else {
+                                if homepage_prepend && !href.starts_with("wiki/") {
+                                    let new_href = format!("wiki/{}", href);
+                                    el.set_attribute("href", &new_href).unwrap();
+                                }
+                            }
+                        } else {
+                            el.set_attribute("rel", "nofollow ugc").unwrap();
+                        }
                     }
-                }
-            } else {
-                thing.set_attr("rel", "nofollow ugc");
-            }
-        }
-    });
-    document.select("img").iter().for_each(|mut thing| {
-        if let Some(href) = thing.attr("src") {
-            let string_href = String::from(href);
-            if !string_href.starts_with("http://")
-                && !string_href.starts_with("https://")
-                && !string_href.starts_with("//")
-            {
-                if !string_href.starts_with("wiki") {
-                    let new_string_href =
-                        format!("https://github.com/{account}/{repository}/wiki/") + &string_href;
-                    thing.set_attr("src", &new_string_href);
-                } else {
-                    let new_string_href =
-                        format!("https://github.com/{account}/{repository}/") + &string_href;
-                    thing.set_attr("src", &new_string_href);
-                }
-            }
-            if string_href.starts_with('/') {
-                let new_string_href = "https://github.com".to_owned() + &string_href;
-                thing.set_attr("src", &new_string_href);
-            }
-        }
-    });
+                    Ok(())
+                }),
+                element!("img[src]", |el: &mut Element| {
+                    if let Some(src) = el.get_attribute("src") {
+                        if !src.starts_with("http://")
+                            && !src.starts_with("https://")
+                            && !src.starts_with("//")
+                        {
+                            if src.starts_with('/') {
+                                let new_src = format!("https://github.com{}", src);
+                                el.set_attribute("src", &new_src).unwrap();
+                            } else if !src.starts_with("wiki") {
+                                let new_src =
+                                    format!("https://github.com/{}/{}/wiki/{}", account, repository, src);
+                                el.set_attribute("src", &new_src).unwrap();
+                            } else {
+                                let new_src =
+                                    format!("https://github.com/{}/{}/{}", account, repository, src);
+                                el.set_attribute("src", &new_src).unwrap();
+                            }
+                        }
+                    }
+                    Ok(())
+                }),
+            ],
+            ..Settings::default()
+        },
+        |c: &[u8]| output.extend_from_slice(c),
+    );
 
-    String::from(document.html())
+    rewriter.write(original_html.as_bytes()).unwrap();
+    rewriter.end().unwrap();
+
+    String::from_utf8(output).unwrap()
 }
 
+// Original nipper version of process_html_index
 pub fn process_html_index(original_html: &str) -> Vec<(String, String)> {
     let document = Document::from(original_html);
     document
@@ -91,33 +101,10 @@ pub fn process_html_index(original_html: &str) -> Vec<(String, String)> {
         .collect()
 }
 
+
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn something() {
-        let html = r#"<div>
-            <a href="/1">One</a>
-            <a href="/2">Two</a>
-            <a href="/3">Three</a>
-        </div>"#;
-
-        let document = Document::from(html);
-        let a = document.select("a:nth-child(3)");
-        let text: &str = &a.text();
-        assert_eq!(text, "Three");
-    }
-
-    #[test]
-    fn github_html() {
-        let html = include_str!("../test-data/wiki-index.html");
-
-        let document = Document::from(html);
-        let a = document.select("#wiki-wrapper");
-        let text: &str = &a.html();
-        assert_ne!(text.len(), 0);
-    }
 
     #[test]
     fn transform_non_relative_urls_to_nofollow_ugc_https() {
@@ -201,6 +188,7 @@ mod tests {
         let page_1 = pages.first().unwrap();
         assert!(page_1.0.contains("nelsonjchen"));
         assert!(page_1.0.contains("wiki"));
+        assert_eq!(page_1.1.trim(), "Home");
     }
 
     #[test]
@@ -208,9 +196,13 @@ mod tests {
         let html = include_str!("../test-data/wiki-homeless-index.html");
 
         let pages = process_html_index(html);
-        more_asserts::assert_ge!(pages.len(), 3);
+        use more_asserts::assert_ge;
+        assert_ge!(pages.len(), 3);
         assert!(pages.first().unwrap().0.contains("Homeless"));
+        assert_eq!(pages.first().unwrap().1.trim(), "Homeless");
         assert!(pages.get(1).unwrap().0.contains("Ooze"));
+        assert_eq!(pages.get(1).unwrap().1.trim(), "Ooze");
         assert!(pages.get(2).unwrap().0.contains("Porkchops"));
+        assert_eq!(pages.get(2).unwrap().1.trim(), "Porkchops");
     }
 }
