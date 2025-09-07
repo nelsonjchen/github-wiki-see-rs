@@ -1,8 +1,8 @@
-FROM rust:1.87.0 AS chef
+FROM rust:1.89.0 AS chef
 # We only pay the installation cost once,
 # it will be cached from the second build onwards
 RUN cargo install cargo-chef
-WORKDIR app
+WORKDIR /app
 
 FROM chef AS planner
 COPY . .
