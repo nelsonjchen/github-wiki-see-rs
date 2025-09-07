@@ -41,11 +41,9 @@ pub fn process_html(
                             if href.starts_with('/') {
                                 let new_href = format!("/m{}", href);
                                 el.set_attribute("href", &new_href).unwrap();
-                            } else {
-                                if homepage_prepend && !href.starts_with("wiki/") {
-                                    let new_href = format!("wiki/{}", href);
-                                    el.set_attribute("href", &new_href).unwrap();
-                                }
+                            } else if homepage_prepend && !href.starts_with("wiki/") {
+                                let new_href = format!("wiki/{}", href);
+                                el.set_attribute("href", &new_href).unwrap();
                             }
                         } else {
                             el.set_attribute("rel", "nofollow ugc").unwrap();
