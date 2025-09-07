@@ -61,12 +61,16 @@ pub fn process_html(
                                 let new_src = format!("https://github.com{}", src);
                                 el.set_attribute("src", &new_src).unwrap();
                             } else if !src.starts_with("wiki") {
-                                let new_src =
-                                    format!("https://github.com/{}/{}/wiki/{}", account, repository, src);
+                                let new_src = format!(
+                                    "https://github.com/{}/{}/wiki/{}",
+                                    account, repository, src
+                                );
                                 el.set_attribute("src", &new_src).unwrap();
                             } else {
-                                let new_src =
-                                    format!("https://github.com/{}/{}/{}", account, repository, src);
+                                let new_src = format!(
+                                    "https://github.com/{}/{}/{}",
+                                    account, repository, src
+                                );
                                 el.set_attribute("src", &new_src).unwrap();
                             }
                         }
@@ -98,7 +102,6 @@ pub fn process_html_index(original_html: &str) -> Vec<(String, String)> {
         })
         .collect()
 }
-
 
 #[cfg(test)]
 mod tests {
