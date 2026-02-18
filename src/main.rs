@@ -473,7 +473,23 @@ fn versionz() -> String {
 }
 
 #[get("/healthz")]
-fn healthz() -> content::RawHtml<String> {
+async fn healthz(
+    client: &State<Client>,
+) -> Result<content::RawHtml<String>, status::Custom<String>> {
+    let upstream = client
+        .get("https://github.com/robots.txt")
+        .timeout(Duration::from_secs(2))
+        .send()
+        .await
+        .map_err(|e| status::Custom(Status::ServiceUnavailable, format!("upstream error: {e}")))?;
+
+    if !upstream.status().is_success() {
+        return Err(status::Custom(
+            Status::ServiceUnavailable,
+            format!("upstream status: {}", upstream.status()),
+        ));
+    }
+
     let mirrored_content = content_to_html(
         Content::Markdown(String::from(
             "# Health Check\n\n- parser\n- renderer\n- rewrites",
@@ -482,7 +498,7 @@ fn healthz() -> content::RawHtml<String> {
         "check",
         "Home",
     );
-    content::RawHtml(mirrored_content)
+    Ok(content::RawHtml(mirrored_content))
 }
 
 #[launch]
