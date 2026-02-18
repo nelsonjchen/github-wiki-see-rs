@@ -34,7 +34,9 @@ fn render_template<T: Template>(
     template.render().map(content::RawHtml).map_err(|e| {
         status::Custom(
             Status::InternalServerError,
-            content::RawHtml(format!("500 Internal Server Error - Template render failed: {e}")),
+            content::RawHtml(format!(
+                "500 Internal Server Error - Template render failed: {e}"
+            )),
         )
     })
 }
@@ -182,7 +184,9 @@ enum MirrorError {
 
 fn mirror_internal_error(template: MirrorTemplate) -> MirrorError {
     let rendered = template.render().map(content::RawHtml).unwrap_or_else(|e| {
-        content::RawHtml(format!("500 Internal Server Error - Template render failed: {e}"))
+        content::RawHtml(format!(
+            "500 Internal Server Error - Template render failed: {e}"
+        ))
     });
     MirrorError::InternalError(status::Custom(Status::InternalServerError, rendered))
 }
@@ -280,11 +284,11 @@ async fn mirror_page<'a>(
                 GiveUpSendToGitHub(Redirect::permanent(original_url_encoded.clone()))
             }
             ContentError::OtherError(e) => mirror_internal_error(MirrorTemplate {
-                    original_title: page_title.clone(),
-                    original_url: original_url.clone(),
-                    mirrored_content: format!("500 Internal Server Error - {e}"),
-                    index_url: format!("/m/{account}/{repository}/wiki_index"),
-                }),
+                original_title: page_title.clone(),
+                original_url: original_url.clone(),
+                mirrored_content: format!("500 Internal Server Error - {e}"),
+                index_url: format!("/m/{account}/{repository}/wiki_index"),
+            }),
         })
         .await?;
 
@@ -351,11 +355,11 @@ async fn mirror_page_index<'a>(
                 GiveUpSendToGitHub(Redirect::permanent(original_url.clone()))
             }
             ContentError::OtherError(e) => mirror_internal_error(MirrorTemplate {
-                    original_title: page_title.clone(),
-                    original_url: original_url.clone(),
-                    mirrored_content: format!("500 Internal Server Error - {e}"),
-                    index_url: format!("/m/{account}/{repository}/wiki_index"),
-                }),
+                original_title: page_title.clone(),
+                original_url: original_url.clone(),
+                mirrored_content: format!("500 Internal Server Error - {e}"),
+                index_url: format!("/m/{account}/{repository}/wiki_index"),
+            }),
         })
         .await?;
 
