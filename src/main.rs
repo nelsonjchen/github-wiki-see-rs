@@ -472,6 +472,19 @@ fn versionz() -> String {
     format!("{}, {}", APP_USER_AGENT, git_version::git_version!())
 }
 
+#[get("/healthz")]
+fn healthz() -> content::RawHtml<String> {
+    let mirrored_content = content_to_html(
+        Content::Markdown(String::from(
+            "# Health Check\n\n- parser\n- renderer\n- rewrites",
+        )),
+        "health",
+        "check",
+        "Home",
+    );
+    content::RawHtml(mirrored_content)
+}
+
 #[launch]
 fn rocket() -> _ {
     // Mount front Page
@@ -508,6 +521,7 @@ fn rocket() -> _ {
                 seed_sitemaps,
                 wiki_debug_sitemaps,
                 versionz,
+                healthz,
             ],
         )
         .manage(
