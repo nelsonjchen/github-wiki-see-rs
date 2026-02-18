@@ -1,4 +1,4 @@
-use comrak::{markdown_to_html, ComrakOptions};
+use comrak::{markdown_to_html, Options};
 use lol_html::{element, html_content::Element, HtmlRewriter, Settings};
 use nipper::Document; // <-- Add nipper import back
 
@@ -8,7 +8,7 @@ pub fn process_markdown(
     repository: &str,
     homepage_prepend: bool,
 ) -> String {
-    let mut options = ComrakOptions::default();
+    let mut options = Options::default();
     options.extension.strikethrough = true;
     options.extension.tagfilter = true;
     options.extension.table = true;

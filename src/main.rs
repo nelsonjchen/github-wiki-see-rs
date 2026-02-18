@@ -28,9 +28,20 @@ mod scraper;
 #[template(path = "front_page.html")]
 struct FrontPageTemplate {}
 
+fn render_template<T: Template>(
+    template: &T,
+) -> Result<content::RawHtml<String>, status::Custom<content::RawHtml<String>>> {
+    template.render().map(content::RawHtml).map_err(|e| {
+        status::Custom(
+            Status::InternalServerError,
+            content::RawHtml(format!("500 Internal Server Error - Template render failed: {e}")),
+        )
+    })
+}
+
 #[get("/")]
-fn front() -> FrontPageTemplate {
-    FrontPageTemplate {}
+fn front() -> Result<content::RawHtml<String>, status::Custom<content::RawHtml<String>>> {
+    render_template(&FrontPageTemplate {})
 }
 
 #[get("/favicon.ico")]
@@ -165,8 +176,15 @@ struct MirrorTemplate {
 #[derive(Responder)]
 enum MirrorError {
     // DocumentNotFound(NotFound<MirrorTemplate>),
-    InternalError(status::Custom<MirrorTemplate>),
+    InternalError(status::Custom<content::RawHtml<String>>),
     GiveUpSendToGitHub(Redirect),
+}
+
+fn mirror_internal_error(template: MirrorTemplate) -> MirrorError {
+    let rendered = template.render().map(content::RawHtml).unwrap_or_else(|e| {
+        content::RawHtml(format!("500 Internal Server Error - Template render failed: {e}"))
+    });
+    MirrorError::InternalError(status::Custom(Status::InternalServerError, rendered))
 }
 
 #[get("/<account>/<repository>/wiki")]
@@ -174,7 +192,7 @@ async fn mirror_home<'a>(
     account: &'a str,
     repository: &'a str,
     client: &State<Client>,
-) -> Result<MirrorTemplate, MirrorError> {
+) -> Result<content::RawHtml<String>, MirrorError> {
     mirror_page(account, repository, "Home", client).await
 }
 
@@ -225,7 +243,7 @@ async fn mirror_page<'a>(
     repository: &'a str,
     page: &'a str,
     client: &State<Client>,
-) -> Result<MirrorTemplate, MirrorError> {
+) -> Result<content::RawHtml<String>, MirrorError> {
     use retrieval::retrieve_source_file;
     use retrieval::ContentError;
     use MirrorError::*;
@@ -261,15 +279,12 @@ async fn mirror_page<'a>(
             ContentError::Decommissioned => {
                 GiveUpSendToGitHub(Redirect::permanent(original_url_encoded.clone()))
             }
-            ContentError::OtherError(e) => InternalError(status::Custom(
-                Status::InternalServerError,
-                MirrorTemplate {
+            ContentError::OtherError(e) => mirror_internal_error(MirrorTemplate {
                     original_title: page_title.clone(),
                     original_url: original_url.clone(),
                     mirrored_content: format!("500 Internal Server Error - {e}"),
                     index_url: format!("/m/{account}/{repository}/wiki_index"),
-                },
-            )),
+                }),
         })
         .await?;
 
@@ -298,12 +313,13 @@ async fn mirror_page<'a>(
         original_html
     };
 
-    Ok(MirrorTemplate {
+    render_template(&MirrorTemplate {
         original_title: page_title.clone(),
         original_url: original_url_encoded.clone(),
         mirrored_content,
         index_url: format!("/m/{account}/{repository}/wiki_index"),
     })
+    .map_err(InternalError)
 }
 
 #[get("/<account>/<repository>/wiki_index")]
@@ -311,7 +327,7 @@ async fn mirror_page_index<'a>(
     account: &'a str,
     repository: &'a str,
     client: &State<Client>,
-) -> Result<MirrorTemplate, MirrorError> {
+) -> Result<content::RawHtml<String>, MirrorError> {
     use retrieval::retrieve_wiki_index;
     use retrieval::ContentError;
     use MirrorError::*;
@@ -334,26 +350,24 @@ async fn mirror_page_index<'a>(
             ContentError::Decommissioned => {
                 GiveUpSendToGitHub(Redirect::permanent(original_url.clone()))
             }
-            ContentError::OtherError(e) => InternalError(status::Custom(
-                Status::InternalServerError,
-                MirrorTemplate {
+            ContentError::OtherError(e) => mirror_internal_error(MirrorTemplate {
                     original_title: page_title.clone(),
                     original_url: original_url.clone(),
                     mirrored_content: format!("500 Internal Server Error - {e}"),
                     index_url: format!("/m/{account}/{repository}/wiki_index"),
-                },
-            )),
+                }),
         })
         .await?;
 
     let original_html = content_to_html(content, account, repository, "Home");
 
-    Ok(MirrorTemplate {
+    render_template(&MirrorTemplate {
         original_title: page_title.clone(),
         original_url: original_url.clone(),
         mirrored_content: original_html,
         index_url: format!("/m/{account}/{repository}/wiki_index"),
     })
+    .map_err(InternalError)
 }
 
 fn content_to_html(content: Content, account: &str, repository: &str, page: &str) -> String {
