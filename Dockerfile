@@ -16,11 +16,12 @@ RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
 RUN cargo build --release --bin github-wiki-see
 
-# We do not need the Rust toolchain to run the binary!
-FROM gcr.io/distroless/cc-debian12 AS runtime
+# Keep the runtime libc in the same Debian generation as the Rust builder.
+FROM gcr.io/distroless/cc-debian13 AS runtime
 WORKDIR /app
 COPY --from=builder /app/target/release/github-wiki-see /usr/local/bin/github-wiki-see
 
 ENV ROCKET_ADDRESS=0.0.0.0
+ENV ROCKET_PORT=8000
 
 CMD ["/usr/local/bin/github-wiki-see"]

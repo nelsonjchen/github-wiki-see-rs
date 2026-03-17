@@ -479,16 +479,8 @@ fn versionz() -> String {
 }
 
 #[get("/healthz")]
-fn healthz() -> content::RawHtml<String> {
-    let mirrored_content = content_to_html(
-        Content::Markdown(String::from(
-            "# Health Check\n\n- parser\n- renderer\n- rewrites",
-        )),
-        "health",
-        "check",
-        "Home",
-    );
-    content::RawHtml(mirrored_content)
+fn healthz() -> &'static str {
+    "ok"
 }
 
 #[launch]
