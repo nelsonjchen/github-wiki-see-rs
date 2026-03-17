@@ -39,9 +39,9 @@ kill_timeout = "5s"
 
   [[services.http_checks]]
     interval = "15s"
-    timeout = "10s"
+    timeout = "5s"
     grace_period = "5s"
     restart_limit = 4
     method = "get"
-    path = "/m/nelsonjchen/github-wiki-test/wiki"
+    path = "/healthz"
     protocol = "http"

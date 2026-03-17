@@ -1,9 +1,9 @@
-use futures::future::TryFutureExt;
-use futures::FutureExt;
 use quick_xml::events::BytesText;
 use reqwest::{Client, StatusCode};
 use scraper::{Html, Selector};
 use std::future::Future;
+use std::sync::LazyLock;
+use thiserror::Error;
 
 use crate::decommission::DECOMMISSION_LIST;
 use crate::scraper::process_html_index;
@@ -23,117 +23,127 @@ pub enum Content {
     FallbackHtml(String),
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Error, PartialEq, Eq)]
 pub enum ContentError {
+    #[error("not found")]
     NotFound,
+    #[error("too many requests")]
     TooMayRequests,
+    #[error("wiki has been decommissioned")]
     Decommissioned,
+    #[error("{0}")]
     OtherError(String),
 }
 
 const FALLBACK_HOST: &str = "https://gh-mirror-gucl6ahvva-uc.a.run.app";
+static HTML_IN_MARKDOWN_RE: LazyLock<regex::Regex> =
+    LazyLock::new(|| regex::Regex::new("<.{3,10}>").expect("html detection regex should compile"));
+static WIKI_BODY_SELECTOR: LazyLock<Selector> =
+    LazyLock::new(|| Selector::parse("#wiki-body").expect("wiki body selector should compile"));
 
-pub async fn retrieve_source_file<'a>(
-    account: &'a str,
-    repository: &'a str,
-    page: &'a str,
-    client: &'a Client,
-) -> Result<Content, ContentError> {
-    // Skip decommissioned wikis
-    if DECOMMISSION_LIST.contains(format!("{account}/{repository}").as_str()) {
-        return Err(ContentError::Decommissioned);
-    }
-
-    retrieve_source_file_extension(account, repository, page, client, &Content::Markdown, "md")
-        // Is there something that vaguely looks like HTML? Fallback to HTML if seen
-        .map(|result| match &result {
-            Ok(Content::Markdown(md)) => {
-                use lazy_static::lazy_static;
-                use regex::Regex;
-
-                lazy_static! {
-                    static ref RE: Regex = Regex::new("<.{3,10}>").unwrap();
-                }
-
-                if RE.is_match(md) {
-                    return Err(ContentError::OtherError(
-                        "Markdown contains HTML".to_string(),
-                    ));
-                }
-                result
-            }
-            _ => result,
-        })
-        .or_else(|_| async {
-            retrieve_fallback_html(account, repository, page, client, "https://github.com").await
-        })
-        .or_else(|err| async {
-            if err == ContentError::TooMayRequests {
-                retrieve_fallback_html(account, repository, page, client, FALLBACK_HOST).await
-            } else {
-                Err(err)
-            }
-        })
-        .await
+fn repo_slug(account: &str, repository: &str) -> String {
+    format!("{account}/{repository}")
 }
 
-async fn retrieve_github_com_html<'a>(
-    account: &str,
-    repository: &str,
-    page: &str,
-    client: &'a Client,
-    domain: &'a str,
-) -> Result<String, ContentError> {
-    // Home is special
-    let raw_github_url = if page == "Home" {
+fn raw_wiki_source_url(account: &str, repository: &str, page: &str, extension: &str) -> String {
+    let page_encoded =
+        percent_encoding::utf8_percent_encode(page, percent_encoding::NON_ALPHANUMERIC);
+    format!(
+        "https://raw.githubusercontent.com/wiki/{account}/{repository}/{page_encoded}.{extension}"
+    )
+}
+
+fn wiki_html_url(domain: &str, account: &str, repository: &str, page: &str) -> String {
+    if page.is_empty() || page == "Home" {
         format!("{domain}/{account}/{repository}/wiki")
     } else {
         format!("{domain}/{account}/{repository}/wiki/{page}")
-    };
-
-    let resp_attempt = client.get(raw_github_url).send().await;
-
-    let resp = resp_attempt.map_err(|e| ContentError::OtherError(e.to_string()))?;
-
-    if resp.status() == StatusCode::NOT_FOUND {
-        return Err(ContentError::NotFound);
     }
-
-    // GitHub does this for unlogged in pages.
-    if resp.status() == StatusCode::FOUND {
-        return Err(ContentError::NotFound);
-    }
-    if resp.status() == StatusCode::MOVED_PERMANENTLY {
-        return Err(ContentError::NotFound);
-    }
-
-    if resp.status() == StatusCode::TOO_MANY_REQUESTS {
-        return Err(ContentError::TooMayRequests);
-    }
-    if !resp.status().is_success() {
-        return Err(ContentError::OtherError(format!(
-            "Remote: {}",
-            resp.status()
-        )));
-    }
-
-    resp.text()
-        .await
-        .map_err(|e| ContentError::OtherError(e.to_string()))
 }
 
-async fn retrieve_fallback_html<'a>(
-    account: &'a str,
-    repository: &'a str,
-    page: &'a str,
-    client: &'a Client,
-    domain: &'a str,
+fn response_to_content_error(status: StatusCode) -> Result<(), ContentError> {
+    match status {
+        StatusCode::NOT_FOUND | StatusCode::FOUND | StatusCode::MOVED_PERMANENTLY => {
+            Err(ContentError::NotFound)
+        }
+        StatusCode::TOO_MANY_REQUESTS => Err(ContentError::TooMayRequests),
+        status if status.is_success() => Ok(()),
+        status => Err(ContentError::OtherError(format!("Remote: {status}"))),
+    }
+}
+
+fn markdown_contains_html(content: &Content) -> bool {
+    matches!(content, Content::Markdown(md) if HTML_IN_MARKDOWN_RE.is_match(md))
+}
+
+async fn with_rate_limit_fallback<T, Fut, F>(fetch: F) -> Result<T, ContentError>
+where
+    F: Fn(&'static str) -> Fut,
+    Fut: Future<Output = Result<T, ContentError>>,
+{
+    match fetch("https://github.com").await {
+        Err(ContentError::TooMayRequests) => fetch(FALLBACK_HOST).await,
+        result => result,
+    }
+}
+
+pub async fn retrieve_source_file(
+    account: &str,
+    repository: &str,
+    page: &str,
+    client: &Client,
+) -> Result<Content, ContentError> {
+    // Skip decommissioned wikis
+    if DECOMMISSION_LIST.contains(repo_slug(account, repository).as_str()) {
+        return Err(ContentError::Decommissioned);
+    }
+
+    match retrieve_source_file_extension(account, repository, page, client, Content::Markdown, "md")
+        .await
+    {
+        Ok(content) if !markdown_contains_html(&content) => Ok(content),
+        Ok(_) | Err(_) => {
+            with_rate_limit_fallback(|domain| async move {
+                retrieve_fallback_html(account, repository, page, client, domain).await
+            })
+            .await
+        }
+    }
+}
+
+async fn retrieve_github_com_html(
+    account: &str,
+    repository: &str,
+    page: &str,
+    client: &Client,
+    domain: &str,
+) -> Result<String, ContentError> {
+    let response = client
+        .get(wiki_html_url(domain, account, repository, page))
+        .send()
+        .await
+        .map_err(|error| ContentError::OtherError(error.to_string()))?;
+
+    response_to_content_error(response.status())?;
+
+    response
+        .text()
+        .await
+        .map_err(|error| ContentError::OtherError(error.to_string()))
+}
+
+async fn retrieve_fallback_html(
+    account: &str,
+    repository: &str,
+    page: &str,
+    client: &Client,
+    domain: &str,
 ) -> Result<Content, ContentError> {
     let html = retrieve_github_com_html(account, repository, page, client, domain).await?;
 
     let document = Html::parse_document(&html);
     document
-        .select(&Selector::parse("#wiki-body").unwrap())
+        .select(&WIKI_BODY_SELECTOR)
         .next()
         .map(|e| e.inner_html())
         .map(Content::FallbackHtml)
@@ -141,55 +151,42 @@ async fn retrieve_fallback_html<'a>(
 }
 
 // https://github-wiki-see.page/m/nelsonjchen/github-wiki-test/wiki/Fallback
-fn retrieve_source_file_extension<'a, T: Fn(String) -> Content>(
-    account: &'a str,
-    repository: &'a str,
-    page: &'a str,
-    client: &'a Client,
+async fn retrieve_source_file_extension<T>(
+    account: &str,
+    repository: &str,
+    page: &str,
+    client: &Client,
     enum_constructor: T,
-    extension: &'a str,
-) -> impl Future<Output = Result<Content, ContentError>> {
-    let page_encoded =
-        percent_encoding::utf8_percent_encode(page, percent_encoding::NON_ALPHANUMERIC);
-    let raw_github_assets_url = format!(
-        "https://raw.githubusercontent.com/wiki/{account}/{repository}/{page_encoded}.{extension}"
-    );
-
-    client
-        .get(raw_github_assets_url)
+    extension: &str,
+) -> Result<Content, ContentError>
+where
+    T: Fn(String) -> Content,
+{
+    let response = client
+        .get(raw_wiki_source_url(account, repository, page, extension))
         .send()
-        .map_err(|e| ContentError::OtherError(e.to_string()))
-        .and_then(|r| async {
-            if r.status() == StatusCode::NOT_FOUND {
-                return Err(ContentError::NotFound);
-            }
-            if !r.status().is_success() {
-                return Err(ContentError::OtherError(format!("Remote: {}", r.status())));
-            }
-            Ok(r)
-        })
-        .map_ok(|r| {
-            r.text()
-                .map_err(|e| ContentError::OtherError(e.to_string()))
-        })
-        .and_then(|t| t)
-        .map_ok(enum_constructor)
+        .await
+        .map_err(|error| ContentError::OtherError(error.to_string()))?;
+
+    response_to_content_error(response.status())?;
+
+    let body = response
+        .text()
+        .await
+        .map_err(|error| ContentError::OtherError(error.to_string()))?;
+
+    Ok(enum_constructor(body))
 }
 
-pub async fn retrieve_wiki_index<'a>(
-    account: &'a str,
-    repository: &'a str,
-    client: &'a Client,
+pub async fn retrieve_wiki_index(
+    account: &str,
+    repository: &str,
+    client: &Client,
 ) -> Result<Content, ContentError> {
-    let html = retrieve_github_com_html(account, repository, "", client, "https://github.com")
-        .or_else(|err| async {
-            if err == ContentError::TooMayRequests {
-                retrieve_github_com_html(account, repository, "", client, FALLBACK_HOST).await
-            } else {
-                Err(err)
-            }
-        })
-        .await?;
+    let html = with_rate_limit_fallback(|domain| async move {
+        retrieve_github_com_html(account, repository, "", client, domain).await
+    })
+    .await?;
     let wiki_page_urls = process_html_index(&html);
     let content = Content::Markdown(format!(
         "{} page(s) in this GitHub Wiki:
@@ -206,20 +203,15 @@ pub async fn retrieve_wiki_index<'a>(
     Ok(content)
 }
 
-pub async fn retrieve_wiki_sitemap_index<'a>(
-    account: &'a str,
-    repository: &'a str,
-    client: &'a Client,
+pub async fn retrieve_wiki_sitemap_index(
+    account: &str,
+    repository: &str,
+    client: &Client,
 ) -> Result<String, ContentError> {
-    let html = retrieve_github_com_html(account, repository, "", client, "https://github.com")
-        .or_else(|err| async {
-            if err == ContentError::TooMayRequests {
-                retrieve_github_com_html(account, repository, "", client, FALLBACK_HOST).await
-            } else {
-                Err(err)
-            }
-        })
-        .await?;
+    let html = with_rate_limit_fallback(|domain| async move {
+        retrieve_github_com_html(account, repository, "", client, domain).await
+    })
+    .await?;
     let mut wiki_page_urls = process_html_index(&html);
 
     // Add the synthetic index page

@@ -1,17 +1,12 @@
-#[macro_use]
-extern crate rocket;
-
 use std::time::Duration;
 
 use reqwest::Client;
 use retrieval::{retrieve_wiki_sitemap_index, Content};
-use rocket::futures::TryFutureExt;
 use rocket::http::{ContentType, Method, Status};
-
 use rocket::response::{content, status};
 use rocket::response::{Redirect, Responder};
 use rocket::route::{Handler, Outcome};
-use rocket::{Route, State};
+use rocket::{catch, catchers, get, launch, routes, Build, Rocket, Route, State};
 
 use crate::scraper::process_html;
 use askama::Template;
@@ -26,28 +21,33 @@ mod scraper;
 
 #[derive(Template)]
 #[template(path = "front_page.html")]
-struct FrontPageTemplate {}
+struct FrontPageTemplate;
 
-fn render_template<T: Template>(
-    template: &T,
-) -> Result<content::RawHtml<String>, status::Custom<content::RawHtml<String>>> {
-    template.render().map(content::RawHtml).map_err(|e| {
+type HtmlResponse = content::RawHtml<String>;
+type HtmlErrorResponse = status::Custom<HtmlResponse>;
+type HtmlResult = Result<HtmlResponse, HtmlErrorResponse>;
+type StaticAssetResponse = (Status, (ContentType, &'static [u8]));
+
+const SITEMAP_BASE_URL: &str = "https://nelsonjchen.github.io/github-wiki-see-rs-sitemaps";
+
+fn render_template<T: Template>(template: &T) -> HtmlResult {
+    template.render().map(content::RawHtml).map_err(|error| {
         status::Custom(
             Status::InternalServerError,
             content::RawHtml(format!(
-                "500 Internal Server Error - Template render failed: {e}"
+                "500 Internal Server Error - Template render failed: {error}"
             )),
         )
     })
 }
 
 #[get("/")]
-fn front() -> Result<content::RawHtml<String>, status::Custom<content::RawHtml<String>>> {
-    render_template(&FrontPageTemplate {})
+fn front() -> HtmlResult {
+    render_template(&FrontPageTemplate)
 }
 
 #[get("/favicon.ico")]
-fn favicon() -> (Status, (ContentType, &'static [u8])) {
+fn favicon() -> StaticAssetResponse {
     (
         Status::Ok,
         (
@@ -58,7 +58,7 @@ fn favicon() -> (Status, (ContentType, &'static [u8])) {
 }
 
 #[get("/social.png")]
-fn social_png() -> (Status, (ContentType, &'static [u8])) {
+fn social_png() -> StaticAssetResponse {
     (
         Status::Ok,
         (ContentType::PNG, include_bytes!("../templates/social.png")),
@@ -66,7 +66,7 @@ fn social_png() -> (Status, (ContentType, &'static [u8])) {
 }
 
 #[get("/callToAction.svg")]
-fn call_to_action_svg() -> (Status, (ContentType, &'static [u8])) {
+fn call_to_action_svg() -> StaticAssetResponse {
     (
         Status::Ok,
         (
@@ -77,11 +77,11 @@ fn call_to_action_svg() -> (Status, (ContentType, &'static [u8])) {
 }
 
 #[get("/robots.txt")]
-fn robots_txt(host: &rocket::http::uri::Host<'_>) -> (Status, (ContentType, &'static [u8])) {
+fn robots_txt(host: &rocket::http::uri::Host<'_>) -> StaticAssetResponse {
     // Check if the host is an IP address, if so, don't allow crawling
-    let a = host.domain().as_str();
+    let domain = host.domain().as_str();
     // Need to check if the host is an IP address
-    if a.parse::<std::net::IpAddr>().is_ok() {
+    if domain.parse::<std::net::IpAddr>().is_ok() {
         return (
             Status::Ok,
             (
@@ -101,30 +101,22 @@ fn robots_txt(host: &rocket::http::uri::Host<'_>) -> (Status, (ContentType, &'st
 
 #[get("/sitemap.xml")]
 fn sitemap_xml() -> Redirect {
-    Redirect::permanent(uri!(
-        "https://nelsonjchen.github.io/github-wiki-see-rs-sitemaps/sitemap_index.xml"
-    ))
+    Redirect::permanent(format!("{SITEMAP_BASE_URL}/sitemap_index.xml"))
 }
 
 #[get("/base_sitemap.xml")]
 fn base_sitemap_xml() -> Redirect {
-    Redirect::permanent(uri!(
-        "https://nelsonjchen.github.io/github-wiki-see-rs-sitemaps/base_sitemap.xml"
-    ))
+    Redirect::permanent(format!("{SITEMAP_BASE_URL}/base_sitemap.xml"))
 }
 
 #[get("/generated_sitemap.xml")]
 fn generated_sitemap_xml() -> Redirect {
-    Redirect::permanent(uri!(
-        "https://nelsonjchen.github.io/github-wiki-see-rs-sitemaps/generated_sitemap.xml"
-    ))
+    Redirect::permanent(format!("{SITEMAP_BASE_URL}/generated_sitemap.xml"))
 }
 
 #[get("/seed_sitemaps/<id>")]
 fn seed_sitemaps(id: &str) -> Redirect {
-    Redirect::permanent(format!(
-        "https://nelsonjchen.github.io/github-wiki-see-rs-sitemaps/seed_sitemaps/{id}"
-    ))
+    Redirect::permanent(format!("{SITEMAP_BASE_URL}/seed_sitemaps/{id}"))
 }
 
 #[derive(Clone)]
@@ -137,18 +129,18 @@ impl Handler for RemoveSlashes {
         req: &'r rocket::Request<'_>,
         data: rocket::Data<'r>,
     ) -> Outcome<'r> {
-        if req.uri().path().ends_with('/') && req.uri().path().to_string().chars().count() > 1 {
-            let mut uri = req.uri().path().to_string();
-            uri.pop();
-            Outcome::from(req, Redirect::permanent(uri))
+        let path = req.uri().path().as_str();
+        if path.ends_with('/') && path.chars().count() > 1 {
+            let trimmed_path = path.trim_end_matches('/').to_owned();
+            Outcome::from(req, Redirect::permanent(trimmed_path))
         } else {
             Outcome::forward(data, Status::PermanentRedirect)
         }
     }
 }
 impl From<RemoveSlashes> for Vec<Route> {
-    fn from(rs: RemoveSlashes) -> Vec<Route> {
-        vec![Route::new(Method::Get, "/", rs)]
+    fn from(remove_slashes: RemoveSlashes) -> Vec<Route> {
+        vec![Route::new(Method::Get, "/", remove_slashes)]
     }
 }
 
@@ -160,7 +152,7 @@ async fn wiki_debug_sitemaps(
 ) -> Result<content::RawXml<String>, status::Custom<String>> {
     let content = retrieve_wiki_sitemap_index(account, repository, client)
         .await
-        .map_err(|op| status::Custom(Status::InternalServerError, format!("Error: {op:?}")))?;
+        .map_err(|error| status::Custom(Status::InternalServerError, format!("Error: {error}")))?;
 
     Ok(content::RawXml(content))
 }
@@ -183,20 +175,23 @@ enum MirrorError {
 }
 
 fn mirror_internal_error(template: MirrorTemplate) -> MirrorError {
-    let rendered = template.render().map(content::RawHtml).unwrap_or_else(|e| {
-        content::RawHtml(format!(
-            "500 Internal Server Error - Template render failed: {e}"
-        ))
-    });
+    let rendered = template
+        .render()
+        .map(content::RawHtml)
+        .unwrap_or_else(|error| {
+            content::RawHtml(format!(
+                "500 Internal Server Error - Template render failed: {error}"
+            ))
+        });
     MirrorError::InternalError(status::Custom(Status::InternalServerError, rendered))
 }
 
 #[get("/<account>/<repository>/wiki")]
-async fn mirror_home<'a>(
-    account: &'a str,
-    repository: &'a str,
+async fn mirror_home(
+    account: &str,
+    repository: &str,
     client: &State<Client>,
-) -> Result<content::RawHtml<String>, MirrorError> {
+) -> Result<HtmlResponse, MirrorError> {
     mirror_page(account, repository, "Home", client).await
 }
 
@@ -237,42 +232,54 @@ pub const NON_ALPHANUMERIC_GH: &percent_encoding::AsciiSet = &percent_encoding::
     .add(b'~');
 
 #[get("/<account>/<repository>/wiki/Home", rank = 1)]
-async fn mirror_page_redirect_home<'a>(account: &'a str, repository: &'a str) -> Redirect {
+async fn mirror_page_redirect_home(account: &str, repository: &str) -> Redirect {
     Redirect::permanent(format!("/m/{account}/{repository}/wiki"))
 }
 
+fn github_wiki_url(account: &str, repository: &str, page: &str) -> String {
+    format!("https://github.com/{account}/{repository}/wiki/{page}")
+}
+
+fn github_wiki_url_encoded(account: &str, repository: &str, page: &str) -> String {
+    format!(
+        "https://github.com/{account}/{repository}/wiki/{}",
+        percent_encoding::utf8_percent_encode(page, NON_ALPHANUMERIC_GH),
+    )
+}
+
+fn mirror_index_url(account: &str, repository: &str) -> String {
+    format!("/m/{account}/{repository}/wiki_index")
+}
+
+fn wiki_page_title(account: &str, repository: &str, page: &str) -> String {
+    format!(
+        "{} - {account}/{repository} GitHub Wiki",
+        page.replace('-', " ")
+    )
+}
+
 #[get("/<account>/<repository>/wiki/<page>", rank = 2)]
-async fn mirror_page<'a>(
-    account: &'a str,
-    repository: &'a str,
-    page: &'a str,
+async fn mirror_page(
+    account: &str,
+    repository: &str,
+    page: &str,
     client: &State<Client>,
-) -> Result<content::RawHtml<String>, MirrorError> {
+) -> Result<HtmlResponse, MirrorError> {
     use retrieval::retrieve_source_file;
     use retrieval::ContentError;
     use MirrorError::*;
 
     // Have original URL to forward to if there is an error.
-    let original_url = format!("https://github.com/{account}/{repository}/wiki/{page}",);
+    let original_url = github_wiki_url(account, repository, page);
 
     // Rocket's Redirect / GitHub itself doesn't like unencoded URLs.
-    let original_url_encoded = format!(
-        "https://github.com/{}/{}/wiki/{}",
-        account,
-        repository,
-        percent_encoding::utf8_percent_encode(page, NON_ALPHANUMERIC_GH),
-    );
-
-    let page_title = format!(
-        "{} - {}/{} GitHub Wiki",
-        page.replace('-', " "),
-        account,
-        repository
-    );
+    let original_url_encoded = github_wiki_url_encoded(account, repository, page);
+    let page_title = wiki_page_title(account, repository, page);
 
     // Grab main content from GitHub
     // Consider it "fatal" if this doesn't exist/errors and forward to GitHub or return an error.
     let content = retrieve_source_file(account, repository, page, client)
+        .await
         .map_err(|e| match e {
             ContentError::NotFound => {
                 GiveUpSendToGitHub(Redirect::to(original_url_encoded.clone()))
@@ -287,10 +294,9 @@ async fn mirror_page<'a>(
                 original_title: page_title.clone(),
                 original_url: original_url.clone(),
                 mirrored_content: format!("500 Internal Server Error - {e}"),
-                index_url: format!("/m/{account}/{repository}/wiki_index"),
+                index_url: mirror_index_url(account, repository),
             }),
-        })
-        .await?;
+        })?;
 
     let original_html = content_to_html(content, account, repository, page);
 
@@ -321,17 +327,17 @@ async fn mirror_page<'a>(
         original_title: page_title.clone(),
         original_url: original_url_encoded.clone(),
         mirrored_content,
-        index_url: format!("/m/{account}/{repository}/wiki_index"),
+        index_url: mirror_index_url(account, repository),
     })
     .map_err(InternalError)
 }
 
 #[get("/<account>/<repository>/wiki_index")]
-async fn mirror_page_index<'a>(
-    account: &'a str,
-    repository: &'a str,
+async fn mirror_page_index(
+    account: &str,
+    repository: &str,
     client: &State<Client>,
-) -> Result<content::RawHtml<String>, MirrorError> {
+) -> Result<HtmlResponse, MirrorError> {
     use retrieval::retrieve_wiki_index;
     use retrieval::ContentError;
     use MirrorError::*;
@@ -344,6 +350,7 @@ async fn mirror_page_index<'a>(
     // Grab main content from GitHub
     // Consider it "fatal" if this doesn't exist/errors and forward to GitHub or return an error.
     let content = retrieve_wiki_index(account, repository, client)
+        .await
         .map_err(|e| match e {
             // Retreive wiki index never returns decomissioned
             ContentError::NotFound => GiveUpSendToGitHub(Redirect::to(original_url.clone())),
@@ -358,10 +365,9 @@ async fn mirror_page_index<'a>(
                 original_title: page_title.clone(),
                 original_url: original_url.clone(),
                 mirrored_content: format!("500 Internal Server Error - {e}"),
-                index_url: format!("/m/{account}/{repository}/wiki_index"),
+                index_url: mirror_index_url(account, repository),
             }),
-        })
-        .await?;
+        })?;
 
     let original_html = content_to_html(content, account, repository, "Home");
 
@@ -369,7 +375,7 @@ async fn mirror_page_index<'a>(
         original_title: page_title.clone(),
         original_url: original_url.clone(),
         mirrored_content: original_html,
-        index_url: format!("/m/{account}/{repository}/wiki_index"),
+        index_url: mirror_index_url(account, repository),
     })
     .map_err(InternalError)
 }
@@ -473,23 +479,7 @@ fn versionz() -> String {
 }
 
 #[get("/healthz")]
-async fn healthz(
-    client: &State<Client>,
-) -> Result<content::RawHtml<String>, status::Custom<String>> {
-    let upstream = client
-        .get("https://github.com/robots.txt")
-        .timeout(Duration::from_secs(2))
-        .send()
-        .await
-        .map_err(|e| status::Custom(Status::ServiceUnavailable, format!("upstream error: {e}")))?;
-
-    if !upstream.status().is_success() {
-        return Err(status::Custom(
-            Status::ServiceUnavailable,
-            format!("upstream status: {}", upstream.status()),
-        ));
-    }
-
+fn healthz() -> content::RawHtml<String> {
     let mirrored_content = content_to_html(
         Content::Markdown(String::from(
             "# Health Check\n\n- parser\n- renderer\n- rewrites",
@@ -498,11 +488,11 @@ async fn healthz(
         "check",
         "Home",
     );
-    Ok(content::RawHtml(mirrored_content))
+    content::RawHtml(mirrored_content)
 }
 
 #[launch]
-fn rocket() -> _ {
+fn rocket() -> Rocket<Build> {
     // Mount front Page
 
     let mut mirror_routes = routes![

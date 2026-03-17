@@ -1,44 +1,40 @@
-use lazy_static::lazy_static;
 use regex::{Captures, Regex};
+use std::sync::LazyLock;
+
+static IMAGE_LINK_RE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new("\\[\\[(?P<image_url>.*\\.(?i)(jpg|jpeg|png|gif))\\|(alt=)?(?P<link_text>.*?)\\]\\]")
+        .expect("image regex should compile")
+});
+static REPO_BLOB_RE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(?P<pre>!\[.*\]\(https://github.com/.+/.+)/blob/(?P<suf>.*)")
+        .expect("blob regex should compile")
+});
+static WIKI_LINK_RE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new("\\[\\[((?P<link_text>.*?)\\| *)?(?P<page_name>.*?)\\]\\]")
+        .expect("wiki link regex should compile")
+});
 
 // Apparently the wiki part of GitHub can also take mediawiki syntax!
 // https://docs.github.com/en/communities/documenting-your-project-with-wikis/editing-wiki-content
 // Transform them to pure markdown
 // Transform images first, then links
-pub fn github_wiki_markdown_to_pure_markdown<'b>(
-    md: &'b str,
-    account: &'b str,
-    repo: &'b str,
-) -> String {
-    lazy_static! {
-        static ref IMG_RE: Regex = Regex::new(
-            "\\[\\[(?P<image_url>.*\\.(?i)(jpg|jpeg|png|gif))\\|(alt=)?(?P<link_text>.*?)\\]\\]"
-        )
-        .unwrap();
-        static ref IMG_REPO_BLOB: Regex =
-            Regex::new(r"(?P<pre>!\[.*\]\(https://github.com/.+/.+)/blob/(?P<suf>.*)").unwrap();
-        static ref LINK_RE: Regex =
-            Regex::new("\\[\\[((?P<link_text>.*?)\\| *)?(?P<page_name>.*?)\\]\\]").unwrap();
-    }
+pub fn github_wiki_markdown_to_pure_markdown(md: &str, account: &str, repo: &str) -> String {
     // Disregard alt for now.
-    let processed_img_md = IMG_RE.replace_all(
+    let processed_img_md = IMAGE_LINK_RE.replace_all(
         md,
         format!("![$link_text](https://raw.githubusercontent.com/wiki/{account}/{repo}$image_url)"),
     );
 
-    let processed_blob_md = IMG_REPO_BLOB.replace_all(&processed_img_md, "$pre/raw/$suf");
+    let processed_blob_md = REPO_BLOB_RE.replace_all(&processed_img_md, "$pre/raw/$suf");
 
-    LINK_RE
+    WIKI_LINK_RE
         .replace_all(&processed_blob_md, |caps: &Captures<'_>| {
-            let page_name = match caps.name("page_name") {
-                Some(page_name) => page_name.as_str(),
-                None => "",
-            };
-
-            let link_text = match caps.name("link_text") {
-                Some(link_text) => link_text.as_str(),
-                None => page_name,
-            };
+            let page_name = caps
+                .name("page_name")
+                .map_or("", |page_name| page_name.as_str());
+            let link_text = caps
+                .name("link_text")
+                .map_or(page_name, |link_text| link_text.as_str());
 
             if page_name.starts_with("http://") || page_name.starts_with("https://") {
                 return format!("[{link_text}]({page_name})");

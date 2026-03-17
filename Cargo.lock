@@ -1089,7 +1089,6 @@ dependencies = [
  "comrak",
  "futures",
  "git-version",
- "lazy_static",
  "lol_html",
  "more-asserts",
  "nipper",
@@ -1100,6 +1099,7 @@ dependencies = [
  "reqwest",
  "rocket",
  "scraper",
+ "thiserror 2.0.18",
  "tokio",
 ]
 
