@@ -9,7 +9,7 @@ interface HandleRequestOptions {
 }
 
 const WORKER_CACHE_CONTROL =
-  'public, max-age=7200, stale-while-revalidate=86400'
+  'public, max-age=2592000, stale-while-revalidate=604800'
 
 const LEGAL_BLOCK_REPOS = new Set(['mms75/sfz'])
 

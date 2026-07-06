@@ -2,7 +2,7 @@ import { handleRequest, originalInfo } from '../src/handler'
 
 describe('handle', () => {
   const workerCacheControl =
-    'public, max-age=7200, stale-while-revalidate=86400'
+    'public, max-age=2592000, stale-while-revalidate=604800'
 
   test('can determine if a URL is indexable', async () => {
     const url = new URL('https://github.com/PixarAnimationStudios/USD/wiki')
