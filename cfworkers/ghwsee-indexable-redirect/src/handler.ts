@@ -4,7 +4,25 @@ interface OriginalInfo {
   moved_to?: string
 }
 
+interface HandleRequestOptions {
+  originalInfoFetcher?: (url: URL) => Promise<OriginalInfo>
+}
+
+const WORKER_CACHE_CONTROL =
+  'public, max-age=7200, stale-while-revalidate=86400'
+
 const LEGAL_BLOCK_REPOS = new Set(['mms75/sfz'])
+
+function withWorkerCacheHeaders(response: Response): Response {
+  const headers = new Headers(response.headers)
+  headers.set('cache-control', WORKER_CACHE_CONTROL)
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  })
+}
 
 function repoSlugFromPathComponents(
   pathComponents: string[],
@@ -23,6 +41,7 @@ function legalBlockResponse(repoSlug: string): Response {
       status: 451,
       statusText: 'Unavailable For Legal Reasons',
       headers: {
+        'cache-control': WORKER_CACHE_CONTROL,
         'content-type': 'text/plain; charset=utf-8',
       },
     },
@@ -43,7 +62,10 @@ class ModifiedDateAppender implements HTMLRewriterElementContentHandlers {
   }
 }
 
-export async function handleRequest(request: Request): Promise<Response> {
+export async function handleRequest(
+  request: Request,
+  options: HandleRequestOptions = {},
+): Promise<Response> {
   const githubUrl = new URL(
     request.url.replace('github-wiki-see.page/m', 'github.com'),
   )
@@ -63,7 +85,10 @@ export async function handleRequest(request: Request): Promise<Response> {
 
   // Don't redirect wiki_index path. Index that, even for indexable wikis.
   if (pathComponents.length > 3 && pathComponents[2] === 'wiki_index') {
-    return await ghwseeResponse
+    const response = withWorkerCacheHeaders(await ghwseeResponse)
+    // The index is synthesized and there is no last modified to claim.
+    response.headers.delete('last-modified')
+    return response
   }
 
   console.log(request.headers.get('user-agent'))
@@ -71,7 +96,7 @@ export async function handleRequest(request: Request): Promise<Response> {
   let lastModifiedDate: Date | undefined = undefined
 
   try {
-    const info = await originalInfo(githubUrl)
+    const info = await (options.originalInfoFetcher ?? originalInfo)(githubUrl)
     if (info.moved_to) {
       console.log('Repo Moved Redirect: ' + githubUrl.href)
 
@@ -81,6 +106,7 @@ export async function handleRequest(request: Request): Promise<Response> {
       return new Response('', {
         status: 308,
         headers: {
+          'cache-control': WORKER_CACHE_CONTROL,
           location: redirectUrl,
         },
       })
@@ -91,6 +117,7 @@ export async function handleRequest(request: Request): Promise<Response> {
         status: 308,
         statusText: 'Permanent Redirect',
         headers: {
+          'cache-control': WORKER_CACHE_CONTROL,
           Location: githubUrl.toString(),
         },
       })
@@ -107,11 +134,7 @@ export async function handleRequest(request: Request): Promise<Response> {
     console.warn('Redirected Unindexable: ' + response.headers.get('Location'))
   }
 
-  let maybeDatedResponse = new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers: response.headers,
-  })
+  let maybeDatedResponse = withWorkerCacheHeaders(response)
 
   if (lastModifiedDate) {
     maybeDatedResponse.headers.set(

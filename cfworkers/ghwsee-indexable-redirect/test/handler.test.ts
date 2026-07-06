@@ -1,6 +1,9 @@
 import { handleRequest, originalInfo } from '../src/handler'
 
 describe('handle', () => {
+  const workerCacheControl =
+    'public, max-age=7200, stale-while-revalidate=86400'
+
   test('can determine if a URL is indexable', async () => {
     const url = new URL('https://github.com/PixarAnimationStudios/USD/wiki')
     expect((await originalInfo(url)).indexable).toBeTruthy()
@@ -17,6 +20,7 @@ describe('handle', () => {
     expect(result.headers.get('location')).toEqual(
       'https://github.com/PixarAnimationStudios/USD/wiki',
     )
+    expect(result.headers.get('cache-control')).toEqual(workerCacheControl)
     expect(result.headers.has('Last-Modified')).toBeFalsy()
   })
 
@@ -27,6 +31,7 @@ describe('handle', () => {
     )
 
     expect(result.status).toEqual(451)
+    expect(result.headers.get('cache-control')).toEqual(workerCacheControl)
     expect(await result.text()).toContain('mms75/sfz')
   })
 
@@ -43,6 +48,7 @@ describe('handle', () => {
     )
 
     expect(result.status).toEqual(200)
+    expect(result.headers.get('cache-control')).toEqual(workerCacheControl)
     expect(result.headers.has('Last-Modified')).toBeTruthy()
   })
 
@@ -54,6 +60,7 @@ describe('handle', () => {
     )
 
     expect(result.status).toEqual(200)
+    expect(result.headers.get('cache-control')).toEqual(workerCacheControl)
     // The index is synthesized and there is no last modified to claim.
     expect(result.headers.has('Last-Modified')).toBeFalsy()
   })
@@ -66,13 +73,14 @@ describe('handle', () => {
     )
 
     expect(result.status).toEqual(200)
+    expect(result.headers.get('cache-control')).toEqual(workerCacheControl)
     // The index is synthesized and there is no last modified to claim.
     expect(result.headers.has('Last-Modified')).toBeFalsy()
 
     const bodyText = await result.text()
 
     console.debug(bodyText)
-    expect(bodyText.includes('Modified Date')).toBeFalsy()
+    expect(bodyText.includes('Last Modified:')).toBeFalsy()
   })
 
   test('extracts a date from a non-indexable original page', async () => {
@@ -114,11 +122,18 @@ describe('handle', () => {
     console.debug(request_url)
     const result = await handleRequest(
       new Request(request_url, { method: 'GET' }),
+      {
+        originalInfoFetcher: async () => ({
+          indexable: false,
+          moved_to: 'https://github.com/node-config/node-config/wiki',
+        }),
+      },
     )
 
     expect(result.status).toEqual(308)
     expect(result.headers.get('location')).toEqual(
       'https://github-wiki-see.page/m/node-config/node-config/wiki',
     )
+    expect(result.headers.get('cache-control')).toEqual(workerCacheControl)
   })
 })

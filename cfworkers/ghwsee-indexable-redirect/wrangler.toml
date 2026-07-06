@@ -4,5 +4,8 @@ workers_dev = true
 compatibility_date = "2022-02-27"
 main = "dist/worker.js"
 
+[cache]
+enabled = true
+
 [build]
 command = "npm install && npm run build"
